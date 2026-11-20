@@ -35,12 +35,13 @@ Honnêteté : prix en euros avec la source, jamais de prix inventé.
 - Collection gardée dans le navigateur (localStorage, clé `cardora-collection-v1`).
 
 ## Publication
+- **En ligne : https://cardora-ecru.vercel.app** (depuis le 20/11, vérifié).
 - Code sur GitHub : `helloNovalabs/cardora` (privé), clé d'accès `~/.ssh/cardora_deploy` (réglée dans `core.sshCommand`).
 - Projet Vercel « cardora » (équipe julian-a0ff) relié au dépôt : **chaque `git push` sur main publie le site**, sans code 2FA.
 - La CLI Vercel reste déconnectée (code 2FA de l'appli d'authentification introuvable) : ne pas s'en servir, passer par git push.
 
 ## À faire ensuite
-1. Publication durable sur Vercel (régler le 2FA).
+1. ~~Publication durable~~ : fait (cardora-ecru.vercel.app).
 2. Comptes Supabase pour synchroniser téléphone et ordinateur (rien ne se perd).
 3. Scanner par la caméra (IA : coût par scan à prévoir).
 4. Vrais prix gradés (source payante, par ex. PriceCharting).
