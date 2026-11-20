@@ -35,10 +35,9 @@ Honnêteté : prix en euros avec la source, jamais de prix inventé.
 - Collection gardée dans le navigateur (localStorage, clé `cardora-collection-v1`).
 
 ## Publication
-- La CLI Vercel n'est **pas connectée** : l'utilisateur bloque sur le code 2FA (appli d'authentification sur son téléphone).
-- Seul lien actuel : publication temporaire anonyme `https://fleet-bronze-t8fztal.tmp.now` (expire 1 h après, vers 15 h 02 le 20/11).
-  Republier avec `npx vercel@latest deploy --temporary --yes`.
-- Pour un lien durable : `npx vercel@latest login` (code 2FA), puis `vercel deploy --prod`. Ou créer un dépôt GitHub et l'importer dans Vercel.
+- Code sur GitHub : `helloNovalabs/cardora` (privé), clé d'accès `~/.ssh/cardora_deploy` (réglée dans `core.sshCommand`).
+- Projet Vercel « cardora » (équipe julian-a0ff) relié au dépôt : **chaque `git push` sur main publie le site**, sans code 2FA.
+- La CLI Vercel reste déconnectée (code 2FA de l'appli d'authentification introuvable) : ne pas s'en servir, passer par git push.
 
 ## À faire ensuite
 1. Publication durable sur Vercel (régler le 2FA).
