@@ -1,4 +1,4 @@
-export type GameId = 'pokemon' | 'magic' | 'onepiece'
+export type GameId = 'pokemon' | 'magic' | 'onepiece' | 'yugioh' | 'lorcana'
 
 export interface SetInfo {
   id: string
@@ -25,6 +25,7 @@ export interface Price {
   currency: 'EUR' | 'USD'
   source: string
   avg30?: number | null
+  avg1?: number | null
   avg7?: number | null
   low?: number | null
   updated?: string

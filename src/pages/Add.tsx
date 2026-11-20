@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { pokemonDetail, searchCards } from '../lib/games'
+import { priceFor, searchCards } from '../lib/games'
 import { addCard, useCollection } from '../lib/store'
 import type { Card, GameId } from '../lib/types'
 
 const OPTIONS: { id: GameId; name: string }[] = [
   { id: 'pokemon', name: 'Pokémon' },
+  { id: 'yugioh', name: 'Yu-Gi-Oh!' },
+  { id: 'lorcana', name: 'Lorcana' },
   { id: 'magic', name: 'Magic' },
   { id: 'onepiece', name: 'One Piece' },
 ]
@@ -16,7 +18,7 @@ export default function Add() {
   const [q, setQ] = useState('')
   const [res, setRes] = useState<Card[] | null>(null)
   const [busy, setBusy] = useState(false)
-  const [toast, setToast] = useState('')
+  const [toast, setToast] = useState<{ text: string; img: string } | null>(null)
   const t = useRef<number | undefined>(undefined)
 
   useEffect(() => {
@@ -29,14 +31,9 @@ export default function Add() {
   }, [q, game])
 
   const add = async (c: Card) => {
-    let price = null
-    let card = c
-    if (c.game === 'pokemon') {
-      try { const d = await pokemonDetail(c.id); price = d.price; card = { ...c, rarity: d.rarity } } catch { /* sans prix */ }
-    }
-    addCard(card, price)
-    setToast(`${c.name} ajoutée ✓`)
-    window.setTimeout(() => setToast(''), 1800)
+    setToast({ text: `${c.name} ajoutée ✓`, img: c.image })
+    window.setTimeout(() => setToast(null), 1800)
+    addCard(c, await priceFor(c))
   }
 
   return (
@@ -58,7 +55,7 @@ export default function Add() {
           <Link to="/jeux/onepiece" className="btn primary">Ouvrir les extensions One Piece</Link>
         </div>
       ) : (
-        <input className="field" autoFocus placeholder={game === 'pokemon' ? 'Dracaufeu' : 'Lightning Bolt'} value={q} onChange={e => setQ(e.target.value)} />
+        <input className="field" autoFocus placeholder={({ pokemon: 'Dracaufeu', yugioh: 'Magicien Sombre', lorcana: 'Elsa', magic: 'Lightning Bolt', onepiece: '' } as Record<GameId, string>)[game]} value={q} onChange={e => setQ(e.target.value)} />
       )}
 
       <div className="box row" style={{ gap: 12, opacity: .7 }}>
@@ -76,13 +73,13 @@ export default function Add() {
               <button key={c.key} className="slot" onClick={() => add(c)} aria-label={`Ajouter ${c.name}`}>
                 {c.image ? <img src={c.image} alt="" loading="lazy" /> : <div className="noimg">{c.name}</div>}
                 {qn > 0 && <span className="qty">×{qn}</span>}
-                <span className="tag">{c.setId.toUpperCase()} · {c.number}</span>
+                <span className="tag">{c.game === 'yugioh' ? c.number : `${c.setId.toUpperCase()} · ${c.number}`}</span>
               </button>
             )
           })}
         </div>
       )}
-      {toast && <div className="toast" role="status">{toast}</div>}
+      {toast && <div className="toast" role="status">{toast.img && <img src={toast.img} alt="" />}{toast.text}</div>}
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { fillPrices, gameName, loadSet, type SetData } from '../lib/games'
 import { addCard, fmt, follow, refreshFollowed, removeCard, toEur, unfollow, updatePrices, useCollection } from '../lib/store'
 import type { Card, GameId, Price } from '../lib/types'
 import { IBack } from '../components/Icons'
+import { Confetti } from '../components/Visuals'
 
 type Filter = 'all' | 'have' | 'miss'
 const PER_PAGE = 9
@@ -19,6 +20,10 @@ export default function SetPage() {
   const [check, setCheck] = useState(false)
   const [filter, setFilter] = useState<Filter>('all')
   const [page, setPage] = useState(0)
+  const [dir, setDir] = useState<'next' | 'prev'>('next')
+  const [popped, setPopped] = useState('')
+  const [party, setParty] = useState(false)
+  const [tip, setTip] = useState(false)
 
   useEffect(() => {
     let alive = true
@@ -69,15 +74,20 @@ export default function SetPage() {
   const tap = (c: Card) => {
     if (check) {
       if (has(c)) removeCard(c.key)
-      else addCard(c, prices[c.key] ?? null, followedInfo ?? undefined)
+      else {
+        addCard(c, prices[c.key] ?? null, followedInfo ?? undefined)
+        setPopped(c.key)
+        if (stats.missing.length === 1) { setParty(true); window.setTimeout(() => setParty(false), 3200) }
+      }
     } else nav(`/carte/${game}/${encodeURIComponent(data.set.id)}/${encodeURIComponent(c.id)}`)
   }
+  const go = (to: number, d: 'next' | 'prev') => { setDir(d); setPage(to) }
 
-  const Slot = ({ c }: { c: Card }) => {
+  const slot = (c: Card) => {
     const q = has(c)
     const pr = prices[c.key]
     return (
-      <button className={'slot' + (q ? '' : ' miss')} onClick={() => tap(c)} aria-label={`${c.name} n° ${c.number}${q ? ', dans ta collection' : ', manquante'}`}>
+      <button key={c.key} className={'slot' + (q ? '' : ' miss') + (popped === c.key && q ? ' pop' : '')} onClick={() => tap(c)} aria-label={`${c.name} n° ${c.number}${q ? ', dans ta collection' : ', manquante'}`}>
         {c.image ? <img src={c.image} alt="" loading="lazy" /> : <div className="noimg">{c.name}<br />n° {c.number}</div>}
         {q > 1 && <span className="qty">×{q}</span>}
         <span className="tag" style={{ color: q ? 'var(--text)' : 'var(--lavande)' }}>
@@ -108,8 +118,15 @@ export default function SetPage() {
       <div className="bar"><span style={{ width: pct + '%' }} /></div>
 
       {/* ---- Combien pour finir ---- */}
+      {party && <Confetti />}
       <section className="box stack" style={{ background: 'linear-gradient(150deg, #261E45, #1A1626 70%)' }}>
-        <div className="label">Combien pour finir ?</div>
+        <div className="label">Combien pour finir ?<button className="help" onClick={() => setTip(t => !t)} aria-label="Comment c'est calculé ?">?</button></div>
+        {tip && (
+          <p className="tip" style={{ marginTop: 0 }}>
+            On additionne le prix du marché de chaque carte qui te manque (une seule de chaque). C'est une estimation :
+            en achetant malin (lots, échanges), tu peux payer moins.
+          </p>
+        )}
         {stats.missing.length === 0 ? (
           <h2>Bravo, ce classeur est complet 🎉</h2>
         ) : (
@@ -144,7 +161,19 @@ export default function SetPage() {
             )}
           </>
         )}
-        {stats.value > 0 && <p className="small">Tes cartes de ce classeur valent <b className="up">{fmt(stats.value)}</b>.</p>}
+        {stats.value > 0 && stats.cost > 0 && (
+          <div>
+            <div className="split">
+              <span style={{ width: `${(stats.value / (stats.value + stats.cost)) * 100}%`, background: 'var(--up)' }} />
+              <span style={{ width: `${(stats.cost / (stats.value + stats.cost)) * 100}%`, background: 'var(--violet)' }} />
+            </div>
+            <div className="row between tiny" style={{ marginTop: 6 }}>
+              <span><b className="up">●</b> Tu as {fmt(stats.value)}</span>
+              <span><b style={{ color: 'var(--violet)' }}>●</b> Reste {fmt(stats.cost)}</span>
+            </div>
+          </div>
+        )}
+        {stats.value > 0 && stats.cost === 0 && <p className="small">Tes cartes de ce classeur valent <b className="up">{fmt(stats.value)}</b>.</p>}
       </section>
 
       {/* ---- Classeur ---- */}
@@ -164,14 +193,14 @@ export default function SetPage() {
         <p className="muted small empty">Aucune carte ici pour l'instant.</p>
       ) : (
         <>
-          <div className="binders">
-            <div className="binder">{pageCards(p).map(c => <Slot key={c.key} c={c} />)}</div>
-            {p + 1 < pages && <div className="binder desk-only">{pageCards(p + 1).map(c => <Slot key={c.key} c={c} />)}</div>}
+          <div className="binders" key={`${p}-${filter}`}>
+            <div className={'binder flip-' + dir}>{pageCards(p).map(slot)}</div>
+            {p + 1 < pages && <div className={'binder desk-only flip-' + dir}>{pageCards(p + 1).map(slot)}</div>}
           </div>
           <div className="page-nav">
-            <button className="btn sm" disabled={p === 0} onClick={() => setPage(Math.max(0, p - (isDesk() ? 2 : 1)))}>‹ Page</button>
+            <button className="btn sm" disabled={p === 0} onClick={() => go(Math.max(0, p - (isDesk() ? 2 : 1)), 'prev')}>‹ Page</button>
             <span>Page {p + 1}{isDesk() && p + 1 < pages ? `–${p + 2}` : ''} / {pages}</span>
-            <button className="btn sm" disabled={p >= pages - (isDesk() ? 2 : 1)} onClick={() => setPage(Math.min(pages - 1, p + (isDesk() ? 2 : 1)))}>Page ›</button>
+            <button className="btn sm" disabled={p >= pages - (isDesk() ? 2 : 1)} onClick={() => go(Math.min(pages - 1, p + (isDesk() ? 2 : 1)), 'next')}>Page ›</button>
           </div>
         </>
       )}

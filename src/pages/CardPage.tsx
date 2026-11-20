@@ -4,6 +4,7 @@ import { gameName, imgLarge, loadCard } from '../lib/games'
 import { addCard, fmt, removeCard, toEur, useCollection } from '../lib/store'
 import type { Card, GameId, Price } from '../lib/types'
 import { IBack, IGrade } from '../components/Icons'
+import { HoloCard, PriceChart } from '../components/Visuals'
 
 // Coûts indicatifs tout compris (envoi + assurance), modifiables par l'utilisateur.
 const GRADERS = [
@@ -19,6 +20,7 @@ export default function CardPage() {
   const [card, setCard] = useState<Card | null>(null)
   const [price, setPrice] = useState<Price | null>(null)
   const [err, setErr] = useState(false)
+  const [tip, setTip] = useState(false)
 
   useEffect(() => {
     setCard(null); setErr(false)
@@ -35,7 +37,12 @@ export default function CardPage() {
     <div className="stack" style={{ gap: 18 }}>
       <button className="back" onClick={() => nav(-1)}><IBack />Retour</button>
       <div className="card-hero">
-        {card.image ? <img className="big" src={imgLarge(card)} alt={card.name} /> : <div className="box empty">Pas d'image</div>}
+        {card.image ? (
+          <div>
+            <HoloCard src={imgLarge(card)} alt={card.name} rare={!/^(common|commune|c)$/i.test(card.rarity ?? '')} className="card-big" />
+            <p className="holo-hint">Bouge ton doigt sur la carte pour la faire briller</p>
+          </div>
+        ) : <div className="box empty">Pas d'image</div>}
         <div className="stack" style={{ gap: 16 }}>
           <div>
             <h1>{card.name}</h1>
@@ -45,7 +52,13 @@ export default function CardPage() {
           </div>
 
           <div className="box">
-            <div className="label">Prix brut (non gradée)</div>
+            <div className="label">Prix brut (non gradée)<button className="help" onClick={() => setTip(t => !t)} aria-label="C'est quoi ?">?</button></div>
+            {tip && (
+              <p className="tip">
+                « Brut » = la carte telle quelle, sans boîtier de gradation. Le prix affiché est la tendance du marché :
+                ce que les gens paient en ce moment pour cette carte en bon état, sur {price?.source?.split(' ')[0] ?? 'le marché'}.
+              </p>
+            )}
             <div className="row" style={{ alignItems: 'baseline', gap: 10, marginTop: 4 }}>
               <span className="stat-n">{fmt(price?.value, price?.currency)}</span>
               {trend != null && trend !== 0 && <b className={trend > 0 ? 'up' : 'down'}>{trend > 0 ? '+' : ''}{trend} % sur 30 j</b>}
@@ -53,12 +66,19 @@ export default function CardPage() {
             {price?.value == null ? (
               <p className="muted small" style={{ marginTop: 4 }}>Pas de prix fiable pour cette carte. On préfère ne rien inventer.</p>
             ) : (
-              <p className="muted tiny" style={{ marginTop: 6 }}>
-                Source : {price.source}
-                {price.avg7 ? ` · moyenne 7 j : ${fmt(price.avg7, price.currency)}` : ''}
-                {price.avg30 ? ` · 30 j : ${fmt(price.avg30, price.currency)}` : ''}
-                {price.low ? ` · le moins cher : ${fmt(price.low, price.currency)}` : ''}
-              </p>
+              <>
+                {(price.avg30 || price.avg7) && (
+                  <div style={{ marginTop: 14 }}>
+                    <PriceChart currency={price.currency} points={[
+                      { label: 'Moy. 30 j', v: price.avg30 }, { label: 'Moy. 7 j', v: price.avg7 },
+                      { label: 'Hier', v: price.avg1 }, { label: "Aujourd'hui", v: price.value },
+                    ]} />
+                  </div>
+                )}
+                <p className="muted tiny" style={{ marginTop: 8 }}>
+                  Source : {price.source}{price.low ? ` · la moins chère en vente : ${fmt(price.low, price.currency)}` : ''}
+                </p>
+              </>
             )}
           </div>
 
