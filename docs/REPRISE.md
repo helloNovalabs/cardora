@@ -13,6 +13,13 @@ Honnêteté : prix en euros avec la source, jamais de prix inventé.
 - Lancer en local : config « cardora » (port 5191) dans `~/Downloads/saas-etudiant/.claude/launch.json`, ou `npm run dev`.
 - Vérifier les types : `npx tsc -p tsconfig.app.json --noEmit`.
 
+## Style (refait le 21/11, commit 5f39d7d)
+- Polices locales : Bricolage Grotesque (titres, montants) + Figtree (texte), via @fontsource.
+- Un seul effet fort : le reflet holo `--foil` (violet #8B6CFF → rose #F472B6 → cyan #67E8F9 → lavande), réservé au logo, aux gros montants, à la progression et au bouton principal.
+- Logo : deux cartes en éventail (`src/components/Brand.tsx`). Montants qui défilent (`CountUp`).
+- Ordinateur : barre latérale avec valeur de la collection + compte. Téléphone : barre flottante 3 onglets + bouton holo « + ».
+- Classeur en double page sur ordinateur, glisser au doigt sur téléphone. Extensions en tuiles avec logo.
+
 ## Choix faits avec l'utilisateur
 - Téléphone d'abord (site installable / PWA). Ordinateur = consultation (voir tout, sans scanner ni ajouter) une fois les comptes faits.
 - Couleurs : noir + violet, **pas d'or**. Fond #0D0B14, cartes #1A1626, violet #7C5CFF, lavande #C4B5FD, vert #4ADE80, rose-rouge #FB7185.
