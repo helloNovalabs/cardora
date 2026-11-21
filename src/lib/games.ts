@@ -13,18 +13,18 @@ export interface GameMeta {
 }
 
 export const GAMES: GameMeta[] = [
-  { id: 'pokemon', name: 'Pokémon', hint: 'En français · prix Cardmarket', ready: true, currency: 'EUR', color: '#F5C84C',
+  { id: 'pokemon', name: 'Pokémon', hint: 'En français, prix Cardmarket', ready: true, currency: 'EUR', color: '#FDE047',
     art: 'https://assets.tcgdex.net/fr/sv/sv03.5/199/high.webp' },
-  { id: 'onepiece', name: 'One Piece', hint: 'Prix TCGplayer (dollars)', ready: true, currency: 'USD', color: '#FB7185',
+  { id: 'onepiece', name: 'One Piece', hint: 'Prix TCGplayer en dollars', ready: true, currency: 'USD', color: '#FB7185',
     art: 'https://optcgapi.com/media/static/Card_Images/OP01-001.jpg', artPos: 'center 0%' },
-  { id: 'yugioh', name: 'Yu-Gi-Oh!', hint: 'En français · prix Cardmarket', ready: true, currency: 'EUR', color: '#60A5FA',
+  { id: 'yugioh', name: 'Yu-Gi-Oh!', hint: 'En français, prix Cardmarket', ready: true, currency: 'EUR', color: '#60A5FA',
     art: 'https://images.ygoprodeck.com/images/cards_cropped/89631139.jpg' },
   { id: 'magic', name: 'Magic', hint: 'Prix Cardmarket', ready: true, currency: 'EUR', color: '#F97316',
     art: 'https://cards.scryfall.io/art_crop/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg' },
-  { id: 'lorcana', name: 'Lorcana', hint: 'Prix TCGplayer (dollars)', ready: true, currency: 'USD', color: '#A78BFA',
+  { id: 'lorcana', name: 'Lorcana', hint: 'Prix TCGplayer en dollars', ready: true, currency: 'USD', color: '#A78BFA',
     art: 'https://cards.lorcast.io/card/digital/large/crd_a6a007b0f7ae4fa19480721bacd2b0b6.avif?1747508548' },
-  { id: 'foot', name: 'Foot', hint: 'Panini, Topps… bientôt', ready: false, color: '#4ADE80' },
-  { id: 'f1', name: 'Formule 1', hint: 'Topps F1… bientôt', ready: false, color: '#F87171' },
+  { id: 'foot', name: 'Foot', hint: 'Panini, Topps', ready: false, color: '#4ADE80' },
+  { id: 'f1', name: 'Formule 1', hint: 'Topps F1', ready: false, color: '#F87171' },
 ]
 
 export const gameName = (g: string) => GAMES.find(x => x.id === g)?.name ?? g

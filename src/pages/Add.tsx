@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom'
 import { priceFor, searchCards } from '../lib/games'
 import { addCard, useCollection } from '../lib/store'
 import type { Card, GameId } from '../lib/types'
+import { gameColor } from '../lib/games'
+import { IPlus, ISearch } from '../components/Icons'
+import type { CSSProperties } from 'react'
 
 const OPTIONS: { id: GameId; name: string }[] = [
   { id: 'pokemon', name: 'Pokémon' },
@@ -37,15 +40,15 @@ export default function Add() {
   }
 
   return (
-    <div className="stack" style={{ gap: 16 }}>
-      <div>
+    <div className="stack fade-in" style={{ gap: 16 }}>
+      <div className="stack" style={{ gap: 6 }}>
         <h1>Ajouter une carte</h1>
-        <p className="muted small" style={{ marginTop: 4 }}>Tape le nom de la carte, puis touche-la pour l'ajouter.</p>
+        <p className="muted small">Tape le nom de la carte, puis touche-la pour l'ajouter.</p>
       </div>
 
       <div className="chips">
         {OPTIONS.map(o => (
-          <button key={o.id} className={'chip' + (game === o.id ? ' on' : '')} onClick={() => setGame(o.id)}>{o.name}</button>
+          <button key={o.id} className={'chip' + (game === o.id ? ' on' : '')} style={{ '--gc': gameColor(o.id) } as CSSProperties} onClick={() => setGame(o.id)}><i />{o.name}</button>
         ))}
       </div>
 
@@ -55,24 +58,26 @@ export default function Add() {
           <Link to="/jeux/onepiece" className="btn primary">Ouvrir les extensions One Piece</Link>
         </div>
       ) : (
-        <input className="field" autoFocus placeholder={({ pokemon: 'Dracaufeu', yugioh: 'Magicien Sombre', lorcana: 'Elsa', magic: 'Lightning Bolt', onepiece: '' } as Record<GameId, string>)[game]} value={q} onChange={e => setQ(e.target.value)} />
+        <div className="search"><ISearch /><input className="field" autoFocus placeholder={({ pokemon: 'Dracaufeu', yugioh: 'Magicien Sombre', lorcana: 'Elsa', magic: 'Lightning Bolt', onepiece: '' } as Record<GameId, string>)[game]} value={q} onChange={e => setQ(e.target.value)} /></div>
       )}
 
-      <div className="box row" style={{ gap: 12, opacity: .7 }}>
-        <span className="badge">Bientôt</span>
-        <p className="small muted">Scanner tes cartes avec l'appareil photo.</p>
-      </div>
+      {!res && !busy && (
+        <div className="box row" style={{ gap: 12 }}>
+          <span className="badge">Bientôt</span>
+          <p className="small muted">Scanner tes cartes avec l'appareil photo.</p>
+        </div>
+      )}
 
-      {busy && <div className="spin" />}
+      {busy && <div className="cards-grid">{Array.from({ length: 6 }, (_, i) => <div key={i} className="skel" style={{ aspectRatio: '63/88' }} />)}</div>}
       {res && !busy && res.length === 0 && <p className="muted small">Aucune carte trouvée. Essaie un autre nom.</p>}
       {res && res.length > 0 && (
         <div className="cards-grid">
           {res.map(c => {
             const qn = col.owned[c.key]?.qty ?? 0
             return (
-              <button key={c.key} className="slot" onClick={() => add(c)} aria-label={`Ajouter ${c.name}`}>
+              <button key={c.key} className={'slot' + (qn ? ' have' : '')} onClick={() => add(c)} aria-label={`Ajouter ${c.name}`}>
                 {c.image ? <img src={c.image} alt="" loading="lazy" /> : <div className="noimg">{c.name}</div>}
-                {qn > 0 && <span className="qty">×{qn}</span>}
+                {qn > 0 ? <span className="qty">×{qn}</span> : <span className="add"><IPlus /></span>}
                 <span className="tag">{c.game === 'yugioh' ? c.number : `${c.setId.toUpperCase()} · ${c.number}`}</span>
               </button>
             )

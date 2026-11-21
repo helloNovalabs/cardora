@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties, type PointerEvent } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { fmt } from '../lib/store'
 
 /** Carte qui bascule en 3D et brille comme une holo quand on la touche ou la survole. */
@@ -74,15 +74,23 @@ export function PriceChart({ points, currency }: { points: { label: string; v: n
   )
 }
 
-/** Anneau de progression. */
-export function Ring({ pct, size = 54, stroke = 6, color = 'var(--lavande)', children }: { pct: number; size?: number; stroke?: number; color?: string; children?: React.ReactNode }) {
+/** Anneau de progression. Sans couleur donnée, il prend le reflet holo de Cardora. */
+export function Ring({ pct, size = 54, stroke = 6, color, children }: { pct: number; size?: number; stroke?: number; color?: string; children?: React.ReactNode }) {
+  const id = useId().replace(/:/g, '')
   const r = (size - stroke) / 2, C = 2 * Math.PI * r
+  const [p, setP] = useState(0)
+  useEffect(() => { const t = requestAnimationFrame(() => setP(Math.min(100, pct))); return () => cancelAnimationFrame(t) }, [pct])
   return (
     <div className="ring" style={{ width: size, height: size }}>
       <svg width={size} height={size}>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke} />
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round"
-          strokeDasharray={C} strokeDashoffset={C * (1 - Math.min(100, pct) / 100)} transform={`rotate(-90 ${size / 2} ${size / 2})`} style={{ transition: 'stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1)' }} />
+        <defs>
+          <linearGradient id={`r${id}`} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#8B6CFF" /><stop offset=".5" stopColor="#F472B6" /><stop offset="1" stopColor="#67E8F9" />
+          </linearGradient>
+        </defs>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(196,181,253,.12)" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color ?? `url(#r${id})`} strokeWidth={stroke} strokeLinecap="round"
+          strokeDasharray={C} strokeDashoffset={C * (1 - p / 100)} transform={`rotate(-90 ${size / 2} ${size / 2})`} style={{ transition: 'stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1)' }} />
       </svg>
       <span>{children ?? `${Math.round(pct)}%`}</span>
     </div>
@@ -90,30 +98,33 @@ export function Ring({ pct, size = 54, stroke = 6, color = 'var(--lavande)', chi
 }
 
 /** Donut : part de chaque jeu dans la valeur de la collection. */
-export function Donut({ parts, size = 132 }: { parts: { label: string; value: number; color: string }[]; size?: number }) {
+export function Donut({ parts, size = 132, children }: { parts: { label: string; value: number; color: string }[]; size?: number; children?: React.ReactNode }) {
   const total = parts.reduce((n, p) => n + p.value, 0)
   if (!total) return null
   const r = size / 2 - 12, C = 2 * Math.PI * r
   let acc = 0
   return (
+    <div className="donut-wrap" style={{ width: size, height: size }}>
     <svg width={size} height={size} className="donut" role="img" aria-label={parts.map(p => `${p.label} ${Math.round((p.value / total) * 100)} %`).join(', ')}>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line)" strokeWidth="16" />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(196,181,253,.1)" strokeWidth="14" />
       {parts.map(p => {
         const len = (p.value / total) * C
         const el = (
-          <circle key={p.label} cx={size / 2} cy={size / 2} r={r} fill="none" stroke={p.color} strokeWidth="16"
-            strokeDasharray={`${Math.max(0, len - 2)} ${C}`} strokeDashoffset={-acc} transform={`rotate(-90 ${size / 2} ${size / 2})`} />
+          <circle key={p.label} cx={size / 2} cy={size / 2} r={r} fill="none" stroke={p.color} strokeWidth="14" strokeLinecap="round"
+            strokeDasharray={`${Math.max(0, len - 16)} ${C}`} strokeDashoffset={-acc} transform={`rotate(-90 ${size / 2} ${size / 2})`} />
         )
         acc += len
         return el
       })}
     </svg>
+    {children && <div className="donut-c">{children}</div>}
+    </div>
   )
 }
 
 /** Pluie de confettis (quand un classeur est complet). */
 export function Confetti() {
-  const colors = ['#7C5CFF', '#C4B5FD', '#4ADE80', '#FB7185', '#60A5FA', '#F5C84C']
+  const colors = ['#8B6CFF', '#C4B5FD', '#F472B6', '#67E8F9', '#4ADE80', '#FFFFFF']
   return (
     <div className="confetti" aria-hidden="true">
       {Array.from({ length: 60 }, (_, i) => (
@@ -122,3 +133,22 @@ export function Confetti() {
     </div>
   )
 }
+
+/** Sélecteur avec un fond qui glisse sous l'option choisie. */
+export function Seg<T extends string>({ value, onChange, options, full = false }: { value: T; onChange: (v: T) => void; options: [T, string][]; full?: boolean }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [ind, setInd] = useState({ left: 4, width: 0 })
+  useLayoutEffect(() => {
+    const el = ref.current?.querySelector<HTMLButtonElement>(`[data-v="${value}"]`)
+    if (el) setInd({ left: el.offsetLeft, width: el.offsetWidth })
+  }, [value, options.map(o => o[1]).join()])
+  return (
+    <div className={'seg' + (full ? ' full' : '')} ref={ref} role="tablist">
+      <span className="ind" style={ind} />
+      {options.map(([k, l]) => (
+        <button key={k} data-v={k} role="tab" aria-selected={value === k} className={value === k ? 'on' : ''} onClick={() => onChange(k)}>{l}</button>
+      ))}
+    </div>
+  )
+}
+

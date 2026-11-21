@@ -8,3 +8,8 @@ export const IBack = () => <svg {...P} width="18" height="18"><path d="m15 18-6-
 export const IGrade = () => <svg {...P}><rect x="6" y="2.5" width="12" height="19" rx="2" /><path d="M9 6h6M9 18h6" /><path d="m10 12 1.5 1.5L15 10" /></svg>
 export const IChevron = () => <svg {...P} width="16" height="16"><path d="m9 18 6-6-6-6" /></svg>
 export const IUser = () => <svg {...P}><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg>
+export const ICheck = () => <svg {...P} strokeWidth={3}><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>
+export const IArrow = () => <svg {...P} width="18" height="18"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+export const ILeft = () => <svg {...P} width="20" height="20"><path d="m15 18-6-6 6-6" /></svg>
+export const IRight = () => <svg {...P} width="20" height="20"><path d="m9 18 6-6-6-6" /></svg>
+export const IStar = () => <svg {...P} width="16" height="16"><path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z" /></svg>

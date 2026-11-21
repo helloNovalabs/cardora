@@ -21,12 +21,17 @@ export default function Account() {
 
   if (acc.email) {
     return (
-      <div className="stack" style={{ gap: 16, maxWidth: 520 }}>
+      <div className="stack fade-in" style={{ gap: 16, maxWidth: 540 }}>
         <h1>Mon compte</h1>
-        <div className="box stack">
-          <p className="small muted">Connecté avec</p>
-          <p style={{ fontWeight: 600, wordBreak: 'break-all' }}>{acc.email}</p>
-          <p className="small">{nb} carte{nb > 1 ? 's' : ''} dans ta collection.</p>
+        <div className="panel stack">
+          <div className="row" style={{ gap: 14 }}>
+            <span className="avatar on" style={{ width: 52, height: 52, fontSize: 22 }}>{acc.email[0].toUpperCase()}</span>
+            <div className="grow">
+              <p className="small muted">Connecté avec</p>
+              <p style={{ fontWeight: 700, wordBreak: 'break-all' }}>{acc.email}</p>
+            </div>
+          </div>
+          <p className="small"><b className="num" style={{ fontSize: 22 }}>{nb}</b> carte{nb > 1 ? 's' : ''} dans ta collection</p>
           <p className={'small ' + (acc.status === 'error' ? '' : 'lav')} style={acc.status === 'error' ? { color: '#FB7185' } : undefined}>{STATUS[acc.status]}</p>
         </div>
         <div className="box stack">
@@ -52,23 +57,23 @@ export default function Account() {
   }
 
   return (
-    <div className="stack" style={{ gap: 16, maxWidth: 520 }}>
-      <div>
+    <div className="stack fade-in" style={{ gap: 16, maxWidth: 540 }}>
+      <div className="stack" style={{ gap: 6 }}>
         <h1>Mon compte</h1>
-        <p className="muted small" style={{ marginTop: 4 }}>
+        <p className="muted small">
           Connecte-toi pour retrouver ta collection sur ton ordinateur et ne rien perdre si tu changes de téléphone. Pas de mot de passe : on t'envoie un e-mail.
         </p>
       </div>
 
       {step === 'email' ? (
-        <form className="box stack" onSubmit={e => { e.preventDefault(); if (email.includes('@')) askCode() }}>
+        <form className="panel stack" onSubmit={e => { e.preventDefault(); if (email.includes('@')) askCode() }}>
           <label className="small muted" htmlFor="mail">Ton adresse e-mail</label>
           <input id="mail" className="field" type="email" autoComplete="email" inputMode="email" placeholder="toi@exemple.fr" value={email} onChange={e => setEmail(e.target.value)} />
           <button className="btn primary" disabled={busy || !email.includes('@')}>{busy ? 'Envoi…' : 'Recevoir mon e-mail de connexion'}</button>
           {nb > 0 && <p className="small muted">Les {nb} carte{nb > 1 ? 's' : ''} déjà sur cet appareil seront ajoutées à ton compte.</p>}
         </form>
       ) : (
-        <form className="box stack" onSubmit={e => { e.preventDefault(); if (code.trim().length >= 6) check() }}>
+        <form className="panel stack" onSubmit={e => { e.preventDefault(); if (code.trim().length >= 6) check() }}>
           <p className="small">E-mail envoyé à <b>{email}</b>.</p>
           <p className="small muted">Ouvre-le <b>sur cet appareil</b> et touche le lien : tu seras connecté. S'il contient un code à 6 chiffres, tape-le ici :</p>
           <input className="field" inputMode="numeric" autoComplete="one-time-code" maxLength={10} placeholder="123456" value={code} onChange={e => setCode(e.target.value.replace(/\D/g, ''))} />
