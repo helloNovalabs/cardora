@@ -3,7 +3,7 @@ import type { Card, GameId, Price } from './types'
 
 export interface Owned { card: Card; qty: number; price: Price | null; addedAt: number }
 export interface Followed { game: GameId; setId: string; name: string; total: number; logo?: string }
-interface State { owned: Record<string, Owned>; followed: Followed[] }
+export interface State { owned: Record<string, Owned>; followed: Followed[] }
 
 const KEY = 'cardora-collection-v1'
 let state: State = load()
@@ -16,11 +16,19 @@ function load(): State {
   } catch { /* rien */ }
   return { owned: {}, followed: [] }
 }
-function save(next: State) {
+function save(next: State, fromCloud = false) {
   state = next
   try { localStorage.setItem(KEY, JSON.stringify(state)) } catch { /* stockage indisponible */ }
   subs.forEach(f => f())
+  if (!fromCloud) onLocalChange?.()
 }
+
+/** Appelé après chaque changement fait sur cet appareil (sert à enregistrer dans le compte). */
+let onLocalChange: (() => void) | null = null
+export const setOnLocalChange = (f: (() => void) | null) => { onLocalChange = f }
+export const getState = () => state
+/** Remplace la collection par celle venue du compte (sans la renvoyer en ligne). */
+export const replaceState = (s: State) => save(s, true)
 
 export function useCollection() {
   return useSyncExternalStore(f => { subs.add(f); return () => subs.delete(f) }, () => state)

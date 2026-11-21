@@ -7,3 +7,4 @@ export const ISearch = () => <svg {...P}><circle cx="11" cy="11" r="7" /><path d
 export const IBack = () => <svg {...P} width="18" height="18"><path d="m15 18-6-6 6-6" /></svg>
 export const IGrade = () => <svg {...P}><rect x="6" y="2.5" width="12" height="19" rx="2" /><path d="M9 6h6M9 18h6" /><path d="m10 12 1.5 1.5L15 10" /></svg>
 export const IChevron = () => <svg {...P} width="16" height="16"><path d="m9 18 6-6-6-6" /></svg>
+export const IUser = () => <svg {...P}><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg>

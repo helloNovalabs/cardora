@@ -40,9 +40,16 @@ Honnêteté : prix en euros avec la source, jamais de prix inventé.
 - Projet Vercel « cardora » (équipe julian-a0ff) relié au dépôt : **chaque `git push` sur main publie le site**, sans code 2FA.
 - La CLI Vercel reste déconnectée (code 2FA de l'appli d'authentification introuvable) : ne pas s'en servir, passer par git push.
 
+## Comptes (21/11)
+- Supabase sur un **nouveau compte** de l'utilisateur : organisation Cardora, projet `cardora` (rjnodshmmhdkfskmqwbf, Irlande). Clé publishable dans `src/lib/supabase.ts`.
+- Table `collections` (une ligne JSON par personne, RLS) : `supabase/001_collections.sql` (déjà exécuté).
+- Site URL + redirection `https://cardora-ecru.vercel.app/**` réglés.
+- Sans SMTP perso, Supabase envoie un **lien** (pas de code) et seulement ~2 e-mails/heure. La page « Mon compte » gère lien et code.
+- Fusion à la connexion : `src/lib/merge.ts` (test : `node --experimental-strip-types scripts/merge.test.ts`). Synchro : `src/lib/sync.ts`.
+
 ## À faire ensuite
 1. ~~Publication durable~~ : fait (cardora-ecru.vercel.app).
-2. Comptes Supabase pour synchroniser téléphone et ordinateur (rien ne se perd).
+2. ~~Comptes~~ : faits le 21/11 (voir « Comptes » plus haut). Reste : brancher Brevo (SMTP) pour envoyer un vrai code à 6 chiffres et dépasser 2 e-mails/heure ; suppression de compte avant ouverture au public.
 3. Scanner par la caméra (IA : coût par scan à prévoir).
 4. Vrais prix gradés (source payante, par ex. PriceCharting).
 5. Échanges entre potes (« Lucas a 3 cartes qu'il te manque »).
