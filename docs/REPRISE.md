@@ -81,3 +81,11 @@ Honnêteté : prix en euros avec la source, jamais de prix inventé.
 - Extension : tri, filtre rareté, produits scellés avec photo et prix (bouton Ajouter → Investissement, prix mis à jour tout seul une fois par jour).
 - Carte : gradation (société + note + valeur), affichée dans un boîtier ; la valeur gradée remplace le prix brut dans les totaux.
 - À faire : ajouter d'autres albums de foot (Ligue 1, Champions League) et d'autres séries F1 quand les listes officielles sont trouvées.
+
+## 22/11 (soir) : photos, présentation, scanner, boutique (commits 3b5ec5f → 9235ca1 + correctif)
+- Foot / F1 : vraies photos des vignettes `https://www.laststicker.com/i/cards/{album}/{n}.jpg` (`sportPhoto` dans `src/lib/sport.ts`, table `LS` des numéros d'album). Coupe du monde : numéro en minuscules sans espace (`mex1`). Si la photo manque : le dessin (`SportFace` dans `CardFace.tsx`). Couverture d'album = `logo` du set. Crédit affiché dans le classeur.
+- Extensions sans logo : `SetCover` cherche le booster (sinon la boîte, sinon une belle carte) dans TCGCSV quand la tuile s'affiche, 3 à la fois, et le garde (`cardora-covers` dans le stockage). Yu-Gi-Oh! : `set_image` de YGOPRODeck.
+- Présentation : `/decouvrir` (`src/pages/Landing.tsx`, `src/landing.css`), hors du cadre de l'appli. Montrée une fois quand la collection est vide (`src/lib/seen.ts`). Lien « Revoir la présentation » sur l'accueil vide.
+- Scanner : page Ajouter, « Prendre une photo » → `src/lib/scan.ts` (Tesseract.js chargé à la demande, lit sur l'appareil ; l'outil et les langues sont téléchargés depuis jsdelivr). Cherche les noms lus un par un, met en premier la carte au bon numéro. Jeux : Pokémon, Yu-Gi-Oh!, Lorcana, Magic.
+- Boutique : `/boutique` (`src/pages/Shop.tsx`), 5e onglet. 6 dernières extensions par ordre d'ajout TCGplayer (pas par date : de vieilles extensions ont des dates changées), produits scellés avec photo, prix TCGplayer en €, liens Cardmarket + TCGplayer, « Je l'ai » → scellé. Cardora ne vend rien.
+- Reste possible : scanner en direct (vidéo), affiliation Cardmarket/TCGplayer si l'utilisateur le veut, test réel sur téléphone.
