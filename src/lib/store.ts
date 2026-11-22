@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react'
 import type { Card, GameId, Price } from './types'
 
 /** `buy` = prix payé pour UNE carte (facultatif, saisi par la personne). */
-export interface Owned { card: Card; qty: number; price: Price | null; addedAt: number; buy?: number | null; grade?: Grade | null }
+export interface Owned { card: Card; qty: number; price: Price | null; addedAt: number; buy?: number | null; grade?: Grade | null; lang?: string }
 /** Carte gradée : société (PSA, CGC…), note, et sa valeur gradée notée par la personne (en euros). */
 export interface Grade { by: string; g: string; value?: number | null }
 
@@ -55,7 +55,7 @@ export function useCollection() {
 
 export function addCard(card: Card, price: Price | null, set?: Followed) {
   const cur = state.owned[card.key]
-  const owned = { ...state.owned, [card.key]: { card, price: price ?? cur?.price ?? null, qty: (cur?.qty ?? 0) + 1, addedAt: cur?.addedAt ?? Date.now(), buy: cur?.buy ?? null, grade: cur?.grade ?? null } }
+  const owned = { ...state.owned, [card.key]: { card, price: price ?? cur?.price ?? null, qty: (cur?.qty ?? 0) + 1, addedAt: cur?.addedAt ?? Date.now(), buy: cur?.buy ?? null, grade: cur?.grade ?? null, lang: cur?.lang ?? defaultLang(card.game) } }
   let followed = state.followed
   if (set && !followed.some(f => f.game === set.game && f.setId === set.setId)) followed = [set, ...followed]
   save({ ...state, owned, followed })
@@ -99,6 +99,14 @@ export function setGrade(key: string, grade: Grade | null) {
   const cur = state.owned[key]
   if (!cur) return
   save({ ...state, owned: { ...state.owned, [key]: { ...cur, grade } } })
+}
+
+/** Langue d'une carte par défaut : celle des données du jeu (Pokémon et Yu-Gi-Oh! en français, japonais pour Pokémon japonais, sinon anglais). */
+export const defaultLang = (g: GameId) => (g === 'pokemon' || g === 'yugioh' || g === 'foot' ? 'fr' : g === 'pokemonjp' ? 'ja' : 'en')
+export function setCardLang(key: string, lang: string) {
+  const cur = state.owned[key]
+  if (!cur || cur.lang === lang) return
+  save({ ...state, owned: { ...state.owned, [key]: { ...cur, lang } } })
 }
 
 export function setBuy(key: string, buy: number | null) {

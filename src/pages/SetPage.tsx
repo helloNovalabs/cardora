@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { fillPrices, gameColor, gameName, loadSet, type SetData } from '../lib/games'
-import { addCard, fmt, follow, refreshFollowed, removeCard, saveSealed, toEur, unfollow, updatePrices, useCollection, USD_TO_EUR, guessKind } from '../lib/store'
+import { addCard, fmt, follow, refreshFollowed, removeCard, saveSealed, toEur, unfollow, updatePrices, useCollection, USD_TO_EUR, guessKind, defaultLang } from '../lib/store'
 import { CardFace } from '../components/CardFace'
+import { LangTag } from '../components/Lang'
 import { isSport } from '../lib/sport'
 import type { TcgSealed } from '../lib/tcg'
 import type { Card, GameId, Price } from '../lib/types'
@@ -118,6 +119,7 @@ export default function SetPage() {
     return (
       <button key={c.key} className={'slot ' + (q ? 'have' : 'miss') + (popped === c.key && q ? ' pop' : '')} onClick={() => tap(c)} aria-label={`${c.name} n° ${c.number}${q ? ', dans ta collection' : ', manquante'}`}>
         <CardFace card={c} />
+        {q > 0 && col.owned[c.key]?.lang && col.owned[c.key].lang !== defaultLang(game) && <span className="slot-lang"><LangTag code={col.owned[c.key].lang} small /></span>}
         {col.owned[c.key]?.grade && <span className="grade-badge">{col.owned[c.key].grade!.by} {col.owned[c.key].grade!.g}</span>}
         <span className="ok"><ICheck /></span>
         {q > 1 && <span className="qty">×{q}</span>}

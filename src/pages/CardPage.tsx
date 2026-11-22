@@ -1,7 +1,8 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { gameColor, gameName, imgLarge, loadCard } from '../lib/games'
-import { addCard, fmt, removeCard, setBuy, setGrade, toEur, useCollection, type Grade } from '../lib/store'
+import { addCard, defaultLang, fmt, removeCard, setBuy, setCardLang, setGrade, toEur, useCollection, type Grade } from '../lib/store'
+import { LangPicker, buyLinks, langOf } from '../components/Lang'
 import { CardFace } from '../components/CardFace'
 import type { Card, GameId, Price } from '../lib/types'
 import { IBack, IGrade, IPlus } from '../components/Icons'
@@ -109,6 +110,7 @@ export default function CardPage() {
           ) : (
             <button className="btn primary" style={{ height: 54, fontSize: 15.5 }} onClick={add}><IPlus />Ajouter à ma collection</button>
           )}
+          <LangBox card={card} owned={q > 0} lang={col.owned[card.key]?.lang} />
           {q > 0 && <GradePicker card={card} grade={grade} />}
           {q > 0 && <BuyPrice cardKey={card.key} qty={q} buy={col.owned[card.key]?.buy ?? null} now={toEur(price)} />}
 
@@ -116,6 +118,24 @@ export default function CardPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+/** La langue de ma carte (si je l'ai), et où l'acheter dans une langue. */
+function LangBox({ card, owned, lang }: { card: Card; owned: boolean; lang?: string }) {
+  const [want, setWant] = useState<string | undefined>(lang ?? defaultLang(card.game))
+  useEffect(() => { setWant(lang ?? defaultLang(card.game)) }, [card.key, lang])
+  const cur = owned ? lang ?? defaultLang(card.game) : want
+  const pick = (v?: string) => { if (!v) return; if (owned) setCardLang(card.key, v); else setWant(v) }
+  return (
+    <section className="box stack" style={{ gap: 12 }}>
+      <div className="sec-h"><h2 style={{ fontSize: 20 }}>{owned ? 'Ma carte est en' : 'Je la cherche en'}</h2><span className="muted small">{langOf(cur)?.name}</span></div>
+      <LangPicker value={cur} onChange={pick} />
+      <p className="muted tiny">Le prix au-dessus vaut pour toutes les langues. Une carte japonaise ou anglaise peut coûter bien plus ou bien moins : regarde les offres dans sa langue.</p>
+      <div className="row wrap" style={{ gap: 8 }}>
+        {buyLinks(card.game, card.name, cur, card.number).map((l, i) => <a key={l.name} className={'btn sm' + (i ? '' : ' primary')} href={l.url} target="_blank" rel="noreferrer">{l.name}{i === 0 && cur ? ` en ${langOf(cur)?.tag}` : ''}</a>)}
+      </div>
+    </section>
   )
 }
 
