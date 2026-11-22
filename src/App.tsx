@@ -4,6 +4,8 @@ import { IBag, IBinder, IChart, IHome, IPlus, IUser } from './components/Icons'
 import { Brand } from './components/Brand'
 import { fmt, snapshot, totals, useCollection } from './lib/store'
 import { useAccount } from './lib/sync'
+import { t as tr, tn, useAppLang } from './lib/i18n'
+import { AppLangPicker } from './components/AppLang'
 import Home from './pages/Home'
 const Explore = lazy(() => import('./pages/Explore'))
 const Sets = lazy(() => import('./pages/Sets'))
@@ -44,44 +46,46 @@ export default function App() {
   // Une photo de la valeur par jour, pour la courbe de la page Investir
   useEffect(() => { const id = window.setTimeout(snapshot, 1500); return () => window.clearTimeout(id) }, [value])
   const active = TABS.findIndex(t => t.match(pathname))
+  const appLang = useAppLang()
 
-  if (pathname === '/decouvrir') return <Suspense fallback={null}><Landing /></Suspense>
+  if (pathname === '/decouvrir') return <Suspense fallback={null}><Landing key={appLang} /></Suspense>
 
   return (
     <div className="shell">
       <aside className="side">
-        <Link to="/" aria-label="Accueil Cardora"><Brand /></Link>
+        <Link to="/" aria-label="Cardora"><Brand /></Link>
         <nav className="nav">
-          <NavLink to="/" end className={cls}><IHome />Ma collection</NavLink>
-          <NavLink to="/jeux" className={cls}><IBinder />Classeurs</NavLink>
-          <NavLink to="/boutique" className={cls}><IBag />Boutique</NavLink>
-          <NavLink to="/investir" className={cls}><IChart />Investissement</NavLink>
-          <NavLink to="/compte" className={cls}><IUser />Mon compte</NavLink>
-          <NavLink to="/ajouter" className={({ isActive }) => 'add' + (isActive ? ' on' : '')}><IPlus />Ajouter une carte</NavLink>
+          <NavLink to="/" end className={cls}><IHome />{tr('Ma collection')}</NavLink>
+          <NavLink to="/jeux" className={cls}><IBinder />{tr('Classeurs')}</NavLink>
+          <NavLink to="/boutique" className={cls}><IBag />{tr('Boutique')}</NavLink>
+          <NavLink to="/investir" className={cls}><IChart />{tr('Investissement')}</NavLink>
+          <NavLink to="/compte" className={cls}><IUser />{tr('Mon compte')}</NavLink>
+          <NavLink to="/ajouter" className={({ isActive }) => 'add' + (isActive ? ' on' : '')}><IPlus />{tr('Ajouter une carte')}</NavLink>
         </nav>
         <div className="side-foot">
           <Link to="/investir" className="wallet">
-            <span className="kicker">Ta collection vaut</span>
+            <span className="kicker">{tr('Ta collection vaut')}</span>
             <span className="num foil-text">{fmt(value)}</span>
-            <span className="tiny muted">{count} carte{count > 1 ? 's' : ''}{nSealed ? `, ${nSealed} scellé${nSealed > 1 ? 's' : ''}` : ''}, {col.followed.length} classeur{col.followed.length > 1 ? 's' : ''}</span>
-            {t.tracked > 0 && Math.round(t.gain) !== 0 && <span className={'tiny ' + (t.gain > 0 ? 'up' : 'down')} style={{ display: 'block', fontWeight: 700, marginTop: 2 }}>{t.gain > 0 ? '+' : '−'}{fmt(Math.abs(t.gain))} depuis l’achat</span>}
+            <span className="tiny muted">{tn(count, '{n} carte', '{n} cartes')}{nSealed ? ', ' + tn(nSealed, '{n} scellé', '{n} scellés') : ''}, {tn(col.followed.length, '{n} classeur', '{n} classeurs')}</span>
+            {t.tracked > 0 && Math.round(t.gain) !== 0 && <span className={'tiny ' + (t.gain > 0 ? 'up' : 'down')} style={{ display: 'block', fontWeight: 700, marginTop: 2 }}>{t.gain > 0 ? '+' : '−'}{fmt(Math.abs(t.gain))} {tr('depuis l’achat')}</span>}
           </Link>
           <NavLink to="/compte" className={({ isActive }) => 'me' + (isActive ? ' on' : '')}>
             <Avatar />
             <div className="grow">
-              <div className="small ellipsis" style={{ fontWeight: 700 }}>{acc.email ?? 'Se connecter'}</div>
-              <div className="tiny muted">{acc.email ? (acc.status === 'error' ? 'Pas synchronisé' : 'Synchronisé sur tes appareils') : 'Pour retrouver tes cartes partout'}</div>
+              <div className="small ellipsis" style={{ fontWeight: 700 }}>{acc.email ?? tr('Se connecter')}</div>
+              <div className="tiny muted">{acc.email ? (acc.status === 'error' ? tr('Pas synchronisé') : tr('Synchronisé sur tes appareils')) : tr('Pour retrouver tes cartes partout')}</div>
             </div>
           </NavLink>
+          <AppLangPicker />
         </div>
       </aside>
 
       <main className="main">
         <header className="mob-head">
-          <Link to="/" aria-label="Accueil Cardora"><Brand /></Link>
-          <Link to="/compte" aria-label="Mon compte"><Avatar /></Link>
+          <Link to="/" aria-label="Cardora"><Brand /></Link>
+          <span className="row" style={{ gap: 8 }}><AppLangPicker compact /><Link to="/compte" aria-label={tr('Mon compte')}><Avatar /></Link></span>
         </header>
-        <Suspense fallback={<div className="stack" style={{ gap: 16 }}><div className="skel" style={{ height: 60 }} /><div className="skel" style={{ height: 320 }} /></div>}>
+        <Suspense key={appLang} fallback={<div className="stack" style={{ gap: 16 }}><div className="skel" style={{ height: 60 }} /><div className="skel" style={{ height: 320 }} /></div>}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/jeux" element={<Explore />} />
@@ -97,14 +101,14 @@ export default function App() {
         </Suspense>
       </main>
 
-      <nav className="dock" aria-label="Navigation">
+      <nav className="dock" aria-label="Menu">
         <div className="dock-bar">
           <span className="dock-pill" style={{ transform: `translateX(${Math.max(0, active) * 100}%)`, opacity: active < 0 ? 0 : 1 }} />
           {TABS.map((t, i) => (
-            <Link key={t.to} to={t.to} className={'tab' + (i === active ? ' on' : '')} aria-current={i === active ? 'page' : undefined}>{t.icon}{t.label}</Link>
+            <Link key={t.to} to={t.to} className={'tab' + (i === active ? ' on' : '')} aria-current={i === active ? 'page' : undefined}>{t.icon}{tr(t.label)}</Link>
           ))}
         </div>
-        <NavLink to="/ajouter" className={({ isActive }) => 'fab' + (isActive ? ' on' : '')} aria-label="Ajouter une carte"><IPlus /></NavLink>
+        <NavLink to="/ajouter" className={({ isActive }) => 'fab' + (isActive ? ' on' : '')} aria-label={tr('Ajouter une carte')}><IPlus /></NavLink>
       </nav>
     </div>
   )

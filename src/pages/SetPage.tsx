@@ -1,3 +1,4 @@
+import { t as tr } from '../lib/i18n'
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { fillPrices, gameColor, gameName, loadSet, type SetData } from '../lib/games'
@@ -73,7 +74,7 @@ export default function SetPage() {
     return { missing, cost, unknown, cheapest: priced.slice(0, 8), dearest: priced.slice(-6).reverse(), haveCount, value }
   }, [data, prices, col.owned])
 
-  if (err) return <div className="stack"><button className="back" onClick={() => nav(-1)}><IBack />Retour</button><p className="down">Impossible de charger cette extension. Réessaie dans un instant.</p></div>
+  if (err) return <div className="stack"><button className="back" onClick={() => nav(-1)}><IBack />{tr('Retour')}</button><p className="down">{tr('Impossible de charger cette extension. Réessaie dans un instant.')}</p></div>
   if (!data || !stats) return (
     <div className="stack" style={{ gap: 16 }}>
       <div className="skel" style={{ height: 60 }} /><div className="skel" style={{ height: 220 }} /><div className="skel" style={{ height: 420 }} />
@@ -117,7 +118,7 @@ export default function SetPage() {
     const q = has(c)
     const pr = prices[c.key]
     return (
-      <button key={c.key} className={'slot ' + (q ? 'have' : 'miss') + (popped === c.key && q ? ' pop' : '')} onClick={() => tap(c)} aria-label={`${c.name} n° ${c.number}${q ? ', dans ta collection' : ', manquante'}`}>
+      <button key={c.key} className={'slot ' + (q ? 'have' : 'miss') + (popped === c.key && q ? ' pop' : '')} onClick={() => tap(c)} aria-label={`${c.name} n° ${c.number}${q ? tr(', dans ta collection') : tr(', manquante')}`}>
         <CardFace card={c} />
         {q > 0 && col.owned[c.key]?.lang && col.owned[c.key].lang !== defaultLang(game) && <span className="slot-lang"><LangTag code={col.owned[c.key].lang} small /></span>}
         {col.owned[c.key]?.grade && <span className="grade-badge">{col.owned[c.key].grade!.by} {col.owned[c.key].grade!.g}</span>}
@@ -154,48 +155,46 @@ export default function SetPage() {
       </div>
       {followedInfo && (
         <button className={'btn sm' + (isFollowed ? '' : ' primary')} style={{ alignSelf: 'flex-start' }} onClick={() => (isFollowed ? unfollow(game, data.set.id) : follow(followedInfo))}>
-          {isFollowed ? '✓ Dans mes classeurs' : 'Suivre ce classeur'}
+          {isFollowed ? tr('✓ Dans mes classeurs') : tr('Suivre ce classeur')}
         </button>
       )}
 
       {party && <Confetti />}
       {sport ? (
         <section className="panel">
-          <span className="kicker">Les prix</span>
+          <span className="kicker">{tr('Les prix')}</span>
           <p className="small" style={{ marginTop: 8 }}>
-            Pour les cartes de sport, il n'existe pas de prix fiable et gratuit. Ouvre une carte pour noter ce que tu l'as payée ou ce qu'elle vaut,
-            avec un lien vers les ventes eBay pour t'aider.
+            {tr("Pour les cartes de sport, il n'existe pas de prix fiable et gratuit. Ouvre une carte pour noter ce que tu l'as payée ou ce qu'elle vaut, avec un lien vers les ventes eBay pour t'aider.")}
           </p>
           <div className="row" style={{ gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
-            <a className="btn sm" href={`https://www.ebay.fr/sch/i.html?_nkw=${encodeURIComponent(data.set.name)}&LH_Sold=1&LH_Complete=1`} target="_blank" rel="noreferrer">Ventes eBay de cette collection</a>
-            {game === 'f1' && <a className="btn sm" href={`https://www.sportscardspro.com/search-products?q=${encodeURIComponent(data.set.name)}&type=prices`} target="_blank" rel="noreferrer">Prix sur SportsCardsPro</a>}
+            <a className="btn sm" href={`https://www.ebay.fr/sch/i.html?_nkw=${encodeURIComponent(data.set.name)}&LH_Sold=1&LH_Complete=1`} target="_blank" rel="noreferrer">{tr('Ventes eBay de cette collection')}</a>
+            {game === 'f1' && <a className="btn sm" href={`https://www.sportscardspro.com/search-products?q=${encodeURIComponent(data.set.name)}&type=prices`} target="_blank" rel="noreferrer">{tr('Prix sur SportsCardsPro')}</a>}
           </div>
-          <p className="credit" style={{ marginTop: 10 }}>Photos des vignettes : <a href="https://www.laststicker.com/" target="_blank" rel="noreferrer">laststicker.com</a>. Quand une photo manque, la vignette est dessinée.</p>
+          <p className="credit" style={{ marginTop: 10 }}>{tr('Photos des vignettes :')} <a href="https://www.laststicker.com/" target="_blank" rel="noreferrer">laststicker.com</a>. {tr('Quand une photo manque, la vignette est dessinée.')}</p>
         </section>
       ) : (
       <section className="panel finish">
         <div>
-          <span className="kicker">Combien pour finir ?<button className="help" onClick={() => setTip(t => !t)} aria-label="Comment c'est calculé ?">?</button></span>
+          <span className="kicker">{tr('Combien pour finir ?')}<button className="help" onClick={() => setTip(t => !t)} aria-label={tr("Comment c'est calculé ?")}>?</button></span>
           {tip && (
             <p className="tip" style={{ marginTop: 8 }}>
-              On additionne le prix du marché de chaque carte qui te manque (une seule de chaque). C'est une estimation :
-              en achetant malin (lots, échanges), tu peux payer moins.
+              {tr("On additionne le prix du marché de chaque carte qui te manque (une seule de chaque). C'est une estimation : en achetant malin (lots, échanges), tu peux payer moins.")}
             </p>
           )}
           {stats.missing.length === 0 ? (
-            <h2 style={{ fontSize: 28, marginTop: 8 }}>Classeur complet, bravo !</h2>
+            <h2 style={{ fontSize: 28, marginTop: 8 }}>{tr('Classeur complet, bravo !')}</h2>
           ) : (
             <>
               <CountUp value={stats.cost} className="num foil-text big" />
               <p className="muted small">
-                Il te manque <b style={{ color: 'var(--text)' }}>{stats.missing.length} carte{stats.missing.length > 1 ? 's' : ''}</b>
-                {stats.unknown > 0 && !loadingPrices ? `, dont ${stats.unknown} sans prix connu (non comptée${stats.unknown > 1 ? 's' : ''})` : ''}.
-                {usd ? ' Prix TCGplayer convertis depuis le dollar.' : ' Prix Cardmarket du moment.'}
+                {tr('Il te manque')} <b style={{ color: 'var(--text)' }}>{stats.missing.length} {tr(stats.missing.length > 1 ? 'cartes' : 'carte')}</b>
+                {stats.unknown > 0 && !loadingPrices ? tr(stats.unknown > 1 ? ', dont {n} sans prix connu (non comptées)' : ', dont {n} sans prix connu (non comptée)', { n: stats.unknown }) : ''}.
+                {tr(usd ? ' Prix TCGplayer convertis depuis le dollar.' : ' Prix Cardmarket du moment.')}
               </p>
               {loadingPrices && (
                 <div style={{ marginTop: 10 }}>
                   <div className="bar" style={{ height: 4 }}><span style={{ width: `${(pricedCount / data.cards.length) * 100}%` }} /></div>
-                  <p className="lav tiny" style={{ marginTop: 5 }}>Je récupère les prix, {pricedCount} sur {data.cards.length}</p>
+                  <p className="lav tiny" style={{ marginTop: 5 }}>{tr('Je récupère les prix, {a} sur {b}', { a: pricedCount, b: data.cards.length })}</p>
                 </div>
               )}
             </>
@@ -207,17 +206,17 @@ export default function SetPage() {
                 <span style={{ width: `${(stats.cost / (stats.value + stats.cost)) * 100}%`, background: 'var(--foil)' }} />
               </div>
               <div className="keys">
-                <span><i style={{ background: 'var(--up)' }} />Tu as {fmt(stats.value)}</span>
-                <span><i style={{ background: 'var(--rose)' }} />Il reste {fmt(stats.cost)}</span>
+                <span><i style={{ background: 'var(--up)' }} />{tr('Tu as {v}', { v: fmt(stats.value) })}</span>
+                <span><i style={{ background: 'var(--rose)' }} />{tr('Il reste {v}', { v: fmt(stats.cost) })}</span>
               </div>
             </div>
           )}
-          {stats.value > 0 && stats.cost === 0 && <p className="small" style={{ marginTop: 8 }}>Tes cartes de ce classeur valent <b className="up">{fmt(stats.value)}</b>.</p>}
+          {stats.value > 0 && stats.cost === 0 && <p className="small" style={{ marginTop: 8 }}>{tr('Tes cartes de ce classeur valent')} <b className="up">{fmt(stats.value)}</b>.</p>}
         </div>
         {stats.missing.length > 0 && (stats.cheapest.length > 0 || stats.dearest.length > 0) && (
           <div className="stack" style={{ gap: 4, minWidth: 0 }}>
-            {stats.cheapest.length > 0 && <><h3>Pour avancer pas cher</h3>{rail(stats.cheapest, 'cheap')}</>}
-            {stats.dearest.length > 0 && <><h3>Les plus chères qui te manquent</h3>{rail(stats.dearest, 'hot')}</>}
+            {stats.cheapest.length > 0 && <><h3>{tr('Pour avancer pas cher')}</h3>{rail(stats.cheapest, 'cheap')}</>}
+            {stats.dearest.length > 0 && <><h3>{tr('Les plus chères qui te manquent')}</h3>{rail(stats.dearest, 'hot')}</>}
           </div>
         )}
       </section>
@@ -225,14 +224,14 @@ export default function SetPage() {
 
       {sealedList.length > 0 && (
         <section className="stack" style={{ gap: 8 }}>
-          <div className="sec-h"><h2>Produits scellés de cette extension</h2><span className="muted small">{sealedList.length}</span></div>
-          <p className="muted tiny" style={{ marginTop: -4 }}>Prix TCGplayer convertis depuis le dollar, mis à jour chaque jour. Ajoute-en un à ton scellé : son prix suivra tout seul.</p>
+          <div className="sec-h"><h2>{tr('Produits scellés de cette extension')}</h2><span className="muted small">{sealedList.length}</span></div>
+          <p className="muted tiny" style={{ marginTop: -4 }}>{tr('Prix TCGplayer convertis depuis le dollar, mis à jour chaque jour. Ajoute-en un à ton scellé : son prix suivra tout seul.')}</p>
           <div className="rail">
             {sealedList.slice(0, 30).map(x => (
               <div key={x.id} className="sealed-mini">
-                <div className="pic">{x.image ? <img src={x.image} alt="" loading="lazy" /> : <span className="muted tiny">Pas de photo</span>}</div>
+                <div className="pic">{x.image ? <img src={x.image} alt="" loading="lazy" /> : <span className="muted tiny">{tr('Pas de photo')}</span>}</div>
                 <span className="nm" title={x.name}>{x.name}</span>
-                <span className="price-pill">{x.price ? fmt(x.price.value! * USD_TO_EUR) : 'Pas de prix'}</span>
+                <span className="price-pill">{x.price ? fmt(x.price.value! * USD_TO_EUR) : tr('Pas de prix')}</span>
                 <button className={'btn sm' + (added[x.id] ? '' : ' primary')} disabled={added[x.id]} onClick={() => {
                   saveSealed({
                     id: `tcg-${x.id}`, game, kind: guessKind(x.name), name: x.name, setName: data.set.name, logo: data.set.logo,
@@ -240,7 +239,7 @@ export default function SetPage() {
                     valueAt: x.price ? Date.now() : null, addedAt: Date.now(), image: x.image || undefined, src: x.src,
                   })
                   setAdded(a => ({ ...a, [x.id]: true }))
-                }}>{added[x.id] ? '✓ Ajouté' : 'Ajouter'}</button>
+                }}>{added[x.id] ? tr('✓ Ajouté') : tr('Ajouter')}</button>
               </div>
             ))}
           </div>
@@ -248,24 +247,24 @@ export default function SetPage() {
       )}
 
       <div className="toolbar">
-        <Seg value={filter} onChange={v => { setFilter(v); setPage(0) }} options={[['all', 'Toutes'], ['have', `J'ai ${stats.haveCount}`], ['miss', `Manquantes ${stats.missing.length}`]]} />
+        <Seg value={filter} onChange={v => { setFilter(v); setPage(0) }} options={[['all', tr('Toutes')], ['have', tr("J'ai {n}", { n: stats.haveCount })], ['miss', tr('Manquantes {n}', { n: stats.missing.length })]]} />
         <button className={'btn sm check-btn' + (check ? ' on' : '')} onClick={() => setCheck(v => !v)}>
-          {check ? <><ICheck />Terminé</> : 'Cocher mes cartes'}
+          {check ? <><ICheck />{tr('Terminé')}</> : tr('Cocher mes cartes')}
         </button>
       </div>
-      <div className="chips" role="group" aria-label="Trier les cartes">
-        {ORDERS.filter(([o]) => !sport || o === 'num' || o === 'name').map(([o, l]) => <button key={o} className="chip-btn" aria-pressed={order === o} onClick={() => { setOrder(o); setPage(0) }}>{l}</button>)}
+      <div className="chips" role="group" aria-label={tr('Trier les cartes')}>
+        {ORDERS.filter(([o]) => !sport || o === 'num' || o === 'name').map(([o, l]) => <button key={o} className="chip-btn" aria-pressed={order === o} onClick={() => { setOrder(o); setPage(0) }}>{tr(l)}</button>)}
         {rarities.length > 1 && rarities.length <= 30 && (
-          <select className="field chip-select" value={rar} onChange={e => { setRar(e.target.value); setPage(0) }} aria-label="Filtrer par rareté">
-            <option value="">{sport ? 'Tous les types' : 'Toutes les raretés'}</option>
+          <select className="field chip-select" value={rar} onChange={e => { setRar(e.target.value); setPage(0) }} aria-label={tr('Filtrer par rareté')}>
+            <option value="">{sport ? tr('Tous les types') : tr('Toutes les raretés')}</option>
             {rarities.map(r => <option key={r} value={r}>{r}</option>)}
           </select>
         )}
       </div>
-      {check && <p className="check-hint"><ICheck />Touche une carte pour l'ajouter, retouche-la pour la retirer.</p>}
+      {check && <p className="check-hint"><ICheck />{tr("Touche une carte pour l'ajouter, retouche-la pour la retirer.")}</p>}
 
       {list.length === 0 ? (
-        <p className="muted small empty">Aucune carte ici pour l'instant.</p>
+        <p className="muted small empty">{tr("Aucune carte ici pour l'instant.")}</p>
       ) : (
         <>
           <div className={'binders' + (check ? ' checking' : '')} key={`${p}-${filter}`} onTouchStart={e => { touchX.current = e.touches[0].clientX }} onTouchEnd={e => {
@@ -276,14 +275,14 @@ export default function SetPage() {
             {p + 1 < pages && <div className={'binder desk-only flip-' + dir}>{pageCards(p + 1).map(slot)}</div>}
           </div>
           <div className="page-nav">
-            <button className="btn round" disabled={p === 0} onClick={prev} aria-label="Page précédente"><ILeft /></button>
+            <button className="btn round" disabled={p === 0} onClick={prev} aria-label={tr('Page précédente')}><ILeft /></button>
             <div className="stack" style={{ gap: 6, alignItems: 'center' }}>
               <span className="lbl">Page {p + 1}{step === 2 && p + 1 < pages ? `–${p + 2}` : ''} / {pages}</span>
               {pages <= 24 && <div className="dots">{Array.from({ length: pages }, (_, i) => <i key={i} className={i === p || (step === 2 && i === p + 1) ? 'on' : ''} />)}</div>}
             </div>
-            <button className="btn round" disabled={p >= pages - step} onClick={next} aria-label="Page suivante"><IRight /></button>
+            <button className="btn round" disabled={p >= pages - step} onClick={next} aria-label={tr('Page suivante')}><IRight /></button>
           </div>
-          <p className="muted tiny mob-only" style={{ textAlign: 'center' }}>Glisse le classeur pour tourner les pages</p>
+          <p className="muted tiny mob-only" style={{ textAlign: 'center' }}>{tr('Glisse le classeur pour tourner les pages')}</p>
         </>
       )}
     </div>

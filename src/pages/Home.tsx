@@ -1,3 +1,4 @@
+import { t as tr } from '../lib/i18n'
 import type { CSSProperties } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { wasSeen } from '../lib/seen'
@@ -37,15 +38,15 @@ export default function Home() {
     <div className="stack fade-in" style={{ gap: 28 }}>
       <section className="panel hello">
         <div>
-          <span className="kicker">{s.sealed?.length ? 'Tes cartes valent' : 'Ta collection vaut'}</span>
+          <span className="kicker">{s.sealed?.length ? tr('Tes cartes valent') : tr('Ta collection vaut')}</span>
           <CountUp value={value} className="num foil-text value-big" />
           <p className="muted tiny" style={{ maxWidth: 380 }}>
-            Prix du marché d'aujourd'hui, Cardmarket{hasUsd ? ' et TCGplayer converti en euros' : ''}. Une carte sans prix connu compte pour 0.
+            {tr("Prix du marché d'aujourd'hui, Cardmarket")}{hasUsd ? tr(' et TCGplayer converti en euros') : ''}{tr('. Une carte sans prix connu compte pour 0.')}
           </p>
           <div className="stats">
-            <div className="stat"><b>{count}</b><span>carte{count > 1 ? 's' : ''}</span></div>
-            <div className="stat"><b>{s.followed.length}</b><span>classeur{s.followed.length > 1 ? 's' : ''}</span></div>
-            <div className="stat"><b>{best ? fmt(unitValue(best)) : '—'}</b><span>la plus chère</span></div>
+            <div className="stat"><b>{count}</b><span>{tr(count > 1 ? 'cartes' : 'carte')}</span></div>
+            <div className="stat"><b>{s.followed.length}</b><span>{tr(s.followed.length > 1 ? 'classeurs' : 'classeur')}</span></div>
+            <div className="stat"><b>{best ? fmt(unitValue(best)) : '—'}</b><span>{tr('la plus chère')}</span></div>
           </div>
         </div>
         {byGame.length <= 1 && top.length >= 3 && (
@@ -70,10 +71,10 @@ export default function Home() {
       <InvestStrip />
 
       <section className="stack">
-        <div className="sec-h"><h2>Mes classeurs</h2><Link to="/jeux">Nouveau classeur</Link></div>
+        <div className="sec-h"><h2>{tr('Mes classeurs')}</h2><Link to="/jeux">{tr('Nouveau classeur')}</Link></div>
         {s.followed.length === 0 && (
           <Link to="/jeux" className="set-card" style={{ '--gc': '#FFFFFF' } as CSSProperties}>
-            <p className="small muted">Ouvre une extension et touche « Suivre ce classeur » : tu verras ici ta progression.</p>
+            <p className="small muted">{tr('Ouvre une extension et touche « Suivre ce classeur » : tu verras ici ta progression.')}</p>
           </Link>
         )}
         <div className="grid-sets">
@@ -88,7 +89,7 @@ export default function Home() {
                 <div className="grow">
                   <h3 className="ellipsis">{f.name}</h3>
                   <p className="meta"><span className="gdot-s" style={{ background: gameColor(f.game) }} />{gameName(f.game)}, {have} sur {f.total || '?'}</p>
-                  <p className="worth">{worth > 0 ? `Tes cartes : ${fmt(worth)}` : 'Voir combien pour finir'}</p>
+                  <p className="worth">{worth > 0 ? tr('Tes cartes : {v}', { v: fmt(worth) }) : tr('Voir combien pour finir')}</p>
                 </div>
                 {f.logo && <img className="setlogo" src={f.logo} alt="" loading="lazy" style={f.game === 'magic' ? { filter: 'invert(1)' } : undefined} />}
               </Link>
@@ -99,7 +100,7 @@ export default function Home() {
 
       {top.length > 0 && (
         <section className="stack" style={{ gap: 6 }}>
-          <div className="sec-h"><h2>Mes cartes les plus chères</h2></div>
+          <div className="sec-h"><h2>{tr('Mes cartes les plus chères')}</h2></div>
           <div className="rail">
             {top.map((o, i) => (
               <Link key={o.card.key} to={cardUrl(o.card)} className="mini">
@@ -117,7 +118,7 @@ export default function Home() {
       )}
 
       <section className="stack">
-        <h2>Les jeux</h2>
+        <h2>{tr('Les jeux')}</h2>
         <GameTiles />
       </section>
     </div>
@@ -137,15 +138,15 @@ function InvestStrip() {
         <SealedArt kind={sealed[1]?.kind ?? 'etb'} color={sealed[1] ? gameColor(sealed[1].game) : '#FF3D6E'} logo={sealed[1]?.logo} label={sealed[1]?.setName ?? ''} size={56} />
       </div>
       <div className="grow">
-        <h3 className="small" style={{ fontWeight: 800 }}>Investissement</h3>
+        <h3 className="small" style={{ fontWeight: 800 }}>{tr('Investissement')}</h3>
         <p className="muted tiny">
           {t.tracked > 0
-            ? <><span className={t.gain >= 0 ? 'up' : 'down'} style={{ fontWeight: 800 }}>{t.gain >= 0 ? '+' : '−'}{fmt(Math.abs(t.gain))}</span> depuis l’achat{n ? `, ${n} objet${n > 1 ? 's' : ''} scellé${n > 1 ? 's' : ''} (${fmt(t.sealed)})` : ''}</>
-            : n ? `${n} objet${n > 1 ? 's' : ''} scellé${n > 1 ? 's' : ''}, ${fmt(t.sealed)}. Note tes prix d’achat pour voir ta plus-value.`
-            : 'Ajoute tes boosters, displays et coffrets, et suis ce que vaut tout ça jour après jour.'}
+            ? <><span className={t.gain >= 0 ? 'up' : 'down'} style={{ fontWeight: 800 }}>{t.gain >= 0 ? '+' : '−'}{fmt(Math.abs(t.gain))}</span> {tr('depuis l’achat')}{n ? tr(n > 1 ? ', {n} objets scellés ({v})' : ', {n} objet scellé ({v})', { n, v: fmt(t.sealed) }) : ''}</>
+            : n ? tr(n > 1 ? '{n} objets scellés, {v}. Note tes prix d’achat pour voir ta plus-value.' : '{n} objet scellé, {v}. Note tes prix d’achat pour voir ta plus-value.', { n, v: fmt(t.sealed) })
+            : tr('Ajoute tes boosters, displays et coffrets, et suis ce que vaut tout ça jour après jour.')}
         </p>
       </div>
-      <span className="lav small" style={{ fontWeight: 700 }}>Voir</span>
+      <span className="lav small" style={{ fontWeight: 700 }}>{tr('Voir')}</span>
     </Link>
   )
 }
@@ -156,22 +157,21 @@ function Welcome() {
       <section className="panel">
         <div className="hello">
           <div className="stack" style={{ gap: 14 }}>
-            <h1>Ta collection de cartes, enfin claire.</h1>
+            <h1>{tr('Ta collection de cartes, enfin claire.')}</h1>
             <p className="muted" style={{ maxWidth: 440, fontSize: 15 }}>
-              Ce que tu as, ce qu'il te manque, combien il faut pour finir, et si ta carte vaut le coup d'être gradée.
-              Avec les vrais prix du marché, en euros.
+              {tr("Ce que tu as, ce qu'il te manque, combien il faut pour finir, et si ta carte vaut le coup d'être gradée. Avec les vrais prix du marché, en euros.")}
             </p>
             <div className="row wrap" style={{ gap: 10, marginTop: 4 }}>
-              <Link to="/jeux" className="btn primary">Commencer mon classeur</Link>
-              <Link to="/ajouter" className="btn ghost">Chercher une carte</Link>
+              <Link to="/jeux" className="btn primary">{tr('Commencer mon classeur')}</Link>
+              <Link to="/ajouter" className="btn ghost">{tr('Chercher une carte')}</Link>
             </div>
-            <Link to="/decouvrir" className="small" style={{ color: 'var(--lavande)' }}>Revoir la présentation de Cardora</Link>
+            <Link to="/decouvrir" className="small" style={{ color: 'var(--lavande)' }}>{tr('Revoir la présentation de Cardora')}</Link>
           </div>
           <div>
             <div className="fan">
               {FAN.map(c => <HoloCard key={c.src} src={c.src} alt={c.alt} />)}
             </div>
-            <p className="holo-hint">Touche une carte pour la faire briller</p>
+            <p className="holo-hint">{tr('Touche une carte pour la faire briller')}</p>
           </div>
         </div>
       </section>
@@ -184,13 +184,13 @@ function Welcome() {
         ].map(([t, d], i) => (
           <div key={t} className="step">
             <b className="n">{i + 1}</b>
-            <div><h3>{t}</h3><p className="muted small" style={{ marginTop: 3 }}>{d}</p></div>
+            <div><h3>{tr(t)}</h3><p className="muted small" style={{ marginTop: 3 }}>{tr(d)}</p></div>
           </div>
         ))}
       </section>
 
       <section className="stack">
-        <h2>Choisis ton jeu</h2>
+        <h2>{tr('Choisis ton jeu')}</h2>
         <GameTiles />
       </section>
     </div>

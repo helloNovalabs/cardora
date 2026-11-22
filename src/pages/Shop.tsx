@@ -1,3 +1,4 @@
+import { t as tr } from '../lib/i18n'
 import { useEffect, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { GAMES, gameColor, gameMeta } from '../lib/games'
@@ -82,15 +83,14 @@ export default function Shop() {
   return (
     <div className="stack fade-in shop" style={{ gap: 18, '--gc': gameColor(game) } as CSSProperties}>
       <div className="stack" style={{ gap: 6 }}>
-        <h1>Boutique</h1>
+        <h1>{tr('Boutique')}</h1>
         <p className="muted small" style={{ maxWidth: 620 }}>
-          Cherche la carte qu'il te manque, ou regarde les dernières sorties : boosters, displays, coffrets, avec le prix du marché.
-          Tu achètes chez le vendeur de ton choix. Cardora ne vend rien et ne touche rien sur tes achats.
+          {tr("Cherche la carte qu'il te manque, ou regarde les dernières sorties : boosters, displays, coffrets, avec le prix du marché. Tu achètes chez le vendeur de ton choix. Cardora ne vend rien et ne touche rien sur tes achats.")}
         </p>
       </div>
 
       <div className="hunt">
-        <div className="search"><ISearch /><input className="field" placeholder={`Quelle carte tu cherches ? (${gameMeta(game)?.name})`} value={q} onChange={e => setQ(e.target.value)} /></div>
+        <div className="search"><ISearch /><input className="field" placeholder={tr('Quelle carte tu cherches ? ({g})', { g: gameMeta(game)?.name ?? '' })} value={q} onChange={e => setQ(e.target.value)} /></div>
         <LangPicker value={lang} onChange={setLang} any label="Langue de la carte cherchée" />
       </div>
 
@@ -98,26 +98,26 @@ export default function Shop() {
         {MAIN.map(id => (
           <button key={id} className={'chip' + (game === id ? ' on' : '')} style={{ '--gc': gameColor(id) } as CSSProperties} onClick={() => setGame(id)}><i />{gameMeta(id)?.name}</button>
         ))}
-        <select className="field chip-select" value={MAIN.includes(game) ? '' : game} onChange={e => e.target.value && setGame(e.target.value as GameId)} aria-label="Autres jeux">
-          <option value="">Autres jeux…</option>
+        <select className="field chip-select" value={MAIN.includes(game) ? '' : game} onChange={e => e.target.value && setGame(e.target.value as GameId)} aria-label={tr('Autres jeux')}>
+          <option value="">{tr('Autres jeux…')}</option>
           {OTHERS.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
         </select>
       </div>
-      {q.trim().length < 2 && <div className="chips" role="group" aria-label="Type de produit">
-        {KINDS.map(([, l], i) => <button key={l} className="chip-btn" aria-pressed={kind === i} onClick={() => setKind(i)}>{l}</button>)}
+      {q.trim().length < 2 && <div className="chips" role="group" aria-label={tr('Type de produit')}>
+        {KINDS.map(([, l], i) => <button key={l} className="chip-btn" aria-pressed={kind === i} onClick={() => setKind(i)}>{tr(l)}</button>)}
       </div>}
 
       {q.trim().length >= 2 && (
         <section className="stack" style={{ gap: 10 }}>
-          <div className="sec-h"><h2>Où trouver « {q.trim()} »</h2>{found && <span className="muted small">{found.length} carte{found.length > 1 ? 's' : ''}</span>}</div>
+          <div className="sec-h"><h2>{tr('Où trouver « {q} »', { q: q.trim() })}</h2>{found && <span className="muted small">{found.length} {tr(found.length > 1 ? 'cartes' : 'carte')}</span>}</div>
           {!canSearch(game) && (
             <div className="box stack">
-              <p className="small">Pour {gameMeta(game)?.name}, je t'emmène directement chez les vendeurs :</p>
+              <p className="small">{tr("Pour {g}, je t'emmène directement chez les vendeurs :", { g: gameMeta(game)?.name ?? '' })}</p>
               <div className="row wrap" style={{ gap: 8 }}>{buyLinks(game, q.trim(), lang).map((l, i) => <a key={l.name} className={'btn sm' + (i ? '' : ' primary')} href={l.url} target="_blank" rel="noreferrer">{l.name}</a>)}</div>
             </div>
           )}
           {busy && <div className="shop-grid">{Array.from({ length: 4 }, (_, i) => <div key={i} className="skel" style={{ height: 300 }} />)}</div>}
-          {found && !busy && found.length === 0 && <p className="muted small">Aucune carte trouvée. Vérifie l'orthographe ou essaie le nom en anglais.</p>}
+          {found && !busy && found.length === 0 && <p className="muted small">{tr("Aucune carte trouvée. Vérifie l'orthographe ou essaie le nom en anglais.")}</p>}
           {found && !busy && found.length > 0 && (
             <div className="shop-grid">
               {found.slice(0, 24).map(c => {
@@ -127,7 +127,7 @@ export default function Shop() {
                     <Link to={`/carte/${c.game}/${encodeURIComponent(c.setId)}/${encodeURIComponent(c.id)}`} className="hunt-pic"><CardFace card={c} /></Link>
                     <h3 title={c.name}>{c.name}</h3>
                     <span className="tiny muted">{c.setName ?? c.setId.toUpperCase()} · n° {c.number}</span>
-                    <div className="prod-price">{p === undefined ? <span className="tiny muted">Prix…</span> : p ? <><b>{fmt(toEur(p) ?? 0)}</b><span className="tiny muted">prix du marché, toutes langues</span></> : <span className="tiny muted">Pas de prix connu</span>}</div>
+                    <div className="prod-price">{p === undefined ? <span className="tiny muted">{tr('Prix…')}</span> : p ? <><b>{fmt(toEur(p) ?? 0)}</b><span className="tiny muted">{tr('prix du marché, toutes langues')}</span></> : <span className="tiny muted">{tr('Pas de prix connu')}</span>}</div>
                     <div className="prod-act">{buyLinks(c.game, c.name, lang, c.number).map((l, i) => <a key={l.name} className={'btn sm' + (i ? '' : ' primary')} href={l.url} target="_blank" rel="noreferrer">{l.name}</a>)}</div>
                   </article>
                 )
@@ -137,9 +137,9 @@ export default function Shop() {
         </section>
       )}
 
-      {err && <p className="down small">Impossible de charger la boutique. Vérifie ta connexion et réessaie.</p>}
+      {err && <p className="down small">{tr('Impossible de charger la boutique. Vérifie ta connexion et réessaie.')}</p>}
       {!shelves && !err && <div className="shop-grid">{Array.from({ length: 8 }, (_, i) => <div key={i} className="skel" style={{ height: 260 }} />)}</div>}
-      {shelves && shelves.length === 0 && <p className="muted small empty">Pas encore de produits avec photo pour ce jeu.</p>}
+      {shelves && shelves.length === 0 && <p className="muted small empty">{tr('Pas encore de produits avec photo pour ce jeu.')}</p>}
 
       {shelves?.map(({ set, items }) => {
         const list = items.filter(x => KINDS[kind][0].test(x.name))
@@ -160,12 +160,12 @@ export default function Shop() {
                     <div className="prod-pic"><img src={x.image.replace('_400w', '_in_1000x1000')} alt="" loading="lazy" onError={e => { e.currentTarget.src = x.image }} /></div>
                     <h3 title={x.name}>{x.name}</h3>
                     <div className="prod-price">
-                      {x.price?.value != null ? <><b>{fmt(x.price.value * USD_TO_EUR)}</b><span className="tiny muted">prix du marché ({fmt(x.price.value, 'USD')})</span></> : <span className="tiny muted">{soon ? 'Pas encore de prix' : 'Pas de prix'}</span>}
+                      {x.price?.value != null ? <><b>{fmt(x.price.value * USD_TO_EUR)}</b><span className="tiny muted">{tr('prix du marché ({v})', { v: fmt(x.price.value, 'USD') })}</span></> : <span className="tiny muted">{soon ? tr('Pas encore de prix') : tr('Pas de prix')}</span>}
                     </div>
                     <div className="prod-act">
                       {cm && <a className="btn sm primary" href={cm} target="_blank" rel="noreferrer">Cardmarket</a>}
                       <a className={'btn sm' + (cm ? '' : ' primary')} href={`https://www.tcgplayer.com/product/${x.id}`} target="_blank" rel="noreferrer">TCGplayer</a>
-                      <button className="btn sm ghost" disabled={have} onClick={() => addMine(x, set)} title="L'ajouter à ton scellé, page Investir">{have ? '✓ Dans mon scellé' : "Je l'ai"}</button>
+                      <button className="btn sm ghost" disabled={have} onClick={() => addMine(x, set)} title={tr("L'ajouter à ton scellé, page Investir")}>{have ? tr('✓ Dans mon scellé') : tr("Je l'ai")}</button>
                     </div>
                   </article>
                 )
@@ -175,7 +175,7 @@ export default function Shop() {
         )
       })}
       {shelves && shelves.length > 0 && (
-        <p className="muted tiny">Prix TCGplayer (via TCGCSV) convertis en euros, mis à jour chaque jour. Sur Cardmarket le prix peut être différent. « Je l'ai » range le produit dans ton scellé, sur la page <Link to="/investir">Investir</Link>.</p>
+        <p className="muted tiny">{tr("Prix TCGplayer (via TCGCSV) convertis en euros, mis à jour chaque jour. Sur Cardmarket le prix peut être différent. « Je l'ai » range le produit dans ton scellé, sur la page")} <Link to="/investir">{tr('Investir')}</Link>.</p>
       )}
     </div>
   )

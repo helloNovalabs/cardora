@@ -1,3 +1,4 @@
+import { t as tr } from '../lib/i18n'
 import { useEffect, useState, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { gameColor, gameName, imgLarge, loadCard } from '../lib/games'
@@ -30,7 +31,7 @@ export default function CardPage() {
     loadCard(game, setId, id).then(r => { setCard(r.card); setPrice(r.price) }).catch(() => setErr(true))
   }, [game, setId, id])
 
-  if (err) return <div className="stack"><button className="back" onClick={() => nav(-1)}><IBack />Retour</button><p className="down">Carte introuvable pour l'instant.</p></div>
+  if (err) return <div className="stack"><button className="back" onClick={() => nav(-1)}><IBack />{tr('Retour')}</button><p className="down">{tr("Carte introuvable pour l'instant.")}</p></div>
   if (!card) return (
     <div className="card-hero"><div className="skel" style={{ aspectRatio: '63/88', maxWidth: 260, width: '100%', margin: '0 auto' }} /><div className="stack"><div className="skel" style={{ height: 60 }} /><div className="skel" style={{ height: 200 }} /></div></div>
   )
@@ -42,7 +43,7 @@ export default function CardPage() {
 
   return (
     <div className="stack fade-in" style={{ gap: 18, '--gc': gameColor(game) } as CSSProperties}>
-      <button className="back" onClick={() => nav(-1)}><IBack />Retour</button>
+      <button className="back" onClick={() => nav(-1)}><IBack />{tr('Retour')}</button>
       <div className="card-hero">
         <div className="card-stage">
           {grade ? (
@@ -56,7 +57,7 @@ export default function CardPage() {
           ) : (
             <HoloCard src={card.image ? imgLarge(card) : ''} face={card.image ? undefined : <CardFace card={card} big />} alt={card.name} rare={!/^(common|commune|c)$/i.test(card.rarity ?? '')} className="card-big" />
           )}
-          <p className="holo-hint">Bouge ton doigt sur la carte pour la faire briller</p>
+          <p className="holo-hint">{tr('Bouge ton doigt sur la carte pour la faire briller')}</p>
         </div>
 
         <div className="stack" style={{ gap: 16 }}>
@@ -71,7 +72,7 @@ export default function CardPage() {
           </div>
 
           <section className="panel" style={{ padding: 20 }}>
-            <span className="kicker">Prix brut, non gradée<button className="help" onClick={() => setTip(t => !t)} aria-label="C'est quoi ?">?</button></span>
+            <span className="kicker">{tr('Prix brut, non gradée')}<button className="help" onClick={() => setTip(t => !t)} aria-label={tr("C'est quoi ?")}>?</button></span>
             {tip && (
               <p className="tip" style={{ marginTop: 8 }}>
                 « Brut » = la carte telle quelle, sans boîtier de gradation. Le prix affiché est la tendance du marché :
@@ -83,14 +84,14 @@ export default function CardPage() {
               {trend != null && trend !== 0 && <span className={'trend ' + (trend > 0 ? 'up' : 'down')}>{trend > 0 ? '▲' : '▼'} {Math.abs(trend)} % en 30 jours</span>}
             </div>
             {price?.value == null ? (
-              <p className="muted small" style={{ marginTop: 6 }}>Pas de prix fiable pour cette carte. On préfère ne rien inventer.</p>
+              <p className="muted small" style={{ marginTop: 6 }}>{tr('Pas de prix fiable pour cette carte. On préfère ne rien inventer.')}</p>
             ) : (
               <>
                 {(price.avg30 || price.avg7) && (
                   <div style={{ marginTop: 18 }}>
                     <PriceChart currency={price.currency} points={[
-                      { label: 'Moy. 30 j', v: price.avg30 }, { label: 'Moy. 7 j', v: price.avg7 },
-                      { label: 'Hier', v: price.avg1 }, { label: "Aujourd'hui", v: price.value },
+                      { label: tr('Moy. 30 j'), v: price.avg30 }, { label: tr('Moy. 7 j'), v: price.avg7 },
+                      { label: tr('Hier'), v: price.avg1 }, { label: tr("Aujourd'hui"), v: price.value },
                     ]} />
                   </div>
                 )}
@@ -103,12 +104,12 @@ export default function CardPage() {
 
           {q > 0 ? (
             <div className="qty-ctl">
-              <button className="btn" onClick={() => removeCard(card.key)} aria-label="En retirer une">−</button>
-              <div className="q"><b key={bump} className="fade-in" style={{ display: 'block' }}>{q}</b>dans ta collection</div>
-              <button className="btn primary" onClick={add} aria-label="En ajouter une"><IPlus /></button>
+              <button className="btn" onClick={() => removeCard(card.key)} aria-label={tr('En retirer une')}>−</button>
+              <div className="q"><b key={bump} className="fade-in" style={{ display: 'block' }}>{q}</b>{tr('dans ta collection')}</div>
+              <button className="btn primary" onClick={add} aria-label={tr('En ajouter une')}><IPlus /></button>
             </div>
           ) : (
-            <button className="btn primary" style={{ height: 54, fontSize: 15.5 }} onClick={add}><IPlus />Ajouter à ma collection</button>
+            <button className="btn primary" style={{ height: 54, fontSize: 15.5 }} onClick={add}><IPlus />{tr('Ajouter à ma collection')}</button>
           )}
           <LangBox card={card} owned={q > 0} lang={col.owned[card.key]?.lang} />
           {q > 0 && <GradePicker card={card} grade={grade} />}
@@ -129,11 +130,11 @@ function LangBox({ card, owned, lang }: { card: Card; owned: boolean; lang?: str
   const pick = (v?: string) => { if (!v) return; if (owned) setCardLang(card.key, v); else setWant(v) }
   return (
     <section className="box stack" style={{ gap: 12 }}>
-      <div className="sec-h"><h2 style={{ fontSize: 20 }}>{owned ? 'Ma carte est en' : 'Je la cherche en'}</h2><span className="muted small">{langOf(cur)?.name}</span></div>
+      <div className="sec-h"><h2 style={{ fontSize: 20 }}>{owned ? tr('Ma carte est en') : tr('Je la cherche en')}</h2><span className="muted small">{tr(langOf(cur)?.name ?? '')}</span></div>
       <LangPicker value={cur} onChange={pick} />
-      <p className="muted tiny">Le prix au-dessus vaut pour toutes les langues. Une carte japonaise ou anglaise peut coûter bien plus ou bien moins : regarde les offres dans sa langue.</p>
+      <p className="muted tiny">{tr('Le prix au-dessus vaut pour toutes les langues. Une carte japonaise ou anglaise peut coûter bien plus ou bien moins : regarde les offres dans sa langue.')}</p>
       <div className="row wrap" style={{ gap: 8 }}>
-        {buyLinks(card.game, card.name, cur, card.number).map((l, i) => <a key={l.name} className={'btn sm' + (i ? '' : ' primary')} href={l.url} target="_blank" rel="noreferrer">{l.name}{i === 0 && cur ? ` en ${langOf(cur)?.tag}` : ''}</a>)}
+        {buyLinks(card.game, card.name, cur, card.number).map((l, i) => <a key={l.name} className={'btn sm' + (i ? '' : ' primary')} href={l.url} target="_blank" rel="noreferrer">{i === 0 && cur ? tr('{v} en {l}', { v: l.name, l: langOf(cur)?.tag ?? '' }) : l.name}</a>)}
       </div>
     </section>
   )
@@ -159,25 +160,25 @@ function GradePicker({ card, grade }: { card: Card; grade: Grade | null }) {
   const search = grade ? encodeURIComponent(`${card.name} ${card.number} ${grade.by} ${grade.g}`) : ''
   return (
     <section className="box stack" style={{ gap: 12 }}>
-      <div className="row" style={{ gap: 10 }}><span className="lav"><IGrade /></span><h2>Ma carte est gradée ?</h2></div>
-      <div className="chips wrap" role="group" aria-label="Société de gradation">
-        <button className="chip-btn" aria-pressed={!grade} onClick={() => pick(null)}>Non gradée</button>
+      <div className="row" style={{ gap: 10 }}><span className="lav"><IGrade /></span><h2>{tr('Ma carte est gradée ?')}</h2></div>
+      <div className="chips wrap" role="group" aria-label={tr('Société de gradation')}>
+        <button className="chip-btn" aria-pressed={!grade} onClick={() => pick(null)}>{tr('Non gradée')}</button>
         {COMPANIES.map(c => <button key={c} className="chip-btn" aria-pressed={grade?.by === c} onClick={() => pick(c)}>{c}</button>)}
       </div>
       {grade && (
         <>
-          <span className="kicker">Sa note</span>
-          <div className="chips wrap" role="group" aria-label="Note">
+          <span className="kicker">{tr('Sa note')}</span>
+          <div className="chips wrap" role="group" aria-label={tr('Note')}>
             {NOTES.map(n => <button key={n} className="chip-btn round" aria-pressed={grade.g === n} onClick={() => pick(grade.by, n)}>{n}</button>)}
-            <button className="chip-btn" aria-pressed={grade.g === '5'} onClick={() => pick(grade.by, '5')}>5 ou moins</button>
+            <button className="chip-btn" aria-pressed={grade.g === '5'} onClick={() => pick(grade.by, '5')}>{tr('5 ou moins')}</button>
           </div>
           <label className="stack" style={{ gap: 6 }}>
             <span className="kicker">Ce qu'elle vaut en {grade.by} {grade.g}, en euros</span>
-            <input className="field" inputMode="decimal" placeholder="Regarde les ventes eBay, puis note le prix" value={v} onChange={e => setV(e.target.value)}
+            <input className="field" inputMode="decimal" placeholder={tr('Regarde les ventes eBay, puis note le prix')} value={v} onChange={e => setV(e.target.value)}
               onBlur={commit} onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }} />
           </label>
           <a className="btn sm" target="_blank" rel="noreferrer" href={`https://www.ebay.fr/sch/i.html?_nkw=${search}&LH_Sold=1&LH_Complete=1`}>Voir les ventes en {grade.by} {grade.g} sur eBay ↗</a>
-          <p className="muted tiny">{grade.value != null ? 'Cardora compte ce prix dans ta collection et ton investissement, à la place du prix brut.' : 'Tant que tu ne notes pas de prix, Cardora compte le prix brut.'}</p>
+          <p className="muted tiny">{grade.value != null ? tr('Cardora compte ce prix dans ta collection et ton investissement, à la place du prix brut.') : tr('Tant que tu ne notes pas de prix, Cardora compte le prix brut.')}</p>
         </>
       )}
     </section>
@@ -197,8 +198,8 @@ function BuyPrice({ cardKey, qty, buy, now }: { cardKey: string; qty: number; bu
   return (
     <section className="box buy">
       <label className="stack" style={{ gap: 6 }}>
-        <span className="kicker">J’ai payé (pour une carte), en euros</span>
-        <input className="field" inputMode="decimal" placeholder="Par ex. 12" value={v} onChange={e => setV(e.target.value)}
+        <span className="kicker">{tr('J’ai payé (pour une carte), en euros')}</span>
+        <input className="field" inputMode="decimal" placeholder={tr('Par ex. 12')} value={v} onChange={e => setV(e.target.value)}
           onBlur={commit} onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }} />
       </label>
       {gain != null ? (
@@ -207,7 +208,7 @@ function BuyPrice({ cardKey, qty, buy, now }: { cardKey: string; qty: number; bu
           {gain >= 0 ? `Tu gagnes ça sur ${qty > 1 ? `tes ${qty} cartes` : 'cette carte'}, au prix d’aujourd’hui.` : `Elle vaut moins que ce que tu l’as payée.`}
         </div>
       ) : (
-        <p className="muted tiny">Note ton prix d’achat : Cardora calcule ta plus-value ici et dans Investissement.</p>
+        <p className="muted tiny">{tr('Note ton prix d’achat : Cardora calcule ta plus-value ici et dans Investissement.')}</p>
       )}
     </section>
   )
@@ -227,42 +228,42 @@ function GradeCalc({ card, price }: { card: Card; price: Price | null }) {
 
   return (
     <section className="box stack" style={{ gap: 14 }}>
-      <div className="row" style={{ gap: 10 }}><span className="lav"><IGrade /></span><h2>Ça vaut le coup de la grader ?</h2></div>
+      <div className="row" style={{ gap: 10 }}><span className="lav"><IGrade /></span><h2>{tr('Ça vaut le coup de la grader ?')}</h2></div>
 
       <Seg full value={gid} onChange={v => { setGid(v); setCost(String(GRADERS.find(x => x.id === v)!.cost)) }} options={GRADERS.map(x => [x.id, x.name] as [string, string])} />
       <label className="small muted">
-        Coût de la gradation tout compris, en euros. {g.note}.
+        {tr('Coût de la gradation tout compris, en euros.')} {tr(g.note)}.
         <input className="field" inputMode="decimal" value={cost} onChange={e => setCost(e.target.value)} style={{ marginTop: 6 }} />
       </label>
 
       {breakEven != null ? (
         <div className="stack" style={{ gap: 8 }}>
-          <p className="small muted">Pour gagner de l'argent, elle doit se vendre au moins :</p>
+          <p className="small muted">{tr("Pour gagner de l'argent, elle doit se vendre au moins :")}</p>
           <div className="even">
-            <span className="p">{fmt(raw)} brut</span><span className="muted">+</span>
-            <span className="p">{fmt(c)} gradation</span><span className="muted">=</span>
+            <span className="p">{tr('{v} brut', { v: fmt(raw) })}</span><span className="muted">+</span>
+            <span className="p">{tr('{v} gradation', { v: fmt(c) })}</span><span className="muted">=</span>
             <span className="p res">{fmt(breakEven)}</span>
           </div>
         </div>
       ) : (
-        <p className="small muted">Sans prix brut fiable, on ne peut pas calculer le seuil.</p>
+        <p className="small muted">{tr('Sans prix brut fiable, on ne peut pas calculer le seuil.')}</p>
       )}
 
       <a className="btn sm" target="_blank" rel="noreferrer" href={`https://www.ebay.fr/sch/i.html?_nkw=${search}&LH_Sold=1&LH_Complete=1`}>
-        Voir les ventes en {g.name} 10 sur eBay ↗
+        {tr('Voir les ventes en {g} 10 sur eBay ↗', { g: g.name })}
       </a>
       <label className="small muted">
-        Prix vu en {g.name} 10, en euros
+        {tr('Prix vu en {g} 10, en euros', { g: g.name })}
         <input className="field" inputMode="decimal" placeholder="150" value={graded} onChange={e => setGraded(e.target.value)} style={{ marginTop: 6 }} />
       </label>
       {gain != null && (
         <div className={'verdict ' + (gain > 0 ? 'up' : 'down')}>
           <b className={gain > 0 ? 'up' : 'down'}>{gain > 0 ? `+${fmt(gain)}` : `−${fmt(-gain)}`}</b>
-          {gain > 0 ? 'Oui, ça vaut le coup si elle obtient 10.' : 'Non, tu perdrais de l’argent même avec un 10.'}
+          {gain > 0 ? tr('Oui, ça vaut le coup si elle obtient 10.') : tr('Non, tu perdrais de l’argent même avec un 10.')}
         </div>
       )}
       <p className="muted tiny">
-        Une note 9 se vend souvent bien moins cher qu'un 10. Vérifie bien les bords, les coins et la surface avant d'envoyer.
+        {tr("Une note 9 se vend souvent bien moins cher qu'un 10. Vérifie bien les bords, les coins et la surface avant d'envoyer.")}
       </p>
     </section>
   )

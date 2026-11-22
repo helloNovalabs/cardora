@@ -1,3 +1,4 @@
+import { t as tr } from '../lib/i18n'
 import { CardFace } from '../components/CardFace'
 import { readCard } from '../lib/scan'
 import { useEffect, useRef, useState } from 'react'
@@ -62,7 +63,7 @@ export default function Add() {
   const shown = res && hint ? [...res].sort((a, b) => Number(sameNo(b)) - Number(sameNo(a))) : res
 
   const add = async (c: Card) => {
-    setToast({ text: `${c.name} ajoutée ✓`, img: c.image })
+    setToast({ text: tr('{c} ajoutée ✓', { c: c.name }), img: c.image })
     window.setTimeout(() => setToast(null), 1800)
     addCard(c, await priceFor(c))
   }
@@ -70,25 +71,25 @@ export default function Add() {
   return (
     <div className="stack fade-in" style={{ gap: 16 }}>
       <div className="stack" style={{ gap: 6 }}>
-        <h1>Ajouter une carte</h1>
-        <p className="muted small">Tape le nom de la carte, puis touche-la pour l'ajouter.</p>
+        <h1>{tr('Ajouter une carte')}</h1>
+        <p className="muted small">{tr("Tape le nom de la carte, puis touche-la pour l'ajouter.")}</p>
       </div>
 
       <div className="chips">
         {OPTIONS.map(o => (
-          <button key={o.id} className={'chip' + (game === o.id ? ' on' : '')} style={{ '--gc': gameColor(o.id) } as CSSProperties} onClick={() => setGame(o.id)}><i />{o.name}</button>
+          <button key={o.id} className={'chip' + (game === o.id ? ' on' : '')} style={{ '--gc': gameColor(o.id) } as CSSProperties} onClick={() => setGame(o.id)}><i />{tr(o.name)}</button>
         ))}
       </div>
 
       {game === 'onepiece' ? (
         <div className="box stack">
-          <p className="small">Pour One Piece, le plus rapide est d'ouvrir l'extension et de cocher tes cartes dans le classeur.</p>
-          <Link to="/jeux/onepiece" className="btn primary">Ouvrir les extensions One Piece</Link>
+          <p className="small">{tr("Pour One Piece, le plus rapide est d'ouvrir l'extension et de cocher tes cartes dans le classeur.")}</p>
+          <Link to="/jeux/onepiece" className="btn primary">{tr('Ouvrir les extensions One Piece')}</Link>
         </div>
       ) : game === 'autre' ? (
         <div className="box stack">
-          <p className="small">Foot, F1, Riftbound, Star Wars, Digimon, Gundam et tous les autres : choisis le jeu, ouvre l'extension et coche tes cartes dans le classeur.</p>
-          <Link to="/jeux" className="btn primary">Voir tous les jeux</Link>
+          <p className="small">{tr("Foot, F1, Riftbound, Star Wars, Digimon, Gundam et tous les autres : choisis le jeu, ouvre l'extension et coche tes cartes dans le classeur.")}</p>
+          <Link to="/jeux" className="btn primary">{tr('Voir tous les jeux')}</Link>
         </div>
       ) : (
         <div className="search"><ISearch /><input className="field" autoFocus placeholder={({ pokemon: 'Dracaufeu', yugioh: 'Magicien Sombre', lorcana: 'Elsa', magic: 'Lightning Bolt' } as Record<GameId, string>)[game]} value={q} onChange={e => setQ(e.target.value)} /></div>
@@ -96,17 +97,17 @@ export default function Add() {
 
       {canSearch(game) && (
         <div className="scan box">
-          {scan?.url && <img className="scan-shot" src={scan.url} alt="Ta photo" />}
+          {scan?.url && <img className="scan-shot" src={scan.url} alt={tr('Ta photo')} />}
           <div className="stack grow" style={{ gap: 6, minWidth: 0 }}>
-            <h3 className="small" style={{ fontWeight: 800 }}>Scanner une carte</h3>
-            {!scan && <p className="tiny muted">Prends ta carte en photo, bien à plat et sans reflet. Cardora lit le nom et le numéro, puis te montre la carte.</p>}
-            {scan?.step === 'read' && <><p className="tiny muted">Je lis la carte… {Math.round(scan.p * 100)} %</p><span className="bar"><span style={{ width: `${Math.max(6, scan.p * 100)}%` }} /></span></>}
-            {scan?.step === 'search' && <p className="tiny muted">Je cherche « {scan.names[0]} »…</p>}
-            {scan?.step === 'done' && <p className="tiny">J'ai lu <b>« {q} »</b>{hint ? <> et le numéro <b>{hint}</b></> : null}. Touche la bonne carte pour l'ajouter.</p>}
-            {scan?.step === 'fail' && <p className="tiny down">Je n'ai pas réussi à lire le nom. Reprends la photo de plus près, ou tape le nom au-dessus.</p>}
+            <h3 className="small" style={{ fontWeight: 800 }}>{tr('Scanner une carte')}</h3>
+            {!scan && <p className="tiny muted">{tr('Prends ta carte en photo, bien à plat et sans reflet. Cardora lit le nom et le numéro, puis te montre la carte.')}</p>}
+            {scan?.step === 'read' && <><p className="tiny muted">{tr('Je lis la carte… {n} %', { n: Math.round(scan.p * 100) })}</p><span className="bar"><span style={{ width: `${Math.max(6, scan.p * 100)}%` }} /></span></>}
+            {scan?.step === 'search' && <p className="tiny muted">{tr('Je cherche « {q} »…', { q: scan.names[0] })}</p>}
+            {scan?.step === 'done' && <p className="tiny">{tr("J'ai lu")} <b>« {q} »</b>{hint ? <> {tr('et le numéro')} <b>{hint}</b></> : null}. {tr("Touche la bonne carte pour l'ajouter.")}</p>}
+            {scan?.step === 'fail' && <p className="tiny down">{tr("Je n'ai pas réussi à lire le nom. Reprends la photo de plus près, ou tape le nom au-dessus.")}</p>}
             <div className="row wrap" style={{ gap: 8 }}>
               <button className="btn primary sm" disabled={scan?.step === 'read' || scan?.step === 'search'} onClick={() => fileRef.current?.click()}>
-                {scan ? 'Scanner une autre carte' : 'Prendre une photo'}
+                {scan ? tr('Scanner une autre carte') : tr('Prendre une photo')}
               </button>
             </div>
           </div>
@@ -115,13 +116,13 @@ export default function Add() {
       )}
 
       {busy && <div className="cards-grid">{Array.from({ length: 6 }, (_, i) => <div key={i} className="skel" style={{ aspectRatio: '63/88' }} />)}</div>}
-      {res && !busy && res.length === 0 && <p className="muted small">Aucune carte trouvée. Essaie un autre nom.</p>}
+      {res && !busy && res.length === 0 && <p className="muted small">{tr('Aucune carte trouvée. Essaie un autre nom.')}</p>}
       {res && res.length > 0 && (
         <div className="cards-grid">
           {(shown ?? []).map(c => {
             const qn = col.owned[c.key]?.qty ?? 0
             return (
-              <button key={c.key} className={'slot' + (qn ? ' have' : '') + (sameNo(c) ? ' scan-hit' : '')} onClick={() => add(c)} aria-label={`Ajouter ${c.name}`}>
+              <button key={c.key} className={'slot' + (qn ? ' have' : '') + (sameNo(c) ? ' scan-hit' : '')} onClick={() => add(c)} aria-label={tr('Ajouter {c}', { c: c.name })}>
                 <CardFace card={c} />
                 {qn > 0 ? <span className="qty">×{qn}</span> : <span className="add"><IPlus /></span>}
                 <span className="tag">{c.game === 'yugioh' ? c.number : `${c.setId.toUpperCase()} · ${c.number}`}</span>

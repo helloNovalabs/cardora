@@ -1,3 +1,4 @@
+import { t as tr } from '../lib/i18n'
 import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { gameColor, gameName, listSets } from '../lib/games'
@@ -40,11 +41,11 @@ export default function Sets() {
     const out: { name: string; items: SetInfo[] }[] = []
     if (sort === 'mine') {
       const mine = list.filter(s => isFollowed(s.id))
-      if (mine.length) out.push({ name: 'Mes classeurs', items: mine })
+      if (mine.length) out.push({ name: tr('Mes classeurs'), items: mine })
     }
     for (const s of list) {
       if (sort === 'mine' && isFollowed(s.id)) continue
-      const g = s.group ?? 'Autres'
+      const g = s.group ?? tr('Autres')
       let box = out.find(o => o.name === g)
       if (!box) out.push(box = { name: g, items: [] })
       box.items.push(s)
@@ -62,7 +63,7 @@ export default function Sets() {
     const pct = followed && s.total ? Math.min(100, (have / s.total) * 100) : 0
     return (
       <Link key={s.id} to={`/jeux/${game}/${encodeURIComponent(s.id)}`} className={'ext' + (isSport(game) && s.logo ? ' cover' : '') + (followed ? ' followed' : '') + (s.soon ? ' soon' : '')} style={gc}>
-        {s.soon && <span className="soon-tag">À venir</span>}
+        {s.soon && <span className="soon-tag">{tr('À venir')}</span>}
         <div className="lg">
           <ExtLogo game={game} set={s} invert={game === 'magic'} color={gameColor(game)} />
         </div>
@@ -70,7 +71,7 @@ export default function Sets() {
         {followed ? (
           <>
             <div className="bar"><span style={{ width: pct + '%' }} /></div>
-            <div className="meta"><span className="lav">{have} / {s.total}</span><span>Suivi</span></div>
+            <div className="meta"><span className="lav">{have} / {s.total}</span><span>{tr('Suivi')}</span></div>
           </>
         ) : (
           <div className="meta"><span>{s.total ? `${s.total} cartes` : s.code ?? ''}</span><span>{fmtDate(s.date)}</span></div>
@@ -81,20 +82,20 @@ export default function Sets() {
 
   return (
     <div className="stack" style={{ gap: 16, ...gc }}>
-      <button className="back" onClick={() => nav('/jeux')}><IBack />Jeux</button>
+      <button className="back" onClick={() => nav('/jeux')}><IBack />{tr('Jeux')}</button>
       <div className="row" style={{ gap: 12 }}>
         <span style={{ width: 12, height: 12, borderRadius: 4, background: gameColor(game), boxShadow: `0 0 16px ${gameColor(game)}` }} />
         <h1>{gameName(game)}</h1>
-        {sets && <span className="badge" style={{ marginLeft: 'auto' }}>{sets.length} extensions</span>}
+        {sets && <span className="badge" style={{ marginLeft: 'auto' }}>{tr('{n} extensions', { n: sets.length })}</span>}
       </div>
       <div className="search">
         <ISearch />
-        <input className="field" placeholder="Chercher une extension, un code (ex. OP09, SV8)" value={q} onChange={e => setQ(e.target.value)} />
+        <input className="field" placeholder={tr('Chercher une extension, un code (ex. OP09, SV8)')} value={q} onChange={e => setQ(e.target.value)} />
       </div>
-      <div className="chips" role="group" aria-label="Ranger les extensions">
-        {SORTS.map(s => <button key={s.id} className="chip-btn" aria-pressed={sort === s.id} onClick={() => setSort(s.id)}>{s.label}</button>)}
+      <div className="chips" role="group" aria-label={tr('Ranger les extensions')}>
+        {SORTS.map(s => <button key={s.id} className="chip-btn" aria-pressed={sort === s.id} onClick={() => setSort(s.id)}>{tr(s.label)}</button>)}
       </div>
-      {err && <p className="down small">Impossible de charger les extensions. Vérifie ta connexion et réessaie.</p>}
+      {err && <p className="down small">{tr('Impossible de charger les extensions. Vérifie ta connexion et réessaie.')}</p>}
       {!sets && !err && (
         <div className="grid-ext">{Array.from({ length: 8 }, (_, i) => <div key={i} className="skel" style={{ height: 150 }} />)}</div>
       )}
@@ -110,7 +111,7 @@ export default function Sets() {
           {!shut[g.name] && <div className="grid-ext">{g.items.map(tile)}</div>}
         </section>
       ))}
-      {sets && count === 0 && <p className="muted small empty">Aucune extension ne correspond. Essaie un autre mot.</p>}
+      {sets && count === 0 && <p className="muted small empty">{tr('Aucune extension ne correspond. Essaie un autre mot.')}</p>}
     </div>
   )
 }

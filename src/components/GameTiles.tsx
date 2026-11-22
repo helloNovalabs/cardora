@@ -1,3 +1,4 @@
+import { t as tr } from '../lib/i18n'
 import { useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { GAMES, type GameMeta } from '../lib/games'
@@ -35,8 +36,8 @@ export default function GameTiles({ all = false }: { all?: boolean }) {
         {main.map(g => tile(g))}
         <Link to="/jeux" className="game-tile all-games">
           <span className="stack-mini">{GAMES.filter(g => g.shelf === 'more' && g.art).slice(0, 4).map(g => <i key={g.id} style={{ backgroundImage: `url("${g.art}")` }} />)}</span>
-          <h3>Tous les jeux</h3>
-          <p>{GAMES.length} jeux, du foot à Weiss Schwarz</p>
+          <h3>{tr('Tous les jeux')}</h3>
+          <p>{tr('{n} jeux, du foot à Weiss Schwarz', { n: GAMES.length })}</p>
         </Link>
       </div>
     )
@@ -48,20 +49,20 @@ export default function GameTiles({ all = false }: { all?: boolean }) {
     <div className="stack" style={{ gap: 22 }}>
       <div className="search">
         <ISearch />
-        <input className="field" placeholder={`Chercher parmi ${GAMES.length} jeux`} value={q} onChange={e => setQ(e.target.value)} />
+        <input className="field" placeholder={tr('Chercher parmi {n} jeux', { n: GAMES.length })} value={q} onChange={e => setQ(e.target.value)} />
       </div>
       {SHELVES.map(sh => {
         const list = shown.filter(g => g.shelf === sh.id)
         if (!list.length) return null
         return (
           <section key={sh.id} className="stack" style={{ gap: 10 }}>
-            <div className="sec-h"><h2>{sh.title}</h2><span className="muted small">{list.length}</span></div>
-            {sh.hint && <p className="muted tiny" style={{ marginTop: -4 }}>{sh.hint}</p>}
+            <div className="sec-h"><h2>{tr(sh.title)}</h2><span className="muted small">{list.length}</span></div>
+            {sh.hint && <p className="muted tiny" style={{ marginTop: -4 }}>{tr(sh.hint)}</p>}
             <div className={'grid-games' + (sh.id === 'more' ? ' small' : '')}>{list.map(g => tile(g, sh.id === 'more'))}</div>
           </section>
         )
       })}
-      {shown.length === 0 && <p className="muted small empty">Aucun jeu ne s'appelle comme ça. Essaie un autre mot.</p>}
+      {shown.length === 0 && <p className="muted small empty">{tr("Aucun jeu ne s'appelle comme ça. Essaie un autre mot.")}</p>}
     </div>
   )
 }
