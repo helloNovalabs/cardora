@@ -27,4 +27,8 @@ const m3 = mergeStates(
   { owned: {}, followed: [], sealed: [sx('y'), sx('z')], history: [{ d: '2026-11-20', v: 5, cards: 5, sealed: 0 }, { d: '2026-11-21', v: 8, cards: 8, sealed: 0 }] } as any)
 assert.deepEqual(m3.sealed!.map(s => s.id), ['x', 'y', 'z'])
 assert.deepEqual(m3.history!.map(h => [h.d, h.v]), [['2026-11-20', 5], ['2026-11-21', 10]])
+// Les envies des deux appareils sont gardées
+const w = (k: string) => ({ card: card(k), price: null, target: null, addedAt: 1 })
+assert.deepEqual(Object.keys(mergeStates({ owned: {}, followed: [], wish: { a: w('a') } }, { owned: {}, followed: [], wish: { b: w('b') } }).wish!).sort(), ['a', 'b'])
+
 console.log('merge OK')

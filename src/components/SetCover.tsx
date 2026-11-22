@@ -16,8 +16,6 @@ async function groupFor(game: GameId, set: SetInfo): Promise<string | null> {
   const id = norm(set.id), name = norm(set.name), code = norm(set.code ?? '')
   const g = groups.find(x => norm(x.code ?? '') === id || (code && norm(x.code ?? '') === code))
     ?? groups.find(x => norm(x.name) === name)
-    ?? groups.find(x => id.length > 2 && norm(x.name).includes(id))
-    ?? groups.find(x => name.length > 6 && norm(x.name).includes(name))
   return g?.id ?? null
 }
 

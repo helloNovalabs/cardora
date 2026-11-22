@@ -1,3 +1,4 @@
+import { WishBox } from '../components/InvestTools'
 import { t as tr } from '../lib/i18n'
 import { useEffect, useState, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -69,6 +70,7 @@ export default function CardPage() {
               <span className="tag-s">n° {card.number}</span>
               {card.rarity && <span className="tag-s">{card.rarity}</span>}
             </div>
+            <WishBox card={card} price={price} />
           </div>
 
           <section className="panel" style={{ padding: 20 }}>
@@ -130,7 +132,7 @@ function LangBox({ card, owned, lang }: { card: Card; owned: boolean; lang?: str
   const pick = (v?: string) => { if (!v) return; if (owned) setCardLang(card.key, v); else setWant(v) }
   return (
     <section className="box stack" style={{ gap: 12 }}>
-      <div className="sec-h"><h2 style={{ fontSize: 20 }}>{owned ? tr('Ma carte est en') : tr('Je la cherche en')}</h2><span className="muted small">{tr(langOf(cur)?.name ?? '')}</span></div>
+      <div className="sec-h"><h2 style={{ fontSize: 20 }}>{owned ? tr('Ma carte est en') : tr('Je la cherche en')}</h2></div>
       <LangPicker value={cur} onChange={pick} />
       <p className="muted tiny">{tr('Le prix au-dessus vaut pour toutes les langues. Une carte japonaise ou anglaise peut coûter bien plus ou bien moins : regarde les offres dans sa langue.')}</p>
       <div className="row wrap" style={{ gap: 8 }}>

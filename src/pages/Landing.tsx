@@ -5,7 +5,7 @@ import { Brand } from '../components/Brand'
 import { AppLangPicker } from '../components/AppLang'
 import { HoloCard } from '../components/Visuals'
 import { SealedArt } from '../components/Sealed'
-import { GAMES } from '../lib/games'
+import { PICK_GAMES as GAMES } from '../lib/games'
 import { markSeen } from '../lib/seen'
 import '../landing.css'
 

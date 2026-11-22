@@ -5,6 +5,10 @@ export interface SetInfo {
   id: string
   name: string
   total: number
+  /** Numéro de la dernière carte, cartes secrètes comprises */
+  last?: number
+  /** Dossier des images de ses cartes (Pokémon) */
+  art?: string
   logo?: string
   date?: string
   code?: string

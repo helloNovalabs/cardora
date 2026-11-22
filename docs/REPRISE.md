@@ -101,3 +101,12 @@ L'utilisateur trouvait l'ancien look (violet, dégradés) « enfantin » et « c
 - Chaque carte a sa langue (FR, EN, JP, DE, ES, IT, PT, KO, ZH) : `src/components/Lang.tsx`.
 - Appli en FR, EN, ES : `src/lib/i18n.ts`. Le texte français sert de clé ; traductions dans `src/i18n/en.ts` et `es.ts`. Tout nouveau texte passe par `t()` / `tr()` et s'ajoute aux deux fichiers.
 - Le prix affiché reste « toutes langues » : pas de prix par langue, pour ne pas inventer.
+
+## 23/11 (suite) : marché, Pokémon unique, langue simple
+- Concurrents regardés : Collectr, PokeDATA, TCGinvest, ZebraDex, BoostaCote, CollectHolo.
+- Pokémon = un seul jeu ; la langue se choisit sur sa page (`src/lib/pokeLang.ts`). Le japonais reste `pokemonjp` en coulisses (`PICK_GAMES` le cache).
+- Un seul composant de langue : `src/components/LangMenu.tsx`. Langue de l'appli : page Mon compte (et accueil de présentation).
+- Marché (`/boutique`) : hausses, baisses, plus chères, par budget (`src/lib/market.ts`, 48 cartes rares des 16 dernières extensions, vrais prix Cardmarket).
+- Investir : envies + prix cible, « Cet échange est juste ? », répartition, export Excel (`src/components/InvestTools.tsx`).
+- Éventails d'extensions : adresses d'images déduites, sans appel API (trop d'appels = blocage TCGdex).
+- Idées suivantes : outil de centrage, historique long des prix (il faudrait enregistrer les prix chaque jour côté serveur).

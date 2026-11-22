@@ -2,9 +2,9 @@ import { t as tr } from '../lib/i18n'
 import type { CSSProperties } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { wasSeen } from '../lib/seen'
-import { fmt, ownedInSet, totals, unitValue, useCollection } from '../lib/store'
+import { fmt, ownedInSet, unitValue, useCollection } from '../lib/store'
 import { CardFace } from '../components/CardFace'
-import { SealedArt } from '../components/Sealed'
+import { MarketRail } from '../components/Market'
 import { GAMES, gameColor, gameName } from '../lib/games'
 import { Donut, HoloCard, Ring } from '../components/Visuals'
 import { CountUp } from '../components/Brand'
@@ -68,8 +68,6 @@ export default function Home() {
         )}
       </section>
 
-      <InvestStrip />
-
       <section className="stack">
         <div className="sec-h"><h2>{tr('Mes classeurs')}</h2><Link to="/jeux">{tr('Nouveau classeur')}</Link></div>
         {s.followed.length === 0 && (
@@ -117,37 +115,8 @@ export default function Home() {
         </section>
       )}
 
-      <section className="stack">
-        <h2>{tr('Les jeux')}</h2>
-        <GameTiles />
-      </section>
+      <MarketRail />
     </div>
-  )
-}
-
-/** Lien vers la page Investissement : plus-value et objets scellés. */
-function InvestStrip() {
-  const s = useCollection()
-  const t = totals(s)
-  const sealed = s.sealed ?? []
-  const n = sealed.reduce((k, x) => k + x.qty, 0)
-  return (
-    <Link to="/investir" className="inv-strip">
-      <div className="art">
-        <SealedArt kind={sealed[0]?.kind ?? 'booster'} color={sealed[0] ? gameColor(sealed[0].game) : '#3DC8FF'} logo={sealed[0]?.logo} label={sealed[0]?.setName ?? ''} size={48} />
-        <SealedArt kind={sealed[1]?.kind ?? 'etb'} color={sealed[1] ? gameColor(sealed[1].game) : '#FF3D6E'} logo={sealed[1]?.logo} label={sealed[1]?.setName ?? ''} size={56} />
-      </div>
-      <div className="grow">
-        <h3 className="small" style={{ fontWeight: 800 }}>{tr('Investissement')}</h3>
-        <p className="muted tiny">
-          {t.tracked > 0
-            ? <><span className={t.gain >= 0 ? 'up' : 'down'} style={{ fontWeight: 800 }}>{t.gain >= 0 ? '+' : '−'}{fmt(Math.abs(t.gain))}</span> {tr('depuis l’achat')}{n ? tr(n > 1 ? ', {n} objets scellés ({v})' : ', {n} objet scellé ({v})', { n, v: fmt(t.sealed) }) : ''}</>
-            : n ? tr(n > 1 ? '{n} objets scellés, {v}. Note tes prix d’achat pour voir ta plus-value.' : '{n} objet scellé, {v}. Note tes prix d’achat pour voir ta plus-value.', { n, v: fmt(t.sealed) })
-            : tr('Ajoute tes boosters, displays et coffrets, et suis ce que vaut tout ça jour après jour.')}
-        </p>
-      </div>
-      <span className="lav small" style={{ fontWeight: 700 }}>{tr('Voir')}</span>
-    </Link>
   )
 }
 

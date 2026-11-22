@@ -1,7 +1,7 @@
 import { t as tr } from '../lib/i18n'
 import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
-import { GAMES, gameColor, gameMeta, gameName, listSets } from '../lib/games'
+import { PICK_GAMES, gameColor, gameMeta, gameName, listSets } from '../lib/games'
 import { tcgSealedPrice } from '../lib/tcg'
 import { deleteSealed, fmt, getState, saveSealed, toEur, sealedUnit, totals, unitValue, useCollection, type Sealed, type SealedKind } from '../lib/store'
 import type { GameId, SetInfo } from '../lib/types'
@@ -10,6 +10,7 @@ import { Seg, ValueChart } from '../components/Visuals'
 import { KINDS, SealedArt, kindLabel } from '../components/Sealed'
 import { IPlus } from '../components/Icons'
 import { CardFace } from '../components/CardFace'
+import { TradeCheck, WishList, exportCsv, useRepartition } from '../components/InvestTools'
 
 const cardUrl = (c: { game: string; setId: string; id: string }) => `/carte/${c.game}/${encodeURIComponent(c.setId)}/${encodeURIComponent(c.id)}`
 const signed = (n: number) => (n >= 0 ? '+' : '−') + fmt(Math.abs(n))
@@ -65,6 +66,7 @@ export default function Invest() {
 
   const cardsShare = t.total > 0 ? (t.cards / t.total) * 100 : 0
   const gp = pct(t.gain, t.paid)
+  const rep = useRepartition(s)
 
   return (
     <div className="stack fade-in" style={{ gap: 28 }}>
@@ -106,10 +108,7 @@ export default function Invest() {
 
       <section className="stack">
         <div className="sec-h"><h2>{tr('Mes objets scellés')}</h2>{sealed.length > 0 && <button className="link" onClick={() => setEdit('new')}>{tr('Ajouter')}</button>}</div>
-        <p className="muted small" style={{ maxWidth: 560, marginTop: -4 }}>
-          Boosters, displays, coffrets jamais ouverts. Ajoutés depuis la page d’une extension, ils ont une photo et un prix TCGplayer qui se met à jour tout seul. Sinon, tu notes toi-même le prix et on t’envoie vérifier sur Cardmarket.
-        </p>
-        <div className="grid-sealed">
+                <div className="grid-sealed">
           {sealed.map(x => {
             const unit = sealedUnit(x)
             const g = x.buy != null ? (unit - x.buy) * x.qty : null
@@ -160,6 +159,8 @@ export default function Invest() {
         </section>
       )}
 
+      <WishList />
+
       <section className="stack">
         <div className="sec-h"><h2>{tr('Mes meilleures affaires')}</h2></div>
         {deals.length === 0 ? (
@@ -177,12 +178,21 @@ export default function Invest() {
         )}
       </section>
 
+      <TradeCheck />
+
+      {rep.length > 0 && (
+        <section className="stack">
+          <div className="sec-h"><h2>{tr('Où est ton argent')}</h2><button className="link" onClick={() => exportCsv(s)}>{tr('Exporter (Excel)')}</button></div>
+          <div className="box rep">{rep.map(r => <div key={r.name}><span className="ellipsis">{r.name}</span><i><u style={{ width: r.pct + '%' }} /></i><b>{fmt(r.v)}</b></div>)}</div>
+        </section>
+      )}
+
       {edit && <SealedSheet item={edit === 'new' ? null : edit} onClose={() => setEdit(null)} />}
     </div>
   )
 }
 
-const READY = GAMES.filter(g => g.ready) as (typeof GAMES[number] & { id: GameId })[]
+const READY = PICK_GAMES.filter(g => g.ready) as (typeof PICK_GAMES[number] & { id: GameId })[]
 const toNum = (v: string) => { const n = parseFloat(v.replace(',', '.')); return Number.isFinite(n) && n >= 0 ? n : null }
 
 function SealedSheet({ item, onClose }: { item: Sealed | null; onClose: () => void }) {

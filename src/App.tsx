@@ -2,10 +2,9 @@ import { lazy, Suspense, useEffect } from 'react'
 import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { IBag, IBinder, IChart, IHome, IPlus, IUser } from './components/Icons'
 import { Brand } from './components/Brand'
-import { fmt, snapshot, totals, useCollection } from './lib/store'
+import { snapshot, totals, useCollection } from './lib/store'
 import { useAccount } from './lib/sync'
-import { t as tr, tn, useAppLang } from './lib/i18n'
-import { AppLangPicker } from './components/AppLang'
+import { t as tr, useAppLang } from './lib/i18n'
 import Home from './pages/Home'
 const Explore = lazy(() => import('./pages/Explore'))
 const Sets = lazy(() => import('./pages/Sets'))
@@ -21,7 +20,7 @@ const cls = ({ isActive }: { isActive: boolean }) => (isActive ? 'on' : '')
 const TABS = [
   { to: '/', label: 'Collection', icon: <IHome />, match: (p: string) => p === '/' || p.startsWith('/carte') },
   { to: '/jeux', label: 'Classeurs', icon: <IBinder />, match: (p: string) => p.startsWith('/jeux') },
-  { to: '/boutique', label: 'Boutique', icon: <IBag />, match: (p: string) => p.startsWith('/boutique') },
+  { to: '/boutique', label: 'Marché', icon: <IBag />, match: (p: string) => p.startsWith('/boutique') },
   { to: '/investir', label: 'Investir', icon: <IChart />, match: (p: string) => p.startsWith('/investir') },
   { to: '/compte', label: 'Compte', icon: <IUser />, match: (p: string) => p.startsWith('/compte') },
 ]
@@ -38,11 +37,7 @@ export default function App() {
   useEffect(() => { window.scrollTo(0, 0) }, [pathname])
   const col = useCollection()
   const acc = useAccount()
-  const owned = Object.values(col.owned)
-  const t = totals(col)
-  const value = t.total
-  const count = owned.reduce((n, o) => n + o.qty, 0)
-  const nSealed = (col.sealed ?? []).reduce((n, x) => n + x.qty, 0)
+  const value = totals(col).total
   // Une photo de la valeur par jour, pour la courbe de la page Investir
   useEffect(() => { const id = window.setTimeout(snapshot, 1500); return () => window.clearTimeout(id) }, [value])
   const active = TABS.findIndex(t => t.match(pathname))
@@ -57,18 +52,12 @@ export default function App() {
         <nav className="nav">
           <NavLink to="/" end className={cls}><IHome />{tr('Ma collection')}</NavLink>
           <NavLink to="/jeux" className={cls}><IBinder />{tr('Classeurs')}</NavLink>
-          <NavLink to="/boutique" className={cls}><IBag />{tr('Boutique')}</NavLink>
+          <NavLink to="/boutique" className={cls}><IBag />{tr('Marché')}</NavLink>
           <NavLink to="/investir" className={cls}><IChart />{tr('Investissement')}</NavLink>
           <NavLink to="/compte" className={cls}><IUser />{tr('Mon compte')}</NavLink>
           <NavLink to="/ajouter" className={({ isActive }) => 'add' + (isActive ? ' on' : '')}><IPlus />{tr('Ajouter une carte')}</NavLink>
         </nav>
         <div className="side-foot">
-          <Link to="/investir" className="wallet">
-            <span className="kicker">{tr('Ta collection vaut')}</span>
-            <span className="num foil-text">{fmt(value)}</span>
-            <span className="tiny muted">{tn(count, '{n} carte', '{n} cartes')}{nSealed ? ', ' + tn(nSealed, '{n} scellé', '{n} scellés') : ''}, {tn(col.followed.length, '{n} classeur', '{n} classeurs')}</span>
-            {t.tracked > 0 && Math.round(t.gain) !== 0 && <span className={'tiny ' + (t.gain > 0 ? 'up' : 'down')} style={{ display: 'block', fontWeight: 700, marginTop: 2 }}>{t.gain > 0 ? '+' : '−'}{fmt(Math.abs(t.gain))} {tr('depuis l’achat')}</span>}
-          </Link>
           <NavLink to="/compte" className={({ isActive }) => 'me' + (isActive ? ' on' : '')}>
             <Avatar />
             <div className="grow">
@@ -76,14 +65,13 @@ export default function App() {
               <div className="tiny muted">{acc.email ? (acc.status === 'error' ? tr('Pas synchronisé') : tr('Synchronisé sur tes appareils')) : tr('Pour retrouver tes cartes partout')}</div>
             </div>
           </NavLink>
-          <AppLangPicker />
         </div>
       </aside>
 
       <main className="main">
         <header className="mob-head">
           <Link to="/" aria-label="Cardora"><Brand /></Link>
-          <span className="row" style={{ gap: 8 }}><AppLangPicker compact /><Link to="/compte" aria-label={tr('Mon compte')}><Avatar /></Link></span>
+          <Link to="/compte" aria-label={tr('Mon compte')}><Avatar /></Link>
         </header>
         <Suspense key={appLang} fallback={<div className="stack" style={{ gap: 16 }}><div className="skel" style={{ height: 60 }} /><div className="skel" style={{ height: 320 }} /></div>}>
         <Routes>

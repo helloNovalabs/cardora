@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import type { Card, GameId, Price } from './types'
+import { getPokeLang } from './pokeLang'
 
 /** `buy` = prix payé pour UNE carte (facultatif, saisi par la personne). */
 export interface Owned { card: Card; qty: number; price: Price | null; addedAt: number; buy?: number | null; grade?: Grade | null; lang?: string }
@@ -22,7 +23,9 @@ export interface Sealed {
 }
 /** Une photo par jour de ce que vaut tout (cartes + scellé), et de ce qui a été payé. */
 export interface Snap { d: string; v: number; cards: number; sealed: number }
-export interface State { owned: Record<string, Owned>; followed: Followed[]; sealed?: Sealed[]; history?: Snap[] }
+export interface State { owned: Record<string, Owned>; followed: Followed[]; sealed?: Sealed[]; history?: Snap[]; wish?: Record<string, Wish> }
+/** Une carte voulue, et le prix auquel on veut l'acheter. */
+export interface Wish { card: Card; price: Price | null; target: number | null; addedAt: number }
 
 const KEY = 'cardora-collection-v1'
 let state: State = load()
@@ -102,7 +105,7 @@ export function setGrade(key: string, grade: Grade | null) {
 }
 
 /** Langue d'une carte par défaut : celle des données du jeu (Pokémon et Yu-Gi-Oh! en français, japonais pour Pokémon japonais, sinon anglais). */
-export const defaultLang = (g: GameId) => (g === 'pokemon' || g === 'yugioh' || g === 'foot' ? 'fr' : g === 'pokemonjp' ? 'ja' : 'en')
+export const defaultLang = (g: GameId) => (g === 'pokemon' ? getPokeLang() : g === 'yugioh' || g === 'foot' ? 'fr' : g === 'pokemonjp' ? 'ja' : 'en')
 export function setCardLang(key: string, lang: string) {
   const cur = state.owned[key]
   if (!cur || cur.lang === lang) return
@@ -113,6 +116,24 @@ export function setBuy(key: string, buy: number | null) {
   const cur = state.owned[key]
   if (!cur || cur.buy === buy) return
   save({ ...state, owned: { ...state.owned, [key]: { ...cur, buy } } })
+}
+
+// ----- Envies -----
+export function toggleWish(card: Card, price: Price | null) {
+  const wish = { ...(state.wish ?? {}) }
+  if (wish[card.key]) delete wish[card.key]
+  else wish[card.key] = { card, price, target: null, addedAt: Date.now() }
+  save({ ...state, wish })
+}
+export function setWishTarget(key: string, target: number | null) {
+  const w = state.wish?.[key]
+  if (!w || w.target === target) return
+  save({ ...state, wish: { ...state.wish, [key]: { ...w, target } } })
+}
+export function setWishPrice(key: string, price: Price) {
+  const w = state.wish?.[key]
+  if (!w || w.price?.value === price.value) return
+  save({ ...state, wish: { ...state.wish, [key]: { ...w, price } } })
 }
 
 // ----- Scellé -----

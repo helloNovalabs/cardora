@@ -1,5 +1,5 @@
 import { t as tr } from '../lib/i18n'
-import type { CSSProperties } from 'react'
+import { LangMenu } from './LangMenu'
 import { gameMeta } from '../lib/games'
 import type { GameId } from '../lib/types'
 
@@ -25,19 +25,10 @@ export function LangTag({ code, small = false }: { code?: string; small?: boolea
   return <span className={'lang-tag' + (small ? ' sm' : '')} title={tr(l.name)}>{l.tag}</span>
 }
 
-/** Choix de la langue : une rangée d'étiquettes, celle choisie prend le reflet holo. */
+/** Choix de la langue d'une carte : un seul bouton, une petite liste. */
 export function LangPicker({ value, onChange, label = 'Langue de la carte', any = false }: { value?: string; onChange: (v: string | undefined) => void; label?: string; any?: boolean }) {
-  return (
-    <div className="lang-pick" role="radiogroup" aria-label={tr(label)}>
-      {any && <button role="radio" aria-checked={!value} className={!value ? 'on' : ''} onClick={() => onChange(undefined)}>{tr('Toutes')}</button>}
-      {CARD_LANGS.map(l => (
-        <button key={l.code} role="radio" aria-checked={value === l.code} className={value === l.code ? 'on' : ''} title={tr(l.name)}
-          style={{ '--d': `${CARD_LANGS.indexOf(l) * 40}deg` } as CSSProperties} onClick={() => onChange(value === l.code && any ? undefined : l.code)}>
-          {l.tag}
-        </button>
-      ))}
-    </div>
-  )
+  const options = [...(any ? [{ code: '', label: tr('Toutes les langues') }] : []), ...CARD_LANGS.map(l => ({ code: l.code as string, label: tr(l.name), tag: l.tag }))]
+  return <LangMenu value={value ?? ''} options={options} label={tr(label)} onChange={c => onChange(c || undefined)} />
 }
 
 /** Où acheter une carte : recherches Cardmarket (avec la langue), TCGplayer et eBay. */

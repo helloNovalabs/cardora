@@ -1,3 +1,6 @@
+import { LangMenu } from '../components/LangMenu'
+import { PokeFan } from '../components/PokeFan'
+import { POKE_LANGS, getPokeLang, setPokeLang } from '../lib/pokeLang'
 import { t as tr } from '../lib/i18n'
 import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -26,10 +29,18 @@ export default function Sets() {
   const [sort, setSort] = useState<Sort>('serie')
   const [shut, setShut] = useState<Record<string, boolean>>({})
 
+  const isPokemon = game === 'pokemon' || game === 'pokemonjp'
+  const [pl, setPl] = useState(getPokeLang)
+  const pickLang = (c: string) => {
+    setPokeLang(c); setPl(c)
+    nav(c === 'ja' ? '/jeux/pokemonjp' : '/jeux/pokemon', { replace: true })
+  }
+  useEffect(() => { if (game === 'pokemon' && getPokeLang() === 'ja') nav('/jeux/pokemonjp', { replace: true }) }, [game, nav])
+
   useEffect(() => {
     setSets(null); setErr(false); setShut({})
     listSets(game).then(setSets).catch(() => setErr(true))
-  }, [game])
+  }, [game, pl])
 
   const isFollowed = (id: string) => col.followed.some(f => f.game === game && f.setId === id)
 
@@ -62,10 +73,12 @@ export default function Sets() {
     const have = followed ? ownedInSet(col, game, s.id).length : 0
     const pct = followed && s.total ? Math.min(100, (have / s.total) * 100) : 0
     return (
-      <Link key={s.id} to={`/jeux/${game}/${encodeURIComponent(s.id)}`} className={'ext' + (isSport(game) && s.logo ? ' cover' : '') + (followed ? ' followed' : '') + (s.soon ? ' soon' : '')} style={gc}>
+      <Link key={s.id} to={`/jeux/${game}/${encodeURIComponent(s.id)}`} className={'ext' + (game === 'pokemon' ? ' set-fan' : '') + (isSport(game) && s.logo ? ' cover' : '') + (followed ? ' followed' : '') + (s.soon ? ' soon' : '')} style={gc}>
         {s.soon && <span className="soon-tag">{tr('À venir')}</span>}
         <div className="lg">
-          <ExtLogo game={game} set={s} invert={game === 'magic'} color={gameColor(game)} />
+          {game === 'pokemon'
+            ? <PokeFan key={pl} set={s} fallback={<ExtLogo game={game} set={s} invert={false} color={gameColor(game)} />} />
+            : <ExtLogo game={game} set={s} invert={game === 'magic'} color={gameColor(game)} />}
         </div>
         <h3>{s.name}</h3>
         {followed ? (
@@ -74,7 +87,7 @@ export default function Sets() {
             <div className="meta"><span className="lav">{have} / {s.total}</span><span>{tr('Suivi')}</span></div>
           </>
         ) : (
-          <div className="meta"><span>{s.total ? `${s.total} cartes` : s.code ?? ''}</span><span>{fmtDate(s.date)}</span></div>
+          <div className="meta"><span>{s.total ? tr('{n} cartes', { n: s.total }) : s.code ?? ''}</span><span>{fmtDate(s.date)}</span></div>
         )}
       </Link>
     )
@@ -84,9 +97,8 @@ export default function Sets() {
     <div className="stack" style={{ gap: 16, ...gc }}>
       <button className="back" onClick={() => nav('/jeux')}><IBack />{tr('Jeux')}</button>
       <div className="row" style={{ gap: 12 }}>
-        <span style={{ width: 12, height: 12, borderRadius: 4, background: gameColor(game), boxShadow: `0 0 16px ${gameColor(game)}` }} />
-        <h1>{gameName(game)}</h1>
-        {sets && <span className="badge" style={{ marginLeft: 'auto' }}>{tr('{n} extensions', { n: sets.length })}</span>}
+        <h1>{isPokemon ? 'Pokémon' : gameName(game)}</h1>
+        <span style={{ marginLeft: 'auto' }}>{isPokemon && <LangMenu value={game === 'pokemonjp' ? 'ja' : pl} options={POKE_LANGS} label={tr('Langue des cartes')} onChange={pickLang} />}</span>
       </div>
       <div className="search">
         <ISearch />

@@ -1,3 +1,4 @@
+import { AppLangPicker } from '../components/AppLang'
 import { t as tr } from '../lib/i18n'
 import { useState } from 'react'
 import { deleteAccount, sendCode, signOut, useAccount, verifyCode } from '../lib/sync'
@@ -23,7 +24,7 @@ export default function Account() {
   if (acc.email) {
     return (
       <div className="stack fade-in" style={{ gap: 16, maxWidth: 540 }}>
-        <h1>{tr('Mon compte')}</h1>
+        <div className="row between" style={{ gap: 12 }}><h1>{tr('Mon compte')}</h1><AppLangPicker /></div>
         <div className="panel stack">
           <div className="row" style={{ gap: 14 }}>
             <span className="avatar on" style={{ width: 52, height: 52, fontSize: 22 }}>{acc.email[0].toUpperCase()}</span>
@@ -61,7 +62,7 @@ export default function Account() {
   return (
     <div className="stack fade-in" style={{ gap: 16, maxWidth: 540 }}>
       <div className="stack" style={{ gap: 6 }}>
-        <h1>{tr('Mon compte')}</h1>
+        <div className="row between" style={{ gap: 12 }}><h1>{tr('Mon compte')}</h1><AppLangPicker /></div>
         <p className="muted small">
           {tr("Connecte-toi pour retrouver ta collection sur ton ordinateur et ne rien perdre si tu changes de téléphone. Pas de mot de passe : on t'envoie un code à 6 chiffres par e-mail.")}
         </p>

@@ -1,11 +1,12 @@
 import { t as tr } from '../lib/i18n'
 import { useEffect, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
-import { GAMES, gameColor, gameMeta } from '../lib/games'
+import { PICK_GAMES, gameColor, gameMeta } from '../lib/games'
 import { tcgSealed, tcgSets, type TcgSealed } from '../lib/tcg'
 import { canSearch, priceFor, searchCards } from '../lib/games'
 import { LangPicker, buyLinks } from '../components/Lang'
 import { CardFace } from '../components/CardFace'
+import { MarketTrends } from '../components/Market'
 import { ISearch } from '../components/Icons'
 import { toEur } from '../lib/store'
 import type { Card, Price } from '../lib/types'
@@ -13,7 +14,7 @@ import { fmt, guessKind, saveSealed, USD_TO_EUR, useCollection } from '../lib/st
 import type { GameId, SetInfo } from '../lib/types'
 
 const MAIN: GameId[] = ['pokemon', 'onepiece', 'lorcana', 'magic', 'yugioh', 'riftbound']
-const OTHERS = GAMES.filter(g => g.tcg && !MAIN.includes(g.id))
+const OTHERS = PICK_GAMES.filter(g => g.tcg && !MAIN.includes(g.id))
 const KINDS: [RegExp, string][] = [[/./, 'Tout'], [/pack|booster(?! box)/i, 'Boosters'], [/booster box|display/i, 'Displays'], [/elite trainer|collection|premium|gift|bundle|coffret/i, 'Coffrets'], [/deck|starter/i, 'Decks']]
 
 const cmSearch = (game: GameId, q: string) => {
@@ -83,9 +84,9 @@ export default function Shop() {
   return (
     <div className="stack fade-in shop" style={{ gap: 18, '--gc': gameColor(game) } as CSSProperties}>
       <div className="stack" style={{ gap: 6 }}>
-        <h1>{tr('Boutique')}</h1>
+        <h1>{tr('Marché')}</h1>
         <p className="muted small" style={{ maxWidth: 620 }}>
-          {tr("Cherche la carte qu'il te manque, ou regarde les dernières sorties : boosters, displays, coffrets, avec le prix du marché. Tu achètes chez le vendeur de ton choix. Cardora ne vend rien et ne touche rien sur tes achats.")}
+          {tr('Ce qui monte, ce qui baisse, et où acheter.')}
         </p>
       </div>
 
@@ -103,6 +104,8 @@ export default function Shop() {
           {OTHERS.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
         </select>
       </div>
+      {q.trim().length < 2 && game === 'pokemon' && <MarketTrends />}
+      {q.trim().length < 2 && <h2 style={{ marginTop: 8 }}>{tr('Les dernières sorties')}</h2>}
       {q.trim().length < 2 && <div className="chips" role="group" aria-label={tr('Type de produit')}>
         {KINDS.map(([, l], i) => <button key={l} className="chip-btn" aria-pressed={kind === i} onClick={() => setKind(i)}>{tr(l)}</button>)}
       </div>}
