@@ -95,3 +95,9 @@ L'utilisateur trouvait l'ancien look (violet, dégradés) « enfantin » et « c
 - `src/theme.css` chargé en dernier : noir #000, blanc, gris #8C8C92 ; couleur seulement dans le reflet holo `--holo` (#FF3D6E, #FFD23D, #3DFF9C, #3DC8FF, #A23DFF).
 - Titres et chiffres : Anton en capitales ; texte : Hanken Grotesk. Boutons pilules ; principal blanc avec anneau holo animé (bordure `padding-box`/`border-box`, pas de pseudo-élément : il passait devant).
 - Demande en attente : « les différentes langues, un truc stylé » (à préciser : langue de l'appli ou langue des cartes FR/EN/JP).
+
+## 23/11 : langues et recherche en boutique
+- Boutique : chercher n'importe quelle carte (photo, prix, liens Cardmarket, TCGplayer, eBay).
+- Chaque carte a sa langue (FR, EN, JP, DE, ES, IT, PT, KO, ZH) : `src/components/Lang.tsx`.
+- Appli en FR, EN, ES : `src/lib/i18n.ts`. Le texte français sert de clé ; traductions dans `src/i18n/en.ts` et `es.ts`. Tout nouveau texte passe par `t()` / `tr()` et s'ajoute aux deux fichiers.
+- Le prix affiché reste « toutes langues » : pas de prix par langue, pour ne pas inventer.
