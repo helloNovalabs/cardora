@@ -33,8 +33,9 @@ export default function Shop() {
     setShelves(null); setErr(false)
     ;(async () => {
       const soon = new Date(Date.now() + 120 * 86400_000).toISOString().slice(0, 10)
-      // Les dernières extensions et les précommandes (jusqu'à 4 mois)
-      const sets = (await tcgSets(cat)).filter(s => (s.date ?? '') <= soon).slice(0, 6)
+      // Les dernières extensions et les précommandes (jusqu'à 4 mois). Rangées par ordre d'ajout chez TCGplayer :
+      // leurs dates sont parfois changées pour de vieilles extensions.
+      const sets = (await tcgSets(cat)).filter(s => (s.date ?? '') <= soon).sort((a, b) => Number(b.id) - Number(a.id)).slice(0, 6)
       const out: Shelf[] = []
       for (const s of sets) {
         const items = await tcgSealed(cat, s.id).catch(() => [] as TcgSealed[])
