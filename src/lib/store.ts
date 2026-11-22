@@ -1,9 +1,19 @@
 import { useSyncExternalStore } from 'react'
 import type { Card, GameId, Price } from './types'
 
-export interface Owned { card: Card; qty: number; price: Price | null; addedAt: number }
+/** `buy` = prix payé pour UNE carte (facultatif, saisi par la personne). */
+export interface Owned { card: Card; qty: number; price: Price | null; addedAt: number; buy?: number | null }
 export interface Followed { game: GameId; setId: string; name: string; total: number; logo?: string }
-export interface State { owned: Record<string, Owned>; followed: Followed[] }
+
+export type SealedKind = 'booster' | 'display' | 'etb' | 'coffret' | 'tin' | 'deck'
+/** Objet scellé (booster, display, coffret…). Les prix sont saisis par la personne : on n'a pas de source gratuite. */
+export interface Sealed {
+  id: string; game: GameId; kind: SealedKind; name: string; setName?: string; logo?: string
+  qty: number; buy: number | null; value: number | null; valueAt: number | null; addedAt: number
+}
+/** Une photo par jour de ce que vaut tout (cartes + scellé), et de ce qui a été payé. */
+export interface Snap { d: string; v: number; cards: number; sealed: number }
+export interface State { owned: Record<string, Owned>; followed: Followed[]; sealed?: Sealed[]; history?: Snap[] }
 
 const KEY = 'cardora-collection-v1'
 let state: State = load()
@@ -36,10 +46,10 @@ export function useCollection() {
 
 export function addCard(card: Card, price: Price | null, set?: Followed) {
   const cur = state.owned[card.key]
-  const owned = { ...state.owned, [card.key]: { card, price: price ?? cur?.price ?? null, qty: (cur?.qty ?? 0) + 1, addedAt: cur?.addedAt ?? Date.now() } }
+  const owned = { ...state.owned, [card.key]: { card, price: price ?? cur?.price ?? null, qty: (cur?.qty ?? 0) + 1, addedAt: cur?.addedAt ?? Date.now(), buy: cur?.buy ?? null } }
   let followed = state.followed
   if (set && !followed.some(f => f.game === set.game && f.setId === set.setId)) followed = [set, ...followed]
-  save({ owned, followed })
+  save({ ...state, owned, followed })
 }
 
 export function removeCard(key: string) {
@@ -75,6 +85,53 @@ export function refreshFollowed(f: Followed) {
 export function unfollow(game: GameId, setId: string) {
   save({ ...state, followed: state.followed.filter(x => !(x.game === game && x.setId === setId)) })
 }
+
+export function setBuy(key: string, buy: number | null) {
+  const cur = state.owned[key]
+  if (!cur || cur.buy === buy) return
+  save({ ...state, owned: { ...state.owned, [key]: { ...cur, buy } } })
+}
+
+// ----- Scellé -----
+export function saveSealed(x: Sealed) {
+  const list = state.sealed ?? []
+  const next = list.some(s => s.id === x.id) ? list.map(s => (s.id === x.id ? x : s)) : [x, ...list]
+  save({ ...state, sealed: next })
+}
+export function deleteSealed(id: string) {
+  save({ ...state, sealed: (state.sealed ?? []).filter(s => s.id !== id) })
+}
+/** Valeur d'un objet scellé : le prix saisi, sinon le prix payé (on le dit dans l'interface). */
+export const sealedUnit = (x: Sealed) => x.value ?? x.buy ?? 0
+
+// ----- Totaux pour l'investissement -----
+export function totals(s: State) {
+  const owned = Object.values(s.owned)
+  const sealed = s.sealed ?? []
+  const cards = owned.reduce((n, o) => n + (toEur(o.price) ?? 0) * o.qty, 0)
+  const sealedV = sealed.reduce((n, x) => n + sealedUnit(x) * x.qty, 0)
+  // Plus-value : seulement sur ce dont on connaît le prix d'achat
+  let paid = 0, worth = 0, tracked = 0
+  for (const o of owned) if (o.buy != null) { paid += o.buy * o.qty; worth += (toEur(o.price) ?? 0) * o.qty; tracked += o.qty }
+  for (const x of sealed) if (x.buy != null) { paid += x.buy * x.qty; worth += sealedUnit(x) * x.qty; tracked += x.qty }
+  return { cards, sealed: sealedV, total: cards + sealedV, paid, worth, gain: worth - paid, tracked }
+}
+
+const today = () => new Date().toLocaleDateString('sv-SE') // AAAA-MM-JJ, heure locale
+
+/** Note la valeur du jour (une seule ligne par jour, mise à jour si elle change). */
+export function snapshot() {
+  const t = totals(state)
+  if (t.total <= 0 && !(state.history?.length)) return
+  const d = today()
+  const snap: Snap = { d, v: round(t.total), cards: round(t.cards), sealed: round(t.sealed) }
+  const h = state.history ?? []
+  const last = h[h.length - 1]
+  if (last?.d === d && last.v === snap.v && last.sealed === snap.sealed) return
+  const next = last?.d === d ? [...h.slice(0, -1), snap] : [...h, snap]
+  save({ ...state, history: next.slice(-730) })
+}
+const round = (n: number) => Math.round(n * 100) / 100
 
 export const ownedInSet = (s: State, game: GameId, setId: string) =>
   Object.values(s.owned).filter(o => o.card.game === game && o.card.setId === setId)

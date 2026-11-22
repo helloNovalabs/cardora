@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
-import { fmt, ownedInSet, toEur, useCollection } from '../lib/store'
+import { fmt, ownedInSet, toEur, totals, useCollection } from '../lib/store'
+import { SealedArt } from '../components/Sealed'
 import { GAMES, gameColor, gameName } from '../lib/games'
 import { Donut, HoloCard, Ring } from '../components/Visuals'
 import { CountUp } from '../components/Brand'
@@ -34,7 +35,7 @@ export default function Home() {
     <div className="stack fade-in" style={{ gap: 28 }}>
       <section className="panel hello">
         <div>
-          <span className="kicker">Ta collection vaut</span>
+          <span className="kicker">{s.sealed?.length ? 'Tes cartes valent' : 'Ta collection vaut'}</span>
           <CountUp value={value} className="num foil-text value-big" />
           <p className="muted tiny" style={{ maxWidth: 380 }}>
             Prix du marché d'aujourd'hui, Cardmarket{hasUsd ? ' et TCGplayer converti en euros' : ''}. Une carte sans prix connu compte pour 0.
@@ -63,6 +64,8 @@ export default function Home() {
           </div>
         )}
       </section>
+
+      <InvestStrip />
 
       <section className="stack">
         <div className="sec-h"><h2>Mes classeurs</h2><Link to="/jeux">Nouveau classeur</Link></div>
@@ -115,6 +118,32 @@ export default function Home() {
         <GameTiles />
       </section>
     </div>
+  )
+}
+
+/** Lien vers la page Investissement : plus-value et objets scellés. */
+function InvestStrip() {
+  const s = useCollection()
+  const t = totals(s)
+  const sealed = s.sealed ?? []
+  const n = sealed.reduce((k, x) => k + x.qty, 0)
+  return (
+    <Link to="/investir" className="inv-strip">
+      <div className="art">
+        <SealedArt kind={sealed[0]?.kind ?? 'booster'} color={sealed[0] ? gameColor(sealed[0].game) : '#8B6CFF'} logo={sealed[0]?.logo} label={sealed[0]?.setName ?? ''} size={48} />
+        <SealedArt kind={sealed[1]?.kind ?? 'etb'} color={sealed[1] ? gameColor(sealed[1].game) : '#F472B6'} logo={sealed[1]?.logo} label={sealed[1]?.setName ?? ''} size={56} />
+      </div>
+      <div className="grow">
+        <h3 className="small" style={{ fontWeight: 800 }}>Investissement</h3>
+        <p className="muted tiny">
+          {t.tracked > 0
+            ? <><span className={t.gain >= 0 ? 'up' : 'down'} style={{ fontWeight: 800 }}>{t.gain >= 0 ? '+' : '−'}{fmt(Math.abs(t.gain))}</span> depuis l’achat{n ? `, ${n} objet${n > 1 ? 's' : ''} scellé${n > 1 ? 's' : ''} (${fmt(t.sealed)})` : ''}</>
+            : n ? `${n} objet${n > 1 ? 's' : ''} scellé${n > 1 ? 's' : ''}, ${fmt(t.sealed)}. Note tes prix d’achat pour voir ta plus-value.`
+            : 'Ajoute tes boosters, displays et coffrets, et suis ce que vaut tout ça jour après jour.'}
+        </p>
+      </div>
+      <span className="lav small" style={{ fontWeight: 700 }}>Voir</span>
+    </Link>
   )
 }
 

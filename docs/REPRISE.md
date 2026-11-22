@@ -1,4 +1,4 @@
-# Cardora — reprise (20/11/2026)
+# Cardora — reprise (22/11/2026)
 
 ## Le projet
 Cardora = appli web (site installable sur téléphone) pour collectionneurs de cartes TCG.
@@ -41,6 +41,13 @@ Honnêteté : prix en euros avec la source, jamais de prix inventé.
 - Recherche par nom (tous les jeux sauf One Piece). Confettis quand un classeur est complet. Boutons « ? » d'explication.
 - Collection gardée dans le navigateur (localStorage, clé `cardora-collection-v1`).
 
+## Investissement + objets scellés (22/11)
+- Nouvel onglet **Investir** (`/investir`, `src/pages/Invest.tsx`) : valeur totale (cartes + scellé), plus-value par rapport au prix payé, courbe jour par jour (30 j / 3 mois / tout), part cartes / scellé, « Ce qui bouge » (prix du jour vs moyenne 30 j), meilleures affaires.
+- **Prix d'achat** d'une carte : encadré « J'ai payé » sur la fiche carte (champ `buy` dans la collection).
+- **Objets scellés** (booster, display, ETB, coffret, tin, deck) : ajout dans une fenêtre, extension cherchée dans la liste du jeu (logo repris). Prix saisis par la personne (pas de source gratuite), bouton « Voir les prix sur Cardmarket », alerte « Prix à revérifier » après 30 jours. Sans prix du jour, on compte le prix payé.
+- Visuels : les produits scellés sont **dessinés en CSS** aux couleurs du jeu avec le logo de l'extension (`src/components/Sealed.tsx`, styles `src/invest.css`). Les extensions sans logo montrent un petit booster + le code.
+- Historique : une ligne par jour (`history`), notée quand on ouvre l'appli. Tout est dans le même JSON que la collection : **pas de SQL à lancer**. La fusion (`merge.ts`) réunit scellé et historique (test mis à jour).
+
 ## Publication
 - **En ligne : https://cardora-ecru.vercel.app** (depuis le 20/11, vérifié).
 - Code sur GitHub : `helloNovalabs/cardora` (privé), clé d'accès `~/.ssh/cardora_deploy` (réglée dans `core.sshCommand`).
@@ -62,3 +69,4 @@ Honnêteté : prix en euros avec la source, jamais de prix inventé.
 5. Échanges entre potes (« Lucas a 3 cartes qu'il te manque »).
 6. Stocker nous-mêmes les images Yu-Gi-Oh! (YGOPRODeck interdit de les charger directement chez eux) et trouver des images One Piece sans « SAMPLE ».
 7. Cartes de foot et de F1.
+8. Plus tard : prix automatiques du scellé (source payante, ex. PriceCharting ou Cardmarket API pro).

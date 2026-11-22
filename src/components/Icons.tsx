@@ -13,3 +13,4 @@ export const IArrow = () => <svg {...P} width="18" height="18"><path d="M5 12h14
 export const ILeft = () => <svg {...P} width="20" height="20"><path d="m15 18-6-6 6-6" /></svg>
 export const IRight = () => <svg {...P} width="20" height="20"><path d="m9 18 6-6-6-6" /></svg>
 export const IStar = () => <svg {...P} width="16" height="16"><path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z" /></svg>
+export const IChart = () => <svg {...P}><path d="M4 19h16" /><path d="m5 15 4.5-4.5 3.5 3L19.5 7" /><path d="M15 7h4.5v4.5" /></svg>

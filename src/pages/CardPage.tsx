@@ -1,7 +1,7 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { gameColor, gameName, imgLarge, loadCard } from '../lib/games'
-import { addCard, fmt, removeCard, toEur, useCollection } from '../lib/store'
+import { addCard, fmt, removeCard, setBuy, toEur, useCollection } from '../lib/store'
 import type { Card, GameId, Price } from '../lib/types'
 import { IBack, IGrade, IPlus } from '../components/Icons'
 import { HoloCard, PriceChart, Seg } from '../components/Visuals'
@@ -99,11 +99,41 @@ export default function CardPage() {
           ) : (
             <button className="btn primary" style={{ height: 54, fontSize: 15.5 }} onClick={add}><IPlus />Ajouter à ma collection</button>
           )}
+          {q > 0 && <BuyPrice cardKey={card.key} qty={q} buy={col.owned[card.key]?.buy ?? null} now={toEur(price)} />}
 
           <GradeCalc card={card} price={price} />
         </div>
       </div>
     </div>
+  )
+}
+
+/** « J'ai payé » : prix d'achat d'une carte, pour suivre la plus-value. */
+function BuyPrice({ cardKey, qty, buy, now }: { cardKey: string; qty: number; buy: number | null; now: number | null }) {
+  const [v, setV] = useState(buy != null ? String(buy) : '')
+  useEffect(() => { setV(buy != null ? String(buy) : '') }, [cardKey, buy])
+  const commit = () => {
+    const n = parseFloat(v.replace(',', '.'))
+    setBuy(cardKey, Number.isFinite(n) && n >= 0 ? n : null)
+  }
+  const gain = buy != null && now != null ? (now - buy) * qty : null
+  const p = buy && gain != null ? Math.round((gain / (buy * qty)) * 100) : null
+  return (
+    <section className="box buy">
+      <label className="stack" style={{ gap: 6 }}>
+        <span className="kicker">J’ai payé (pour une carte), en euros</span>
+        <input className="field" inputMode="decimal" placeholder="Par ex. 12" value={v} onChange={e => setV(e.target.value)}
+          onBlur={commit} onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }} />
+      </label>
+      {gain != null ? (
+        <div className={'verdict ' + (gain >= 0 ? 'up' : 'down')}>
+          <b className={gain >= 0 ? 'up' : 'down'}>{gain >= 0 ? '+' : '−'}{fmt(Math.abs(gain))}{p != null ? ` (${p >= 0 ? '+' : ''}${p} %)` : ''}</b>
+          {gain >= 0 ? `Tu gagnes ça sur ${qty > 1 ? `tes ${qty} cartes` : 'cette carte'}, au prix d’aujourd’hui.` : `Elle vaut moins que ce que tu l’as payée.`}
+        </div>
+      ) : (
+        <p className="muted tiny">Note ton prix d’achat : Cardora calcule ta plus-value ici et dans Investissement.</p>
+      )}
+    </section>
   )
 }
 

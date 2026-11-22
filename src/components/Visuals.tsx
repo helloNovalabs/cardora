@@ -152,3 +152,49 @@ export function Seg<T extends string>({ value, onChange, options, full = false }
   )
 }
 
+
+/** Courbe de la valeur jour après jour. On touche ou survole la courbe pour lire un jour précis. */
+export function ValueChart({ points }: { points: { d: string; v: number }[] }) {
+  const [hover, setHover] = useState<number | null>(null)
+  const W = 640, H = 190, PX = 8, PT = 18, PB = 26
+  const vals = points.map(p => p.v)
+  const min = Math.min(...vals), max = Math.max(...vals)
+  const span = max - min || Math.max(1, max * 0.1)
+  const lo = min - span * 0.15, hi = max + span * 0.15
+  const xy = points.map((p, i) => [
+    points.length === 1 ? W / 2 : PX + (i * (W - PX * 2)) / (points.length - 1),
+    PT + (1 - (p.v - lo) / (hi - lo)) * (H - PT - PB),
+  ])
+  const line = xy.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ')
+  const area = `${line} L${xy[xy.length - 1][0]},${H - PB} L${xy[0][0]},${H - PB} Z`
+  const day = (d: string) => new Date(d + 'T12:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+  const h = hover ?? points.length - 1
+  const pick = (e: React.PointerEvent<SVGSVGElement>) => {
+    const r = e.currentTarget.getBoundingClientRect()
+    const x = ((e.clientX - r.left) / r.width) * W
+    let best = 0
+    xy.forEach(([px], i) => { if (Math.abs(px - x) < Math.abs(xy[best][0] - x)) best = i })
+    setHover(best)
+  }
+  return (
+    <div className="vchart">
+      <div className="vchart-tip" style={{ left: `${Math.min(90, Math.max(10, (xy[h][0] / W) * 100))}%` }}>
+        <b>{fmt(points[h].v)}</b><span>{day(points[h].d)}</span>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Valeur de la collection : ${day(points[0].d)} ${fmt(points[0].v)}, ${day(points[points.length - 1].d)} ${fmt(points[points.length - 1].v)}`}
+        onPointerMove={pick} onPointerDown={pick} onPointerLeave={() => setHover(null)}>
+        <defs>
+          <linearGradient id="vline" x1="0" x2="1"><stop offset="0" stopColor="#8B6CFF" /><stop offset=".55" stopColor="#F472B6" /><stop offset="1" stopColor="#67E8F9" /></linearGradient>
+          <linearGradient id="varea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#8B6CFF" stopOpacity=".32" /><stop offset="1" stopColor="#8B6CFF" stopOpacity="0" /></linearGradient>
+        </defs>
+        {[0.25, 0.5, 0.75].map(k => <line key={k} x1="0" x2={W} y1={PT + k * (H - PT - PB)} y2={PT + k * (H - PT - PB)} className="vgrid" />)}
+        {points.length > 1 && <path d={area} fill="url(#varea)" />}
+        {points.length > 1 && <path d={line} fill="none" stroke="url(#vline)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="chart-line" />}
+        <line x1={xy[h][0]} x2={xy[h][0]} y1={PT - 6} y2={H - PB} className="vcursor" />
+        <circle cx={xy[h][0]} cy={xy[h][1]} r="6" fill="#F6F2FF" stroke="#8B6CFF" strokeWidth="3" />
+        <text x={PX} y={H - 6} className="chart-l" textAnchor="start">{day(points[0].d)}</text>
+        {points.length > 1 && <text x={W - PX} y={H - 6} className="chart-l" textAnchor="end">{day(points[points.length - 1].d)}</text>}
+      </svg>
+    </div>
+  )
+}

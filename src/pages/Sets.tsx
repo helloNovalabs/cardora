@@ -4,6 +4,7 @@ import { gameColor, gameName, listSets } from '../lib/games'
 import { ownedInSet, useCollection } from '../lib/store'
 import type { GameId, SetInfo } from '../lib/types'
 import { IBack, ISearch } from '../components/Icons'
+import { SealedArt } from '../components/Sealed'
 
 export default function Sets() {
   const game = useParams().game as GameId
@@ -49,7 +50,7 @@ export default function Sets() {
           return (
             <Link key={s.id} to={`/jeux/${game}/${encodeURIComponent(s.id)}`} className={'ext' + (followed ? ' followed' : '')} style={gc}>
               <div className="lg">
-                <ExtLogo src={s.logo} code={s.id.toUpperCase()} invert={game === 'magic'} />
+                <ExtLogo src={s.logo} code={s.id.toUpperCase()} invert={game === 'magic'} color={gameColor(game)} />
               </div>
               <h3>{s.name}</h3>
               {followed ? (
@@ -69,8 +70,9 @@ export default function Sets() {
   )
 }
 
-function ExtLogo({ src, code, invert }: { src?: string; code: string; invert: boolean }) {
+function ExtLogo({ src, code, invert, color }: { src?: string; code: string; invert: boolean; color: string }) {
   const [bad, setBad] = useState(false)
-  if (!src || bad) return <span className="code">{code}</span>
+  // Pas de logo : on dessine un booster de l'extension avec son code
+  if (!src || bad) return <span className="ext-ph"><SealedArt kind="booster" color={color} label="" size={42} /><span className="code">{code}</span></span>
   return <img src={src} alt="" loading="lazy" style={invert ? { filter: 'invert(1)', maxHeight: 34 } : undefined} onError={() => setBad(true)} />
 }
