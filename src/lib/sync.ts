@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
-import { supabase } from './supabase'
+// Supabase est chargé à part, après l'affichage de la page (il pèse lourd).
+const sb = () => import('./supabase').then(m => m.supabase)
 import { getState, replaceState, setOnLocalChange, type State } from './store'
 import { mergeStates } from './merge'
 
@@ -17,7 +18,7 @@ export const useAccount = () => useSyncExternalStore(f => { subs.add(f); return 
 async function push() {
   if (!userId) return
   set({ status: 'sync' })
-  const { error } = await supabase.from('collections').upsert({ user_id: userId, data: getState(), updated_at: new Date().toISOString() })
+  const { error } = await (await sb()).from('collections').upsert({ user_id: userId, data: getState(), updated_at: new Date().toISOString() })
   set(error ? { status: 'error' } : { status: 'ok', savedAt: Date.now() })
 }
 
@@ -31,7 +32,7 @@ function pushSoon() {
 async function pull() {
   if (!userId) return
   set({ status: 'sync' })
-  const { data, error } = await supabase.from('collections').select('data').eq('user_id', userId).maybeSingle()
+  const { data, error } = await (await sb()).from('collections').select('data').eq('user_id', userId).maybeSingle()
   if (error) { set({ status: 'error' }); return }
   const cloud = (data?.data as State | undefined) ?? { owned: {}, followed: [] }
   replaceState(mergeStates(getState(), cloud))
@@ -43,37 +44,37 @@ export function startSync() {
   if (started) return
   started = true
   setOnLocalChange(() => { if (userId) pushSoon() })
-  supabase.auth.onAuthStateChange((_e, session) => {
+  sb().then(supabase => supabase.auth.onAuthStateChange((_e, session) => {
     const id = session?.user.id ?? null
     if (id === userId) return
     userId = id
     set({ email: session?.user.email ?? null, status: id ? 'sync' : 'off' })
     // on sort du rappel avant d'appeler la base (recommandé par Supabase)
     if (id) window.setTimeout(pull, 0)
-  })
+  })).catch(() => {})
   // Rattrape un enregistrement raté quand on revient sur l'appli
   window.addEventListener('focus', () => { if (userId && account.status === 'error') push() })
 }
 
 export async function sendCode(email: string) {
-  const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + '/compte' } })
+  const { error } = await (await sb()).auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + '/compte' } })
   return error ? frError(error.message) : null
 }
 export async function verifyCode(email: string, token: string) {
-  const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' })
+  const { error } = await (await sb()).auth.verifyOtp({ email, token, type: 'email' })
   return error ? frError(error.message) : null
 }
 /** Supprime le compte et sa collection en ligne (fonction SQL 002). Renvoie un message d'erreur ou null. */
 export async function deleteAccount() {
   window.clearTimeout(timer)
-  const { error } = await supabase.rpc('delete_my_account')
+  const { error } = await (await sb()).rpc('delete_my_account')
   if (error) return 'La suppression n’a pas marché. Vérifie ta connexion internet et réessaie.'
-  await supabase.auth.signOut({ scope: 'local' })
+  await (await sb()).auth.signOut({ scope: 'local' })
   return null
 }
 export async function signOut() {
   window.clearTimeout(timer)
-  await supabase.auth.signOut()
+  await (await sb()).auth.signOut()
 }
 
 function frError(m: string) {

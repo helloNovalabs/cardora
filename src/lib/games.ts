@@ -34,7 +34,7 @@ export const GAMES: GameMeta[] = [
   { id: 'magic', name: 'Magic', hint: 'Prix Cardmarket', ready: true, currency: 'EUR', color: '#F97316', shelf: 'big', tcg: 1, cm: 'Magic',
     art: 'https://cards.scryfall.io/art_crop/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg' },
   { id: 'lorcana', name: 'Lorcana', hint: 'Prix TCGplayer en dollars', ready: true, currency: 'USD', color: '#A78BFA', shelf: 'big', tcg: 71, cm: 'Lorcana',
-    art: 'https://cards.lorcast.io/card/digital/large/crd_a6a007b0f7ae4fa19480721bacd2b0b6.avif?1747508548' },
+    art: 'https://cards.lorcast.io/card/digital/normal/crd_a6a007b0f7ae4fa19480721bacd2b0b6.avif?1747508548' },
   T('riftbound', 'Riftbound (League of Legends)', 89, '#2DD4BF', 732652, 'big', 'Riftbound'),
   T('pokemonjp', 'Pokémon japonais', 85, '#FACC15', 716977, 'big', 'Pokemon'),
   T('dbfw', 'Dragon Ball Fusion World', 80, '#FB923C', 711459, 'big', 'DragonBallSuper'),

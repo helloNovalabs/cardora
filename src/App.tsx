@@ -1,17 +1,17 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { IBinder, IChart, IHome, IPlus, IUser } from './components/Icons'
 import { Brand } from './components/Brand'
 import { fmt, snapshot, totals, useCollection } from './lib/store'
 import { useAccount } from './lib/sync'
 import Home from './pages/Home'
-import Explore from './pages/Explore'
-import Sets from './pages/Sets'
-import SetPage from './pages/SetPage'
-import CardPage from './pages/CardPage'
-import Add from './pages/Add'
-import Account from './pages/Account'
-import Invest from './pages/Invest'
+const Explore = lazy(() => import('./pages/Explore'))
+const Sets = lazy(() => import('./pages/Sets'))
+const SetPage = lazy(() => import('./pages/SetPage'))
+const CardPage = lazy(() => import('./pages/CardPage'))
+const Add = lazy(() => import('./pages/Add'))
+const Account = lazy(() => import('./pages/Account'))
+const Invest = lazy(() => import('./pages/Invest'))
 
 const cls = ({ isActive }: { isActive: boolean }) => (isActive ? 'on' : '')
 const TABS = [
@@ -75,6 +75,7 @@ export default function App() {
           <Link to="/" aria-label="Accueil Cardora"><Brand /></Link>
           <Link to="/compte" aria-label="Mon compte"><Avatar /></Link>
         </header>
+        <Suspense fallback={<div className="stack" style={{ gap: 16 }}><div className="skel" style={{ height: 60 }} /><div className="skel" style={{ height: 320 }} /></div>}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/jeux" element={<Explore />} />
@@ -86,6 +87,7 @@ export default function App() {
           <Route path="/compte" element={<Account />} />
           <Route path="*" element={<Home />} />
         </Routes>
+        </Suspense>
       </main>
 
       <nav className="dock" aria-label="Navigation">
