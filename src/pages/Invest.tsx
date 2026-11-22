@@ -130,8 +130,8 @@ export default function Invest() {
           })}
           <button className="sealed-tile add" onClick={() => setEdit('new')}>
             <div className="stage ghosts">
-              <SealedArt kind="booster" color="#8B6CFF" label="?" size={70} />
-              <SealedArt kind="etb" color="#F472B6" label="?" size={84} />
+              <SealedArt kind="booster" color="#3DC8FF" label="?" size={70} />
+              <SealedArt kind="etb" color="#FF3D6E" label="?" size={84} />
             </div>
             <span className="nm"><IPlus />Ajouter un objet scellé</span>
           </button>

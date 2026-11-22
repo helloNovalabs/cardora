@@ -8,13 +8,13 @@ export function Logo({ size = 30 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true" className="logo">
       <defs>
         <linearGradient id={`f${id}`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#8B6CFF" />
-          <stop offset=".45" stopColor="#F472B6" />
-          <stop offset=".75" stopColor="#67E8F9" />
-          <stop offset="1" stopColor="#C4B5FD" />
+          <stop offset="0" stopColor="#FF3D6E" />
+          <stop offset=".4" stopColor="#FFD23D" />
+          <stop offset=".7" stopColor="#3DFF9C" />
+          <stop offset="1" stopColor="#3DC8FF" />
         </linearGradient>
       </defs>
-      <rect x="4.5" y="6" width="14" height="20" rx="3" transform="rotate(-14 11.5 16)" fill="#241C3B" stroke="#C4B5FD" strokeOpacity=".55" strokeWidth="1.2" />
+      <rect x="4.5" y="6" width="14" height="20" rx="3" transform="rotate(-14 11.5 16)" fill="#111" stroke="#FFFFFF" strokeOpacity=".55" strokeWidth="1.2" />
       <rect x="12" y="5" width="14" height="20" rx="3" transform="rotate(9 19 15)" fill={`url(#f${id})`} />
       <path d="M19.4 10.6c.4 2.6 1.2 3.4 3.8 3.8-2.6.4-3.4 1.2-3.8 3.8-.4-2.6-1.2-3.4-3.8-3.8 2.6-.4 3.4-1.2 3.8-3.8Z" fill="#fff" transform="rotate(9 19 15)" />
     </svg>

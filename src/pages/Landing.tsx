@@ -37,10 +37,11 @@ export default function Landing() {
       </header>
 
       <section className="ld-hero">
+        <div className="ld-foil" aria-hidden><i /></div>
         <div className="ld-copy">
-          <h1>Toutes tes cartes.<br />Un seul classeur.</h1>
+          <h1>Toutes<br /><span>tes cartes.</span><br />Une cote.</h1>
           <p className="ld-lead">
-            Pokémon, One Piece, Lorcana, Magic, les vignettes Panini de Ligue 1 ou les cartes de F1 : tu coches ce que tu as,
+            Pokémon, One Piece, Lorcana, Magic, les vignettes Panini ou les cartes de F1 : tu coches ce que tu as,
             Cardora te montre ce qu'il te manque et ce que vaut ta collection, en euros.
           </p>
           <div className="ld-cta">
@@ -48,12 +49,19 @@ export default function Landing() {
             <span className="muted small">Gratuit, sans compte pour commencer.</span>
           </div>
         </div>
+        <div className="ld-hero-card"><HoloCard src={POCKETS[0]!.src} alt={POCKETS[0]!.alt} /></div>
+      </section>
 
+      <section className="ld-feat">
+        <div className="ld-text">
+          <h2>Un classeur pour tous tes jeux</h2>
+          <p>Tes cartes Pokémon à côté de tes vignettes de Ligue 1 et de tes cartes de F1. Les cases vides, ce sont celles qui te manquent.</p>
+        </div>
         <div className="ld-binder" aria-label="Exemple de page de classeur">
           <div className="ld-page">
             {POCKETS.map((p, i) => (
               <div key={i} className={'ld-pocket' + (p ? '' : ' empty')} style={{ '--i': i } as CSSProperties}>
-                {p ? (p.holo ? <HoloCard src={p.src} alt={p.alt} /> : <img src={p.src} alt={p.alt} loading={i < 6 ? 'eager' : 'lazy'} referrerPolicy="no-referrer" />) : <span>?</span>}
+                {p ? (p.holo ? <HoloCard src={p.src} alt={p.alt} /> : <img src={p.src} alt={p.alt} loading="lazy" referrerPolicy="no-referrer" />) : <span>?</span>}
               </div>
             ))}
           </div>
@@ -117,8 +125,8 @@ export default function Landing() {
             <img src={POCKETS[0]!.src} alt="" loading="lazy" />
           </div>
           <div className="ld-sealed">
-            <SealedArt kind="booster" color="#F472B6" label="Booster" size={70} />
-            <SealedArt kind="etb" color="#8B6CFF" label="Coffret" size={86} />
+            <SealedArt kind="booster" color="#FF3D6E" label="Booster" size={70} />
+            <SealedArt kind="etb" color="#3DC8FF" label="Coffret" size={86} />
           </div>
         </div>
       </section>

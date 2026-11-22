@@ -66,7 +66,7 @@ export const GAMES: GameMeta[] = [
 
 export const gameMeta = (g: GameId) => GAMES.find(x => x.id === g)
 export const gameName = (g: string) => GAMES.find(x => x.id === g)?.name ?? g
-export const gameColor = (g: string) => GAMES.find(x => x.id === g)?.color ?? '#C4B5FD'
+export const gameColor = (g: string) => GAMES.find(x => x.id === g)?.color ?? '#FFFFFF'
 
 const TCGDEX = 'https://api.tcgdex.net/v2/fr'
 const SCRY = 'https://api.scryfall.com'

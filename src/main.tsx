@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import './invest.css'
 import './cards.css'
+import './theme.css'
 import App from './App.tsx'
 import { startSync } from './lib/sync'
 

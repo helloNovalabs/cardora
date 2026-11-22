@@ -72,7 +72,7 @@ export default function Home() {
       <section className="stack">
         <div className="sec-h"><h2>Mes classeurs</h2><Link to="/jeux">Nouveau classeur</Link></div>
         {s.followed.length === 0 && (
-          <Link to="/jeux" className="set-card" style={{ '--gc': '#8B6CFF' } as CSSProperties}>
+          <Link to="/jeux" className="set-card" style={{ '--gc': '#FFFFFF' } as CSSProperties}>
             <p className="small muted">Ouvre une extension et touche « Suivre ce classeur » : tu verras ici ta progression.</p>
           </Link>
         )}
@@ -133,8 +133,8 @@ function InvestStrip() {
   return (
     <Link to="/investir" className="inv-strip">
       <div className="art">
-        <SealedArt kind={sealed[0]?.kind ?? 'booster'} color={sealed[0] ? gameColor(sealed[0].game) : '#8B6CFF'} logo={sealed[0]?.logo} label={sealed[0]?.setName ?? ''} size={48} />
-        <SealedArt kind={sealed[1]?.kind ?? 'etb'} color={sealed[1] ? gameColor(sealed[1].game) : '#F472B6'} logo={sealed[1]?.logo} label={sealed[1]?.setName ?? ''} size={56} />
+        <SealedArt kind={sealed[0]?.kind ?? 'booster'} color={sealed[0] ? gameColor(sealed[0].game) : '#3DC8FF'} logo={sealed[0]?.logo} label={sealed[0]?.setName ?? ''} size={48} />
+        <SealedArt kind={sealed[1]?.kind ?? 'etb'} color={sealed[1] ? gameColor(sealed[1].game) : '#FF3D6E'} logo={sealed[1]?.logo} label={sealed[1]?.setName ?? ''} size={56} />
       </div>
       <div className="grow">
         <h3 className="small" style={{ fontWeight: 800 }}>Investissement</h3>

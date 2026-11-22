@@ -1,0 +1,149 @@
+/* =========================================================
+   Cardora « Holo noir » (23/11/2026)
+   Noir total, blanc pur, titres en capitales Anton.
+   La couleur n'existe qu'à un endroit : le reflet holo
+   (rose → jaune → vert → bleu → violet), comme sur une carte rare.
+   ========================================================= */
+@import '@fontsource/anton/index.css';
+@import '@fontsource-variable/hanken-grotesk/index.css';
+
+:root {
+  --bg: #000;
+  --bg-2: #060606;
+  --card: #0B0B0C;
+  --card-2: #151517;
+  --line: rgba(255, 255, 255, .09);
+  --line-2: rgba(255, 255, 255, .18);
+  --text: #FFFFFF;
+  --muted: #8C8C92;
+  --violet: #FFFFFF;
+  --violet-2: #FFFFFF;
+  --violet-soft: rgba(255, 255, 255, .08);
+  --lavande: #E4E4E8;
+  --rose: #FF3D6E;
+  --cyan: #3DC8FF;
+  --up: #3DFF9C;
+  --down: #FF3D6E;
+  --holo: #FF3D6E, #FFD23D, #3DFF9C, #3DC8FF, #A23DFF, #FF3D6E;
+  --foil: linear-gradient(100deg, #FF3D6E, #FFD23D 25%, #3DFF9C 50%, #3DC8FF 75%, #A23DFF);
+  --radius: 14px;
+  --spring: cubic-bezier(.2, .8, .2, 1);
+  --display: 'Anton', 'Impact', sans-serif;
+  --font: 'Hanken Grotesk Variable', system-ui, sans-serif;
+  font-family: var(--font);
+}
+body { background: #000; font-synthesis: none; }
+::selection { background: rgba(255, 255, 255, .25); }
+:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+/* Titres et chiffres : Anton, en capitales */
+h1, h2 { font-family: var(--display); font-weight: 400; text-transform: uppercase; letter-spacing: .005em; font-variation-settings: normal; }
+h1 { font-size: clamp(36px, 6vw, 54px); line-height: .92; }
+h2 { font-size: 24px; line-height: 1; }
+h3 { font-family: var(--font); font-weight: 750; letter-spacing: -.01em; }
+.num, .stat b, .donut-c b, .ring span, .ext .lg .code, .value-big, .finish .big { font-family: var(--display); font-weight: 400; letter-spacing: 0; }
+.value-big { font-size: clamp(64px, 14vw, 112px); line-height: .88; }
+.finish .big { font-size: clamp(56px, 12vw, 88px); line-height: .9; }
+
+/* Le texte « holo » devient du blanc : la couleur est gardée pour le reflet */
+.foil-text { background: none; color: #fff; animation: none; -webkit-background-clip: border-box; background-clip: border-box; }
+
+/* ===== Boutons : pilules. Le principal est blanc, cerclé d'holo ===== */
+.btn { border-radius: 999px; height: 48px; padding: 0 22px; background: transparent; border: 1.5px solid rgba(255, 255, 255, .35); font-weight: 750; letter-spacing: -.005em; }
+.btn:hover { border-color: #fff; }
+.btn.sm { height: 38px; padding: 0 16px; border-radius: 999px; }
+.btn.primary { color: #000; box-shadow: none; background: linear-gradient(#fff, #fff) padding-box, conic-gradient(from var(--a, 0deg), var(--holo)) border-box; border: 2.5px solid transparent; animation: holo-ring 5s linear infinite; }
+.btn.primary:hover { filter: brightness(.94); }
+.btn.ghost { border-color: transparent; text-decoration: underline; text-underline-offset: 5px; text-decoration-color: rgba(255, 255, 255, .35); }
+.btn.ghost:hover { text-decoration-color: #fff; border-color: transparent; }
+@property --a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@keyframes holo-ring { to { --a: 360deg; } }
+
+.chip { border-radius: 999px; background: transparent; border: 1.5px solid rgba(255, 255, 255, .2); color: #BDBDC2; }
+.chip.on { background: #fff; color: #000; border-color: #fff; }
+.chip-btn[aria-pressed='true'] { background: #fff; color: #000; border-color: #fff; }
+
+.field { background: #0B0B0C; border: 1.5px solid rgba(255, 255, 255, .16); border-radius: 999px; }
+.field:focus { border-color: #fff; box-shadow: none; }
+.field::placeholder { color: #66666B; }
+select.field { border-radius: 12px; }
+
+.badge { background: rgba(255, 255, 255, .08); color: #fff; border-radius: 6px; }
+.kicker { color: var(--muted); font-weight: 700; }
+.sec-h a, .link { color: #fff; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(255, 255, 255, .35); }
+.bar { background: rgba(255, 255, 255, .1); }
+.bar > span { background: var(--foil); }
+.split { background: rgba(255, 255, 255, .08); }
+.tip { color: #CFCFD4; background: #0B0B0C; }
+.help { border-color: rgba(255, 255, 255, .25); }
+
+/* ===== Cadres : noir, filet fin. Le grand panneau garde un éclat holo dans le coin ===== */
+.box, .step, .set-card, .ext, .prod, .stat { background: #0A0A0B; border-color: var(--line); }
+.panel { background: #050505; border: 1px solid var(--line-2); border-radius: 20px; }
+.panel::before { content: ''; position: absolute; z-index: -1; width: 520px; height: 520px; right: -200px; top: -260px; border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--holo)); opacity: .5; filter: blur(2px);
+  -webkit-mask: radial-gradient(closest-side, #000 0 30%, transparent 72%); mask: radial-gradient(closest-side, #000 0 30%, transparent 72%);
+  animation: holo-spin 30s linear infinite; }
+.panel::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: repeating-linear-gradient(115deg, transparent 0 5px, rgba(0, 0, 0, .28) 5px 6px); }
+@keyframes holo-spin { to { transform: rotate(360deg); } }
+.stat { background: rgba(0, 0, 0, .6); }
+.set-card::before { opacity: .45; }
+.step .n { background: #fff; color: #000; border: 0; font-family: var(--display); font-weight: 400; font-size: 18px; }
+
+/* ===== Coquille ===== */
+.side { background: #000 !important; border-right: 1px solid var(--line); }
+.brand { font-family: var(--display); font-weight: 400; font-size: 24px; letter-spacing: .04em; text-transform: uppercase; }
+.logo { filter: none; }
+.nav a { border-radius: 10px; font-weight: 650; }
+.nav a:hover { background: rgba(255, 255, 255, .05); }
+.nav a.on { background: rgba(255, 255, 255, .08); }
+.nav a.on::before { background: var(--foil); }
+.nav a.add { color: #000; border-radius: 999px; box-shadow: none; background: linear-gradient(#fff, #fff) padding-box, conic-gradient(from var(--a, 0deg), var(--holo)) border-box; border: 2.5px solid transparent; animation: holo-ring 5s linear infinite; }
+.nav a.add:hover { color: #000; filter: brightness(.94); }
+.wallet { background: #0A0A0B; border-color: var(--line); }
+.wallet:hover { border-color: rgba(255, 255, 255, .3); }
+.wallet .num { font-size: 34px; }
+.me:hover, .me.on { background: rgba(255, 255, 255, .05); }
+.avatar { background: #111; color: #fff; border-color: rgba(255, 255, 255, .2); }
+.avatar.on { background: #fff; color: #000; }
+
+.dock-bar { background: rgba(10, 10, 11, .88); border-color: rgba(255, 255, 255, .14); border-radius: 999px; }
+.dock-pill { background: rgba(255, 255, 255, .1); border: 0; border-radius: 999px; }
+.tab { color: #77777C; }
+.fab { color: #000; border-radius: 50%; box-shadow: 0 10px 30px rgba(0, 0, 0, .6); background: linear-gradient(#fff, #fff) padding-box, conic-gradient(from var(--a, 0deg), var(--holo)) border-box; border: 3px solid transparent; animation: holo-ring 5s linear infinite; }
+.fab.on { box-shadow: 0 0 0 4px #000, 0 0 0 6px #fff; }
+
+/* ===== Cartes et classeurs ===== */
+.binder { background: #070708; border-color: var(--line); box-shadow: none; }
+.slot { background: #0E0E10; border-color: rgba(255, 255, 255, .06); border-radius: 6px; }
+.slot.miss::after { border-color: rgba(255, 255, 255, .14); }
+.slot.have { box-shadow: 0 0 0 1.5px #fff, 0 6px 16px rgba(0, 0, 0, .6); }
+.slot .qty { background: #fff; color: #000; }
+.slot.miss .tag { color: #BDBDC2; }
+.mini .pic { border-radius: 6px; }
+@media (hover: hover) { .mini:hover .pic { box-shadow: 0 16px 34px rgba(0, 0, 0, .8); } }
+.mini .rank.r1 { background: #fff; color: #000; }
+.price-pill { background: transparent; border-color: rgba(255, 255, 255, .2); border-radius: 6px; }
+.price-pill.hot { background: transparent; border-color: rgba(255, 61, 110, .5); color: #FF7A9A; }
+.price-pill.cheap { background: transparent; border-color: rgba(61, 255, 156, .45); color: #7DFFBE; }
+.game-tile { border-radius: 14px; }
+.game-tile::before { box-shadow: none; height: 2px; }
+.game-tile:hover { border-color: rgba(255, 255, 255, .35); box-shadow: 0 18px 40px rgba(0, 0, 0, .8); }
+.game-tile h3 { font-family: var(--display); font-weight: 400; text-transform: uppercase; font-size: 24px; letter-spacing: .01em; line-height: 1; }
+.game-tile::after { background: linear-gradient(180deg, rgba(0, 0, 0, 0) 25%, rgba(0, 0, 0, .7) 58%, #000 100%); }
+.ext { border-radius: 12px; }
+.ext:hover { border-color: rgba(255, 255, 255, .3); background: #111113; }
+.ext.followed { border-color: rgba(255, 255, 255, .4); }
+.ext .lg { background: #050505; }
+.seg { border-radius: 999px; background: #0A0A0B; }
+.seg button, .seg .ind { border-radius: 999px; }
+.seg button.on { color: #000; }
+.toolbar { background: linear-gradient(180deg, #000 75%, transparent); }
+.check-hint { background: rgba(61, 255, 156, .08); border-color: rgba(61, 255, 156, .3); color: #A6FFD2; }
+.skel { background: linear-gradient(90deg, #0B0B0C 0%, #161618 50%, #0B0B0C 100%); background-size: 200% 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn.primary, .nav a.add, .fab, .panel::before { animation: none; }
+}
+.chip-btn { border-radius: 999px; background: transparent; border: 1.5px solid rgba(255, 255, 255, .2); color: #D5D5DA; }
+.chip-btn:hover { border-color: #fff; }

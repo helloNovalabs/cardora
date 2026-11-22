@@ -85,7 +85,7 @@ export function Ring({ pct, size = 54, stroke = 6, color, children }: { pct: num
       <svg width={size} height={size}>
         <defs>
           <linearGradient id={`r${id}`} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#8B6CFF" /><stop offset=".5" stopColor="#F472B6" /><stop offset="1" stopColor="#67E8F9" />
+            <stop offset="0" stopColor="#FF3D6E" /><stop offset=".33" stopColor="#FFD23D" /><stop offset=".66" stopColor="#3DFF9C" /><stop offset="1" stopColor="#3DC8FF" />
           </linearGradient>
         </defs>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(196,181,253,.12)" strokeWidth={stroke} />
@@ -124,7 +124,7 @@ export function Donut({ parts, size = 132, children }: { parts: { label: string;
 
 /** Pluie de confettis (quand un classeur est complet). */
 export function Confetti() {
-  const colors = ['#8B6CFF', '#C4B5FD', '#F472B6', '#67E8F9', '#4ADE80', '#FFFFFF']
+  const colors = ['#FFFFFF', '#3DC8FF', '#FF3D6E', '#FFD23D', '#3DFF9C', '#A23DFF']
   return (
     <div className="confetti" aria-hidden="true">
       {Array.from({ length: 60 }, (_, i) => (
@@ -184,14 +184,14 @@ export function ValueChart({ points }: { points: { d: string; v: number }[] }) {
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Valeur de la collection : ${day(points[0].d)} ${fmt(points[0].v)}, ${day(points[points.length - 1].d)} ${fmt(points[points.length - 1].v)}`}
         onPointerMove={pick} onPointerDown={pick} onPointerLeave={() => setHover(null)}>
         <defs>
-          <linearGradient id="vline" x1="0" x2="1"><stop offset="0" stopColor="#8B6CFF" /><stop offset=".55" stopColor="#F472B6" /><stop offset="1" stopColor="#67E8F9" /></linearGradient>
-          <linearGradient id="varea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#8B6CFF" stopOpacity=".32" /><stop offset="1" stopColor="#8B6CFF" stopOpacity="0" /></linearGradient>
+          <linearGradient id="vline" x1="0" x2="1"><stop offset="0" stopColor="#FF3D6E" /><stop offset=".35" stopColor="#FFD23D" /><stop offset=".7" stopColor="#3DFF9C" /><stop offset="1" stopColor="#3DC8FF" /></linearGradient>
+          <linearGradient id="varea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#FFFFFF" stopOpacity=".16" /><stop offset="1" stopColor="#FFFFFF" stopOpacity="0" /></linearGradient>
         </defs>
         {[0.25, 0.5, 0.75].map(k => <line key={k} x1="0" x2={W} y1={PT + k * (H - PT - PB)} y2={PT + k * (H - PT - PB)} className="vgrid" />)}
         {points.length > 1 && <path d={area} fill="url(#varea)" />}
         {points.length > 1 && <path d={line} fill="none" stroke="url(#vline)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="chart-line" />}
         <line x1={xy[h][0]} x2={xy[h][0]} y1={PT - 6} y2={H - PB} className="vcursor" />
-        <circle cx={xy[h][0]} cy={xy[h][1]} r="6" fill="#F6F2FF" stroke="#8B6CFF" strokeWidth="3" />
+        <circle cx={xy[h][0]} cy={xy[h][1]} r="6" fill="#000" stroke="#FFFFFF" strokeWidth="3" />
         <text x={PX} y={H - 6} className="chart-l" textAnchor="start">{day(points[0].d)}</text>
         {points.length > 1 && <text x={W - PX} y={H - 6} className="chart-l" textAnchor="end">{day(points[points.length - 1].d)}</text>}
       </svg>
