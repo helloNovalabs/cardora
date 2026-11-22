@@ -147,3 +147,18 @@ select.field { border-radius: 12px; }
 }
 .chip-btn { border-radius: 999px; background: transparent; border: 1.5px solid rgba(255, 255, 255, .2); color: #D5D5DA; }
 .chip-btn:hover { border-color: #fff; }
+
+/* Étiquettes de langue */
+.lang-pick { display: flex; flex-wrap: wrap; gap: 6px; }
+.lang-pick button { height: 34px; min-width: 44px; padding: 0 10px; border: 1.5px solid rgba(255, 255, 255, .2); border-radius: 6px; background: transparent; color: #BDBDC2; font-family: var(--display); font-size: 16px; letter-spacing: .04em; transition: border-color .2s, color .2s, transform .15s; }
+.lang-pick button:hover { border-color: #fff; color: #fff; }
+.lang-pick button:active { transform: scale(.94); }
+.lang-pick button.on { color: #000; border-color: transparent; background: linear-gradient(#fff, #fff) padding-box, conic-gradient(from var(--d, 0deg), var(--holo)) border-box; border-width: 2.5px; }
+.lang-tag { display: inline-grid; place-items: center; height: 20px; padding: 0 6px; border-radius: 4px; background: #fff; color: #000; font-family: var(--display); font-size: 12px; letter-spacing: .05em; line-height: 1; }
+.lang-tag.sm { height: 16px; font-size: 10.5px; padding: 0 4px; }
+
+/* Boutique : chercher une carte */
+.hunt { display: grid; gap: 10px; }
+.hunt .field { height: 56px; font-size: 17px; }
+.hunt-pic { display: block; width: 72%; margin: 0 auto 4px; aspect-ratio: 63 / 88; border-radius: 6px; overflow: hidden; box-shadow: 0 14px 30px rgba(0, 0, 0, .7); }
+.hunt-pic img { width: 100%; height: 100%; object-fit: cover; }

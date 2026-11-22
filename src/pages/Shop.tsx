@@ -2,6 +2,12 @@ import { useEffect, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { GAMES, gameColor, gameMeta } from '../lib/games'
 import { tcgSealed, tcgSets, type TcgSealed } from '../lib/tcg'
+import { canSearch, priceFor, searchCards } from '../lib/games'
+import { LangPicker, buyLinks } from '../components/Lang'
+import { CardFace } from '../components/CardFace'
+import { ISearch } from '../components/Icons'
+import { toEur } from '../lib/store'
+import type { Card, Price } from '../lib/types'
 import { fmt, guessKind, saveSealed, USD_TO_EUR, useCollection } from '../lib/store'
 import type { GameId, SetInfo } from '../lib/types'
 
@@ -25,6 +31,26 @@ export default function Shop() {
   const [shelves, setShelves] = useState<Shelf[] | null>(null)
   const [err, setErr] = useState(false)
   const mine = new Set((col.sealed ?? []).map(x => x.id))
+  const [q, setQ] = useState('')
+  const [lang, setLang] = useState<string | undefined>()
+  const [found, setFound] = useState<Card[] | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [prices, setPrices] = useState<Record<string, Price | null>>({})
+
+  // Chercher une carte à acheter
+  useEffect(() => {
+    const t = q.trim()
+    if (t.length < 2 || !canSearch(game)) { setFound(null); return }
+    setBusy(true)
+    const id = window.setTimeout(() => {
+      searchCards(game, t).then(list => {
+        setFound(list)
+        // Le prix des 12 premières, une par une
+        for (const c of list.slice(0, 12)) priceFor(c).then(p => setPrices(x => ({ ...x, [c.key]: p })))
+      }).catch(() => setFound([])).finally(() => setBusy(false))
+    }, 400)
+    return () => window.clearTimeout(id)
+  }, [q, game])
 
   useEffect(() => {
     const cat = gameMeta(game)?.tcg
@@ -58,9 +84,14 @@ export default function Shop() {
       <div className="stack" style={{ gap: 6 }}>
         <h1>Boutique</h1>
         <p className="muted small" style={{ maxWidth: 620 }}>
-          Les dernières sorties et les précommandes de chaque jeu : boosters, displays, coffrets, avec le prix du marché.
+          Cherche la carte qu'il te manque, ou regarde les dernières sorties : boosters, displays, coffrets, avec le prix du marché.
           Tu achètes chez le vendeur de ton choix. Cardora ne vend rien et ne touche rien sur tes achats.
         </p>
+      </div>
+
+      <div className="hunt">
+        <div className="search"><ISearch /><input className="field" placeholder={`Quelle carte tu cherches ? (${gameMeta(game)?.name})`} value={q} onChange={e => setQ(e.target.value)} /></div>
+        <LangPicker value={lang} onChange={setLang} any label="Langue de la carte cherchée" />
       </div>
 
       <div className="chips">
@@ -72,9 +103,39 @@ export default function Shop() {
           {OTHERS.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
         </select>
       </div>
-      <div className="chips" role="group" aria-label="Type de produit">
+      {q.trim().length < 2 && <div className="chips" role="group" aria-label="Type de produit">
         {KINDS.map(([, l], i) => <button key={l} className="chip-btn" aria-pressed={kind === i} onClick={() => setKind(i)}>{l}</button>)}
-      </div>
+      </div>}
+
+      {q.trim().length >= 2 && (
+        <section className="stack" style={{ gap: 10 }}>
+          <div className="sec-h"><h2>Où trouver « {q.trim()} »</h2>{found && <span className="muted small">{found.length} carte{found.length > 1 ? 's' : ''}</span>}</div>
+          {!canSearch(game) && (
+            <div className="box stack">
+              <p className="small">Pour {gameMeta(game)?.name}, je t'emmène directement chez les vendeurs :</p>
+              <div className="row wrap" style={{ gap: 8 }}>{buyLinks(game, q.trim(), lang).map((l, i) => <a key={l.name} className={'btn sm' + (i ? '' : ' primary')} href={l.url} target="_blank" rel="noreferrer">{l.name}</a>)}</div>
+            </div>
+          )}
+          {busy && <div className="shop-grid">{Array.from({ length: 4 }, (_, i) => <div key={i} className="skel" style={{ height: 300 }} />)}</div>}
+          {found && !busy && found.length === 0 && <p className="muted small">Aucune carte trouvée. Vérifie l'orthographe ou essaie le nom en anglais.</p>}
+          {found && !busy && found.length > 0 && (
+            <div className="shop-grid">
+              {found.slice(0, 24).map(c => {
+                const p = prices[c.key]
+                                return (
+                  <article key={c.key} className="prod hunt-card">
+                    <Link to={`/carte/${c.game}/${encodeURIComponent(c.setId)}/${encodeURIComponent(c.id)}`} className="hunt-pic"><CardFace card={c} /></Link>
+                    <h3 title={c.name}>{c.name}</h3>
+                    <span className="tiny muted">{c.setName ?? c.setId.toUpperCase()} · n° {c.number}</span>
+                    <div className="prod-price">{p === undefined ? <span className="tiny muted">Prix…</span> : p ? <><b>{fmt(toEur(p) ?? 0)}</b><span className="tiny muted">prix du marché, toutes langues</span></> : <span className="tiny muted">Pas de prix connu</span>}</div>
+                    <div className="prod-act">{buyLinks(c.game, c.name, lang, c.number).map((l, i) => <a key={l.name} className={'btn sm' + (i ? '' : ' primary')} href={l.url} target="_blank" rel="noreferrer">{l.name}</a>)}</div>
+                  </article>
+                )
+              })}
+            </div>
+          )}
+        </section>
+      )}
 
       {err && <p className="down small">Impossible de charger la boutique. Vérifie ta connexion et réessaie.</p>}
       {!shelves && !err && <div className="shop-grid">{Array.from({ length: 8 }, (_, i) => <div key={i} className="skel" style={{ height: 260 }} />)}</div>}
