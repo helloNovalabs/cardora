@@ -92,6 +92,17 @@ export default function Landing() {
         </div>
       </section>
 
+      <section className="ld-duo">
+        <div>
+          <h2>Scanne ta carte</h2>
+          <p>Prends-la en photo : Cardora lit son nom et son numéro, et te la montre. Un toucher et elle est dans ton classeur.</p>
+        </div>
+        <div>
+          <h2>La boutique des sorties</h2>
+          <p>Les nouveaux boosters, displays et coffrets de chaque jeu, avec le prix du marché et un lien pour l'acheter où tu veux.</p>
+        </div>
+      </section>
+
       <section className="ld-feat">
         <div className="ld-text">
           <h2>La gradation, et le scellé aussi</h2>

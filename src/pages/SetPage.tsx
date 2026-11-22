@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { fillPrices, gameColor, gameName, loadSet, type SetData } from '../lib/games'
-import { addCard, fmt, follow, refreshFollowed, removeCard, saveSealed, toEur, unfollow, updatePrices, useCollection, USD_TO_EUR, type SealedKind } from '../lib/store'
+import { addCard, fmt, follow, refreshFollowed, removeCard, saveSealed, toEur, unfollow, updatePrices, useCollection, USD_TO_EUR, guessKind } from '../lib/store'
 import { CardFace } from '../components/CardFace'
 import { isSport } from '../lib/sport'
 import type { TcgSealed } from '../lib/tcg'
@@ -15,15 +15,6 @@ type Order = 'num' | 'down' | 'up' | 'name'
 const ORDERS: [Order, string][] = [['num', 'N°'], ['down', 'Prix ↓'], ['up', 'Prix ↑'], ['name', 'Nom']]
 
 /** Devine le type d'un produit scellé d'après son nom anglais (TCGplayer). */
-function guessKind(n: string): SealedKind {
-  const t = n.toLowerCase()
-  if (/booster box|display|case/.test(t)) return 'display'
-  if (/elite trainer|premium|ultra.premium|collection box|gift/.test(t)) return 'etb'
-  if (/\btin\b/.test(t)) return 'tin'
-  if (/deck/.test(t)) return 'deck'
-  if (/pack|booster/.test(t)) return 'booster'
-  return 'coffret'
-}
 const PER_PAGE = 9
 
 export default function SetPage() {

@@ -133,3 +133,23 @@ img.sc-photo { display: block; width: 100%; height: 100%; aspect-ratio: 63 / 88;
 .scan .bar { display: block; height: 5px; border-radius: 99px; background: rgba(255, 255, 255, .08); overflow: hidden; }
 .scan .bar span { display: block; height: 100%; background: var(--foil); transition: width .3s; }
 .slot.scan-hit { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+/* Dock à 5 onglets (avec la boutique) */
+.dock-bar { grid-template-columns: repeat(5, 1fr); }
+.dock-pill { width: calc((100% - 12px) / 5); }
+.tab { font-size: 10.5px; }
+
+/* Boutique */
+.shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.prod { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); }
+.prod-pic { aspect-ratio: 1; border-radius: 12px; display: grid; place-items: center; padding: 10px; background: radial-gradient(90% 80% at 50% 30%, color-mix(in srgb, var(--gc) 16%, transparent), transparent 70%), rgba(8, 6, 15, .5); }
+.prod-pic img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .5)); transition: transform .35s var(--ease); }
+.prod:hover .prod-pic img { transform: translateY(-3px) scale(1.03); }
+.prod h3 { font-size: 13.5px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.6em; }
+.prod-price { display: flex; flex-direction: column; gap: 1px; }
+.prod-price b { font-family: var(--display); font-size: 20px; }
+.prod-act { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+.prod-act .btn { flex: 1 1 auto; justify-content: center; }
+.chip-select { width: auto; padding: 8px 12px; border-radius: 99px; font-size: 13px; }
+.badge.soon { color: var(--cyan); border-color: rgba(103, 232, 249, .35); }
+@media (max-width: 560px) { .shop-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } .prod { padding: 9px; } .prod-act .btn { font-size: 12px; padding: 7px 8px; } }

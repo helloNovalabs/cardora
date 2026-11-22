@@ -160,3 +160,14 @@ export function fmt(v: number | null | undefined, cur: 'EUR' | 'USD' = 'EUR') {
   if (v == null) return '—'
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: cur, maximumFractionDigits: v < 10 ? 2 : 0 }).format(v)
 }
+
+/** Le type d'un produit scellé d'après son nom (anglais, TCGplayer). */
+export function guessKind(n: string): SealedKind {
+  const t = n.toLowerCase()
+  if (/booster box|display|case/.test(t)) return 'display'
+  if (/elite trainer|premium|ultra.premium|collection box|gift/.test(t)) return 'etb'
+  if (/\btin\b/.test(t)) return 'tin'
+  if (/deck/.test(t)) return 'deck'
+  if (/pack|booster/.test(t)) return 'booster'
+  return 'coffret'
+}

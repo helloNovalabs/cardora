@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
-import { IBinder, IChart, IHome, IPlus, IUser } from './components/Icons'
+import { IBag, IBinder, IChart, IHome, IPlus, IUser } from './components/Icons'
 import { Brand } from './components/Brand'
 import { fmt, snapshot, totals, useCollection } from './lib/store'
 import { useAccount } from './lib/sync'
@@ -13,11 +13,13 @@ const Add = lazy(() => import('./pages/Add'))
 const Account = lazy(() => import('./pages/Account'))
 const Invest = lazy(() => import('./pages/Invest'))
 const Landing = lazy(() => import('./pages/Landing'))
+const Shop = lazy(() => import('./pages/Shop'))
 
 const cls = ({ isActive }: { isActive: boolean }) => (isActive ? 'on' : '')
 const TABS = [
   { to: '/', label: 'Collection', icon: <IHome />, match: (p: string) => p === '/' || p.startsWith('/carte') },
   { to: '/jeux', label: 'Classeurs', icon: <IBinder />, match: (p: string) => p.startsWith('/jeux') },
+  { to: '/boutique', label: 'Boutique', icon: <IBag />, match: (p: string) => p.startsWith('/boutique') },
   { to: '/investir', label: 'Investir', icon: <IChart />, match: (p: string) => p.startsWith('/investir') },
   { to: '/compte', label: 'Compte', icon: <IUser />, match: (p: string) => p.startsWith('/compte') },
 ]
@@ -52,6 +54,7 @@ export default function App() {
         <nav className="nav">
           <NavLink to="/" end className={cls}><IHome />Ma collection</NavLink>
           <NavLink to="/jeux" className={cls}><IBinder />Classeurs</NavLink>
+          <NavLink to="/boutique" className={cls}><IBag />Boutique</NavLink>
           <NavLink to="/investir" className={cls}><IChart />Investissement</NavLink>
           <NavLink to="/compte" className={cls}><IUser />Mon compte</NavLink>
           <NavLink to="/ajouter" className={({ isActive }) => 'add' + (isActive ? ' on' : '')}><IPlus />Ajouter une carte</NavLink>
@@ -87,6 +90,7 @@ export default function App() {
           <Route path="/carte/:game/:setId/:id" element={<CardPage />} />
           <Route path="/ajouter" element={<Add />} />
           <Route path="/investir" element={<Invest />} />
+          <Route path="/boutique" element={<Shop />} />
           <Route path="/compte" element={<Account />} />
           <Route path="*" element={<Home />} />
         </Routes>
