@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
+import { wasSeen } from '../lib/seen'
 import { fmt, ownedInSet, totals, unitValue, useCollection } from '../lib/store'
 import { CardFace } from '../components/CardFace'
 import { SealedArt } from '../components/Sealed'
@@ -19,7 +20,7 @@ const cardUrl = (c: { game: string; setId: string; id: string }) => `/carte/${c.
 export default function Home() {
   const s = useCollection()
   const owned = Object.values(s.owned)
-  if (owned.length === 0 && s.followed.length === 0) return <Welcome />
+  if (owned.length === 0 && s.followed.length === 0) return wasSeen() || (s.sealed ?? []).length ? <Welcome /> : <Navigate to="/decouvrir" replace />
 
   const count = owned.reduce((n, o) => n + o.qty, 0)
   const value = owned.reduce((n, o) => n + (unitValue(o) ?? 0) * o.qty, 0)
@@ -164,6 +165,7 @@ function Welcome() {
               <Link to="/jeux" className="btn primary">Commencer mon classeur</Link>
               <Link to="/ajouter" className="btn ghost">Chercher une carte</Link>
             </div>
+            <Link to="/decouvrir" className="small" style={{ color: 'var(--lavande)' }}>Revoir la présentation de Cardora</Link>
           </div>
           <div>
             <div className="fan">

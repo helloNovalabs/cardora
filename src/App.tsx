@@ -12,6 +12,7 @@ const CardPage = lazy(() => import('./pages/CardPage'))
 const Add = lazy(() => import('./pages/Add'))
 const Account = lazy(() => import('./pages/Account'))
 const Invest = lazy(() => import('./pages/Invest'))
+const Landing = lazy(() => import('./pages/Landing'))
 
 const cls = ({ isActive }: { isActive: boolean }) => (isActive ? 'on' : '')
 const TABS = [
@@ -41,6 +42,8 @@ export default function App() {
   // Une photo de la valeur par jour, pour la courbe de la page Investir
   useEffect(() => { const id = window.setTimeout(snapshot, 1500); return () => window.clearTimeout(id) }, [value])
   const active = TABS.findIndex(t => t.match(pathname))
+
+  if (pathname === '/decouvrir') return <Suspense fallback={null}><Landing /></Suspense>
 
   return (
     <div className="shell">
