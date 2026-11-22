@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { priceFor, searchCards } from '../lib/games'
+import { canSearch, priceFor, searchCards } from '../lib/games'
 import { addCard, useCollection } from '../lib/store'
 import type { Card, GameId } from '../lib/types'
 import { gameColor } from '../lib/games'
@@ -13,6 +13,7 @@ const OPTIONS: { id: GameId; name: string }[] = [
   { id: 'lorcana', name: 'Lorcana' },
   { id: 'magic', name: 'Magic' },
   { id: 'onepiece', name: 'One Piece' },
+  { id: 'autre', name: 'Autres jeux' },
 ]
 
 export default function Add() {
@@ -26,7 +27,7 @@ export default function Add() {
 
   useEffect(() => {
     window.clearTimeout(t.current)
-    if (game === 'onepiece' || q.trim().length < 2) { setRes(null); return }
+    if (!canSearch(game) || q.trim().length < 2) { setRes(null); return }
     setBusy(true)
     t.current = window.setTimeout(() => {
       searchCards(game, q).then(setRes).catch(() => setRes([])).finally(() => setBusy(false))
@@ -57,8 +58,13 @@ export default function Add() {
           <p className="small">Pour One Piece, le plus rapide est d'ouvrir l'extension et de cocher tes cartes dans le classeur.</p>
           <Link to="/jeux/onepiece" className="btn primary">Ouvrir les extensions One Piece</Link>
         </div>
+      ) : game === 'autre' ? (
+        <div className="box stack">
+          <p className="small">Foot, F1, Riftbound, Star Wars, Digimon, Gundam et tous les autres : choisis le jeu, ouvre l'extension et coche tes cartes dans le classeur.</p>
+          <Link to="/jeux" className="btn primary">Voir tous les jeux</Link>
+        </div>
       ) : (
-        <div className="search"><ISearch /><input className="field" autoFocus placeholder={({ pokemon: 'Dracaufeu', yugioh: 'Magicien Sombre', lorcana: 'Elsa', magic: 'Lightning Bolt', onepiece: '' } as Record<GameId, string>)[game]} value={q} onChange={e => setQ(e.target.value)} /></div>
+        <div className="search"><ISearch /><input className="field" autoFocus placeholder={({ pokemon: 'Dracaufeu', yugioh: 'Magicien Sombre', lorcana: 'Elsa', magic: 'Lightning Bolt' } as Record<GameId, string>)[game]} value={q} onChange={e => setQ(e.target.value)} /></div>
       )}
 
       {!res && !busy && (

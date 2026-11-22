@@ -1,7 +1,8 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { gameColor, gameName, imgLarge, loadCard } from '../lib/games'
-import { addCard, fmt, removeCard, setBuy, toEur, useCollection } from '../lib/store'
+import { addCard, fmt, removeCard, setBuy, setGrade, toEur, useCollection, type Grade } from '../lib/store'
+import { CardFace } from '../components/CardFace'
 import type { Card, GameId, Price } from '../lib/types'
 import { IBack, IGrade, IPlus } from '../components/Icons'
 import { HoloCard, PriceChart, Seg } from '../components/Visuals'
@@ -34,6 +35,7 @@ export default function CardPage() {
   )
 
   const q = col.owned[card.key]?.qty ?? 0
+  const grade = col.owned[card.key]?.grade ?? null
   const trend = price?.value != null && price.avg30 ? Math.round(((price.value - price.avg30) / price.avg30) * 100) : null
   const add = () => { addCard(card, price); setBump(b => b + 1); if (navigator.vibrate) navigator.vibrate(12) }
 
@@ -41,12 +43,20 @@ export default function CardPage() {
     <div className="stack fade-in" style={{ gap: 18, '--gc': gameColor(game) } as CSSProperties}>
       <button className="back" onClick={() => nav(-1)}><IBack />Retour</button>
       <div className="card-hero">
-        {card.image ? (
-          <div className="card-stage">
-            <HoloCard src={imgLarge(card)} alt={card.name} rare={!/^(common|commune|c)$/i.test(card.rarity ?? '')} className="card-big" />
-            <p className="holo-hint">Bouge ton doigt sur la carte pour la faire briller</p>
-          </div>
-        ) : <div className="box empty">Pas d'image</div>}
+        <div className="card-stage">
+          {grade ? (
+            <div className="slab card-big">
+              <div className={'slab-label ' + grade.by.toLowerCase() + (grade.by === 'BGS' && grade.g === '10' ? ' b10' : '')}>
+                <div style={{ minWidth: 0 }}><div className="co">{grade.by}</div><div className="nm">{card.name} · n° {card.number}</div></div>
+                <div className="g">{grade.g}<small>{GRADE_WORD[grade.g] ?? ''}</small></div>
+              </div>
+              <HoloCard src={card.image ? imgLarge(card) : ''} face={card.image ? undefined : <CardFace card={card} big />} alt={card.name} rare={!/^(common|commune|c)$/i.test(card.rarity ?? '')} />
+            </div>
+          ) : (
+            <HoloCard src={card.image ? imgLarge(card) : ''} face={card.image ? undefined : <CardFace card={card} big />} alt={card.name} rare={!/^(common|commune|c)$/i.test(card.rarity ?? '')} className="card-big" />
+          )}
+          <p className="holo-hint">Bouge ton doigt sur la carte pour la faire briller</p>
+        </div>
 
         <div className="stack" style={{ gap: 16 }}>
           <div>
@@ -99,12 +109,58 @@ export default function CardPage() {
           ) : (
             <button className="btn primary" style={{ height: 54, fontSize: 15.5 }} onClick={add}><IPlus />Ajouter à ma collection</button>
           )}
+          {q > 0 && <GradePicker card={card} grade={grade} />}
           {q > 0 && <BuyPrice cardKey={card.key} qty={q} buy={col.owned[card.key]?.buy ?? null} now={toEur(price)} />}
 
           <GradeCalc card={card} price={price} />
         </div>
       </div>
     </div>
+  )
+}
+
+const COMPANIES = ['PSA', 'CGC', 'BGS', 'SGC', 'PCA', 'CollectAura']
+const NOTES = ['10', '9.5', '9', '8.5', '8', '7', '6']
+const GRADE_WORD: Record<string, string> = { '10': 'GEM MINT', '9.5': 'GEM MINT', '9': 'MINT', '8.5': 'NM-MT+', '8': 'NM-MT', '7': 'NEAR MINT', '6': 'EX-MT' }
+
+/** Ma carte est-elle gradée ? Par qui, quelle note, et combien elle vaut dans son boîtier. */
+function GradePicker({ card, grade }: { card: Card; grade: Grade | null }) {
+  const [v, setV] = useState(grade?.value != null ? String(grade.value) : '')
+  useEffect(() => { setV(grade?.value != null ? String(grade.value) : '') }, [card.key, grade?.value])
+  const pick = (by: string | null, g?: string) => {
+    if (!by) return setGrade(card.key, null)
+    setGrade(card.key, { by, g: g ?? grade?.g ?? '10', value: grade?.value ?? null })
+  }
+  const commit = () => {
+    if (!grade) return
+    const n = parseFloat(v.replace(',', '.'))
+    setGrade(card.key, { ...grade, value: Number.isFinite(n) && n >= 0 ? n : null })
+  }
+  const search = grade ? encodeURIComponent(`${card.name} ${card.number} ${grade.by} ${grade.g}`) : ''
+  return (
+    <section className="box stack" style={{ gap: 12 }}>
+      <div className="row" style={{ gap: 10 }}><span className="lav"><IGrade /></span><h2>Ma carte est gradée ?</h2></div>
+      <div className="chips wrap" role="group" aria-label="Société de gradation">
+        <button className="chip-btn" aria-pressed={!grade} onClick={() => pick(null)}>Non gradée</button>
+        {COMPANIES.map(c => <button key={c} className="chip-btn" aria-pressed={grade?.by === c} onClick={() => pick(c)}>{c}</button>)}
+      </div>
+      {grade && (
+        <>
+          <span className="kicker">Sa note</span>
+          <div className="chips wrap" role="group" aria-label="Note">
+            {NOTES.map(n => <button key={n} className="chip-btn round" aria-pressed={grade.g === n} onClick={() => pick(grade.by, n)}>{n}</button>)}
+            <button className="chip-btn" aria-pressed={grade.g === '5'} onClick={() => pick(grade.by, '5')}>5 ou moins</button>
+          </div>
+          <label className="stack" style={{ gap: 6 }}>
+            <span className="kicker">Ce qu'elle vaut en {grade.by} {grade.g}, en euros</span>
+            <input className="field" inputMode="decimal" placeholder="Regarde les ventes eBay, puis note le prix" value={v} onChange={e => setV(e.target.value)}
+              onBlur={commit} onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }} />
+          </label>
+          <a className="btn sm" target="_blank" rel="noreferrer" href={`https://www.ebay.fr/sch/i.html?_nkw=${search}&LH_Sold=1&LH_Complete=1`}>Voir les ventes en {grade.by} {grade.g} sur eBay ↗</a>
+          <p className="muted tiny">{grade.value != null ? 'Cardora compte ce prix dans ta collection et ton investissement, à la place du prix brut.' : 'Tant que tu ne notes pas de prix, Cardora compte le prix brut.'}</p>
+        </>
+      )}
+    </section>
   )
 }
 

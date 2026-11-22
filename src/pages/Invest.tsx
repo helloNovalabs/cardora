@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
-import { GAMES, gameColor, gameName, listSets } from '../lib/games'
-import { deleteSealed, fmt, saveSealed, sealedUnit, toEur, totals, useCollection, type Sealed, type SealedKind } from '../lib/store'
+import { GAMES, gameColor, gameMeta, gameName, listSets } from '../lib/games'
+import { tcgSealedPrice } from '../lib/tcg'
+import { deleteSealed, fmt, getState, saveSealed, toEur, sealedUnit, totals, unitValue, useCollection, type Sealed, type SealedKind } from '../lib/store'
 import type { GameId, SetInfo } from '../lib/types'
 import { CountUp } from '../components/Brand'
 import { Seg, ValueChart } from '../components/Visuals'
@@ -11,8 +12,11 @@ import { IPlus } from '../components/Icons'
 const cardUrl = (c: { game: string; setId: string; id: string }) => `/carte/${c.game}/${encodeURIComponent(c.setId)}/${encodeURIComponent(c.id)}`
 const signed = (n: number) => (n >= 0 ? '+' : '−') + fmt(Math.abs(n))
 const pct = (gain: number, base: number) => (base > 0 ? Math.round((gain / base) * 100) : null)
-const CM: Record<GameId, string> = { pokemon: 'Pokemon', magic: 'Magic', yugioh: 'YuGiOh', onepiece: 'OnePiece', lorcana: 'Lorcana' }
-export const cardmarketSearch = (game: GameId, q: string) => `https://www.cardmarket.com/fr/${CM[game]}/Products/Search?searchString=${encodeURIComponent(q)}`
+export const cardmarketSearch = (game: GameId, q: string) => {
+  const cm = gameMeta(game)?.cm
+  return cm ? `https://www.cardmarket.com/fr/${cm}/Products/Search?searchString=${encodeURIComponent(q)}`
+    : `https://www.tcgplayer.com/search/all/product?q=${encodeURIComponent(q)}`
+}
 
 export default function Invest() {
   const s = useCollection()
@@ -20,6 +24,20 @@ export default function Invest() {
   const sealed = s.sealed ?? []
   const [range, setRange] = useState<'30' | '90' | 'all'>('30')
   const [edit, setEdit] = useState<Sealed | 'new' | null>(null)
+
+  // Les produits scellés ajoutés depuis une extension suivent le prix TCGplayer tout seuls (une fois par jour).
+  useEffect(() => {
+    const day = 20 * 3600 * 1000
+    for (const x of getState().sealed ?? []) {
+      if (!x.src || (x.valueAt && Date.now() - x.valueAt < day)) continue
+      tcgSealedPrice(x.src).then(p => {
+        const v = toEur(p)
+        if (v == null) return
+        const cur = (getState().sealed ?? []).find(y => y.id === x.id)
+        if (cur) saveSealed({ ...cur, value: Math.round(v * 100) / 100, valueAt: Date.now() })
+      }).catch(() => {})
+    }
+  }, [])
 
   const hist = useMemo(() => {
     const h = s.history ?? []
@@ -39,8 +57,8 @@ export default function Invest() {
   const downs = [...movers].filter(x => x.p < 0).sort((a, b) => a.p - b.p).slice(0, 4)
 
   const deals = Object.values(s.owned)
-    .filter(o => o.buy != null && toEur(o.price) != null)
-    .map(o => ({ o, g: ((toEur(o.price) ?? 0) - (o.buy ?? 0)) * o.qty }))
+    .filter(o => o.buy != null && unitValue(o) != null)
+    .map(o => ({ o, g: ((unitValue(o) ?? 0) - (o.buy ?? 0)) * o.qty }))
     .sort((a, b) => b.g - a.g).slice(0, 6)
 
   const cardsShare = t.total > 0 ? (t.cards / t.total) * 100 : 0
@@ -87,7 +105,7 @@ export default function Invest() {
       <section className="stack">
         <div className="sec-h"><h2>Mes objets scellés</h2>{sealed.length > 0 && <button className="link" onClick={() => setEdit('new')}>Ajouter</button>}</div>
         <p className="muted small" style={{ maxWidth: 560, marginTop: -4 }}>
-          Boosters, displays, coffrets jamais ouverts. Il n’existe pas de prix gratuit et fiable pour ces produits : tu notes toi-même le prix, et on t’envoie vérifier sur Cardmarket.
+          Boosters, displays, coffrets jamais ouverts. Ajoutés depuis la page d’une extension, ils ont une photo et un prix TCGplayer qui se met à jour tout seul. Sinon, tu notes toi-même le prix et on t’envoie vérifier sur Cardmarket.
         </p>
         <div className="grid-sealed">
           {sealed.map(x => {
@@ -96,7 +114,7 @@ export default function Invest() {
             const old = x.valueAt != null && Date.now() - x.valueAt > 30 * 864e5
             return (
               <button key={x.id} className="sealed-tile" style={{ '--gc': gameColor(x.game) } as CSSProperties} onClick={() => setEdit(x)}>
-                <div className="stage"><SealedArt kind={x.kind} color={gameColor(x.game)} logo={x.logo} label={x.setName ?? gameName(x.game)} size={118} invert={x.game === 'magic'} /></div>
+                <div className="stage">{x.image ? <img className="sealed-photo" src={x.image} alt="" loading="lazy" /> : <SealedArt kind={x.kind} color={gameColor(x.game)} logo={x.logo} label={x.setName ?? gameName(x.game)} size={118} invert={x.game === 'magic'} />}</div>
                 {x.qty > 1 && <span className="qty">×{x.qty}</span>}
                 <span className="nm">{x.setName || gameName(x.game)}</span>
                 <span className="muted tiny">{kindLabel(x.kind)}</span>
@@ -196,7 +214,7 @@ function SealedSheet({ item, onClose }: { item: Sealed | null; onClose: () => vo
       id: item?.id ?? Math.random().toString(36).slice(2, 10) + Date.now().toString(36),
       game, kind, name: `${kindLabel(kind)} ${setName}`.trim(), setName: setName.trim() || undefined, logo,
       qty, buy: toNum(buy), value: v, valueAt: v == null ? null : (item && item.value === v ? item.valueAt : Date.now()),
-      addedAt: item?.addedAt ?? Date.now(),
+      addedAt: item?.addedAt ?? Date.now(), image: item?.image, src: item?.src,
     })
     onClose()
   }

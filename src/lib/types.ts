@@ -1,4 +1,5 @@
-export type GameId = 'pokemon' | 'magic' | 'onepiece' | 'yugioh' | 'lorcana'
+/** Identifiant du jeu : pokemon, magic, onepiece, yugioh, lorcana, foot, f1, et tous les jeux TCGplayer (riftbound, digimon…). */
+export type GameId = string
 
 export interface SetInfo {
   id: string
@@ -6,6 +7,11 @@ export interface SetInfo {
   total: number
   logo?: string
   date?: string
+  code?: string
+  /** Rangement dans la liste : série (Pokémon), année, type de produit… */
+  group?: string
+  /** Pas encore sorti */
+  soon?: boolean
 }
 
 export interface Card {
@@ -18,6 +24,8 @@ export interface Card {
   name: string
   image: string
   rarity?: string
+  /** Cartes de sport : équipe, sous-série, rookie… (elles sont dessinées, pas photographiées) */
+  extra?: { team?: string; sub?: string; rc?: boolean; code?: string; k?: string; was?: string }
 }
 
 export interface Price {

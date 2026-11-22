@@ -1,13 +1,29 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { fillPrices, gameColor, gameName, loadSet, type SetData } from '../lib/games'
-import { addCard, fmt, follow, refreshFollowed, removeCard, toEur, unfollow, updatePrices, useCollection } from '../lib/store'
+import { addCard, fmt, follow, refreshFollowed, removeCard, saveSealed, toEur, unfollow, updatePrices, useCollection, USD_TO_EUR, type SealedKind } from '../lib/store'
+import { CardFace } from '../components/CardFace'
+import { isSport } from '../lib/sport'
+import type { TcgSealed } from '../lib/tcg'
 import type { Card, GameId, Price } from '../lib/types'
 import { IBack, ICheck, ILeft, IRight } from '../components/Icons'
 import { Confetti, Ring, Seg } from '../components/Visuals'
 import { CountUp } from '../components/Brand'
 
 type Filter = 'all' | 'have' | 'miss'
+type Order = 'num' | 'down' | 'up' | 'name'
+const ORDERS: [Order, string][] = [['num', 'N°'], ['down', 'Prix ↓'], ['up', 'Prix ↑'], ['name', 'Nom']]
+
+/** Devine le type d'un produit scellé d'après son nom anglais (TCGplayer). */
+function guessKind(n: string): SealedKind {
+  const t = n.toLowerCase()
+  if (/booster box|display|case/.test(t)) return 'display'
+  if (/elite trainer|premium|ultra.premium|collection box|gift/.test(t)) return 'etb'
+  if (/\btin\b/.test(t)) return 'tin'
+  if (/deck/.test(t)) return 'deck'
+  if (/pack|booster/.test(t)) return 'booster'
+  return 'coffret'
+}
 const PER_PAGE = 9
 
 export default function SetPage() {
@@ -25,11 +41,14 @@ export default function SetPage() {
   const [popped, setPopped] = useState('')
   const [party, setParty] = useState(false)
   const [tip, setTip] = useState(false)
+  const [order, setOrder] = useState<Order>('num')
+  const [rar, setRar] = useState('')
+  const [added, setAdded] = useState<Record<number, boolean>>({})
   const touchX = useRef(0)
 
   useEffect(() => {
     let alive = true
-    setData(null); setErr(false); setPage(0)
+    setData(null); setErr(false); setPage(0); setRar(''); setOrder('num')
     loadSet(game, setId).then(d => {
       if (!alive) return
       setData(d); setPrices(d.prices); updatePrices(d.prices)
@@ -69,13 +88,21 @@ export default function SetPage() {
     </div>
   )
 
-  const list = data.cards.filter(c => (filter === 'have' ? has(c) : filter === 'miss' ? !has(c) : true))
+  const rarities = [...new Set(data.cards.map(c => c.rarity).filter(Boolean) as string[])]
+  const pv = (c: Card) => toEur(prices[c.key])
+  const list = data.cards
+    .filter(c => (filter === 'have' ? has(c) : filter === 'miss' ? !has(c) : true))
+    .filter(c => !rar || c.rarity === rar)
+  if (order === 'name') list.sort((a, b) => a.name.localeCompare(b.name, 'fr'))
+  else if (order !== 'num') list.sort((a, b) => (pv(a) == null ? 1 : 0) - (pv(b) == null ? 1 : 0) || (order === 'down' ? (pv(b) ?? 0) - (pv(a) ?? 0) : (pv(a) ?? 0) - (pv(b) ?? 0)))
   const step = isDesk() ? 2 : 1
   const pages = Math.max(1, Math.ceil(list.length / PER_PAGE))
   const p = Math.min(page, pages - 1)
   const pageCards = (i: number) => list.slice(i * PER_PAGE, (i + 1) * PER_PAGE)
   const pct = data.cards.length ? Math.round((stats.haveCount / data.cards.length) * 100) : 0
-  const usd = game === 'onepiece'
+  const usd = Object.values(prices).some(x => x.currency === 'USD')
+  const sport = isSport(game)
+  const sealedList = (data.sealed ?? []) as TcgSealed[]
   const pricedCount = data.cards.filter(c => prices[c.key]).length
   const cardUrl = (c: Card) => `/carte/${game}/${encodeURIComponent(data.set.id)}/${encodeURIComponent(c.id)}`
 
@@ -99,10 +126,11 @@ export default function SetPage() {
     const pr = prices[c.key]
     return (
       <button key={c.key} className={'slot ' + (q ? 'have' : 'miss') + (popped === c.key && q ? ' pop' : '')} onClick={() => tap(c)} aria-label={`${c.name} n° ${c.number}${q ? ', dans ta collection' : ', manquante'}`}>
-        {c.image ? <img src={c.image} alt="" loading="lazy" /> : <div className="noimg">{c.name}<br />n° {c.number}</div>}
+        <CardFace card={c} />
+        {col.owned[c.key]?.grade && <span className="grade-badge">{col.owned[c.key].grade!.by} {col.owned[c.key].grade!.g}</span>}
         <span className="ok"><ICheck /></span>
         {q > 1 && <span className="qty">×{q}</span>}
-        <span className="tag">{pr?.value != null ? fmt(pr.value, pr.currency) : `n° ${c.number}`}</span>
+        {!sport && <span className="tag">{pr?.value != null ? fmt(pr.value, pr.currency) : `n° ${c.number}`}</span>}
       </button>
     )
   }
@@ -111,7 +139,7 @@ export default function SetPage() {
     <div className="rail">
       {cards.map(c => (
         <Link key={c.key} to={cardUrl(c)} className="mini" style={{ width: 104 }}>
-          <div className="pic">{c.image && <img src={c.image} alt="" loading="lazy" />}</div>
+          <div className="pic"><CardFace card={c} /></div>
           <span className="nm ellipsis" style={{ fontSize: 12 }}>{c.name}</span>
           <span className={'price-pill ' + kind}>{fmt(prices[c.key]?.value, prices[c.key]?.currency)}</span>
         </Link>
@@ -138,6 +166,19 @@ export default function SetPage() {
       )}
 
       {party && <Confetti />}
+      {sport ? (
+        <section className="panel">
+          <span className="kicker">Les prix</span>
+          <p className="small" style={{ marginTop: 8 }}>
+            Pour les cartes de sport, il n'existe pas de prix fiable et gratuit. Ouvre une carte pour noter ce que tu l'as payée ou ce qu'elle vaut,
+            avec un lien vers les ventes eBay pour t'aider.
+          </p>
+          <div className="row" style={{ gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+            <a className="btn sm" href={`https://www.ebay.fr/sch/i.html?_nkw=${encodeURIComponent(data.set.name)}&LH_Sold=1&LH_Complete=1`} target="_blank" rel="noreferrer">Ventes eBay de cette collection</a>
+            {game === 'f1' && <a className="btn sm" href={`https://www.sportscardspro.com/search-products?q=${encodeURIComponent(data.set.name)}&type=prices`} target="_blank" rel="noreferrer">Prix sur SportsCardsPro</a>}
+          </div>
+        </section>
+      ) : (
       <section className="panel finish">
         <div>
           <span className="kicker">Combien pour finir ?<button className="help" onClick={() => setTip(t => !t)} aria-label="Comment c'est calculé ?">?</button></span>
@@ -186,12 +227,46 @@ export default function SetPage() {
           </div>
         )}
       </section>
+      )}
+
+      {sealedList.length > 0 && (
+        <section className="stack" style={{ gap: 8 }}>
+          <div className="sec-h"><h2>Produits scellés de cette extension</h2><span className="muted small">{sealedList.length}</span></div>
+          <p className="muted tiny" style={{ marginTop: -4 }}>Prix TCGplayer convertis depuis le dollar, mis à jour chaque jour. Ajoute-en un à ton scellé : son prix suivra tout seul.</p>
+          <div className="rail">
+            {sealedList.slice(0, 30).map(x => (
+              <div key={x.id} className="sealed-mini">
+                <div className="pic">{x.image ? <img src={x.image} alt="" loading="lazy" /> : <span className="muted tiny">Pas de photo</span>}</div>
+                <span className="nm" title={x.name}>{x.name}</span>
+                <span className="price-pill">{x.price ? fmt(x.price.value! * USD_TO_EUR) : 'Pas de prix'}</span>
+                <button className={'btn sm' + (added[x.id] ? '' : ' primary')} disabled={added[x.id]} onClick={() => {
+                  saveSealed({
+                    id: `tcg-${x.id}`, game, kind: guessKind(x.name), name: x.name, setName: data.set.name, logo: data.set.logo,
+                    qty: 1, buy: null, value: x.price?.value != null ? Math.round(x.price.value * USD_TO_EUR * 100) / 100 : null,
+                    valueAt: x.price ? Date.now() : null, addedAt: Date.now(), image: x.image || undefined, src: x.src,
+                  })
+                  setAdded(a => ({ ...a, [x.id]: true }))
+                }}>{added[x.id] ? '✓ Ajouté' : 'Ajouter'}</button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <div className="toolbar">
         <Seg value={filter} onChange={v => { setFilter(v); setPage(0) }} options={[['all', 'Toutes'], ['have', `J'ai ${stats.haveCount}`], ['miss', `Manquantes ${stats.missing.length}`]]} />
         <button className={'btn sm check-btn' + (check ? ' on' : '')} onClick={() => setCheck(v => !v)}>
           {check ? <><ICheck />Terminé</> : 'Cocher mes cartes'}
         </button>
+      </div>
+      <div className="chips" role="group" aria-label="Trier les cartes">
+        {ORDERS.filter(([o]) => !sport || o === 'num' || o === 'name').map(([o, l]) => <button key={o} className="chip-btn" aria-pressed={order === o} onClick={() => { setOrder(o); setPage(0) }}>{l}</button>)}
+        {rarities.length > 1 && rarities.length <= 30 && (
+          <select className="field chip-select" value={rar} onChange={e => { setRar(e.target.value); setPage(0) }} aria-label="Filtrer par rareté">
+            <option value="">{sport ? 'Tous les types' : 'Toutes les raretés'}</option>
+            {rarities.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+        )}
       </div>
       {check && <p className="check-hint"><ICheck />Touche une carte pour l'ajouter, retouche-la pour la retirer.</p>}
 

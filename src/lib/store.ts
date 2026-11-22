@@ -2,7 +2,12 @@ import { useSyncExternalStore } from 'react'
 import type { Card, GameId, Price } from './types'
 
 /** `buy` = prix payé pour UNE carte (facultatif, saisi par la personne). */
-export interface Owned { card: Card; qty: number; price: Price | null; addedAt: number; buy?: number | null }
+export interface Owned { card: Card; qty: number; price: Price | null; addedAt: number; buy?: number | null; grade?: Grade | null }
+/** Carte gradée : société (PSA, CGC…), note, et sa valeur gradée notée par la personne (en euros). */
+export interface Grade { by: string; g: string; value?: number | null }
+
+/** Ce que vaut UNE carte : sa valeur gradée si elle est notée, sinon le prix du marché (brut). */
+export const unitValue = (o: Owned) => o.grade?.value ?? toEur(o.price)
 export interface Followed { game: GameId; setId: string; name: string; total: number; logo?: string }
 
 export type SealedKind = 'booster' | 'display' | 'etb' | 'coffret' | 'tin' | 'deck'
@@ -10,6 +15,10 @@ export type SealedKind = 'booster' | 'display' | 'etb' | 'coffret' | 'tin' | 'de
 export interface Sealed {
   id: string; game: GameId; kind: SealedKind; name: string; setName?: string; logo?: string
   qty: number; buy: number | null; value: number | null; valueAt: number | null; addedAt: number
+  /** Vraie photo du produit (TCGplayer) */
+  image?: string
+  /** Produit TCGplayer « jeu/extension/produit » : le prix se met à jour tout seul */
+  src?: string
 }
 /** Une photo par jour de ce que vaut tout (cartes + scellé), et de ce qui a été payé. */
 export interface Snap { d: string; v: number; cards: number; sealed: number }
@@ -46,7 +55,7 @@ export function useCollection() {
 
 export function addCard(card: Card, price: Price | null, set?: Followed) {
   const cur = state.owned[card.key]
-  const owned = { ...state.owned, [card.key]: { card, price: price ?? cur?.price ?? null, qty: (cur?.qty ?? 0) + 1, addedAt: cur?.addedAt ?? Date.now(), buy: cur?.buy ?? null } }
+  const owned = { ...state.owned, [card.key]: { card, price: price ?? cur?.price ?? null, qty: (cur?.qty ?? 0) + 1, addedAt: cur?.addedAt ?? Date.now(), buy: cur?.buy ?? null, grade: cur?.grade ?? null } }
   let followed = state.followed
   if (set && !followed.some(f => f.game === set.game && f.setId === set.setId)) followed = [set, ...followed]
   save({ ...state, owned, followed })
@@ -86,6 +95,12 @@ export function unfollow(game: GameId, setId: string) {
   save({ ...state, followed: state.followed.filter(x => !(x.game === game && x.setId === setId)) })
 }
 
+export function setGrade(key: string, grade: Grade | null) {
+  const cur = state.owned[key]
+  if (!cur) return
+  save({ ...state, owned: { ...state.owned, [key]: { ...cur, grade } } })
+}
+
 export function setBuy(key: string, buy: number | null) {
   const cur = state.owned[key]
   if (!cur || cur.buy === buy) return
@@ -108,11 +123,11 @@ export const sealedUnit = (x: Sealed) => x.value ?? x.buy ?? 0
 export function totals(s: State) {
   const owned = Object.values(s.owned)
   const sealed = s.sealed ?? []
-  const cards = owned.reduce((n, o) => n + (toEur(o.price) ?? 0) * o.qty, 0)
+  const cards = owned.reduce((n, o) => n + (unitValue(o) ?? 0) * o.qty, 0)
   const sealedV = sealed.reduce((n, x) => n + sealedUnit(x) * x.qty, 0)
   // Plus-value : seulement sur ce dont on connaît le prix d'achat
   let paid = 0, worth = 0, tracked = 0
-  for (const o of owned) if (o.buy != null) { paid += o.buy * o.qty; worth += (toEur(o.price) ?? 0) * o.qty; tracked += o.qty }
+  for (const o of owned) if (o.buy != null) { paid += o.buy * o.qty; worth += (unitValue(o) ?? 0) * o.qty; tracked += o.qty }
   for (const x of sealed) if (x.buy != null) { paid += x.buy * x.qty; worth += sealedUnit(x) * x.qty; tracked += x.qty }
   return { cards, sealed: sealedV, total: cards + sealedV, paid, worth, gain: worth - paid, tracked }
 }

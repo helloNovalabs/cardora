@@ -1,8 +1,8 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
 import { fmt } from '../lib/store'
 
 /** Carte qui bascule en 3D et brille comme une holo quand on la touche ou la survole. */
-export function HoloCard({ src, alt, rare = true, className = '', style }: { src: string; alt: string; rare?: boolean; className?: string; style?: CSSProperties }) {
+export function HoloCard({ src, alt, rare = true, className = '', style, face }: { src: string; alt: string; rare?: boolean; className?: string; style?: CSSProperties; face?: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(false)
   const move = (e: PointerEvent) => {
@@ -33,7 +33,7 @@ export function HoloCard({ src, alt, rare = true, className = '', style }: { src
         onPointerLeave={reset}
         onPointerUp={e => { if (e.pointerType !== 'mouse') reset() }}
       >
-        <img src={src} alt={alt} draggable={false} />
+        {face ?? <img src={src} alt={alt} draggable={false} />}
         <span className="holo-shine" />
         <span className="holo-glare" />
       </div>

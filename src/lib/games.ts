@@ -1,8 +1,10 @@
 import { cachedJson, pool } from './cache'
 import type { Card, GameId, Price, SetInfo } from './types'
+import { tcgImage, tcgSet, tcgSets, type TcgSealed } from './tcg'
+import { sportSet, SPORT_SETS } from './sport'
 
 export interface GameMeta {
-  id: GameId | 'foot' | 'f1'
+  id: GameId
   name: string
   hint: string
   ready: boolean
@@ -10,23 +12,59 @@ export interface GameMeta {
   color: string
   art?: string
   artPos?: string
+  /** Rangement sur la page des jeux */
+  shelf: 'big' | 'sport' | 'more'
+  /** Numéro du jeu chez TCGplayer (prix et listes via TCGCSV) */
+  tcg?: number
+  /** Nom du jeu dans les adresses Cardmarket */
+  cm?: string
 }
 
+const tp = (id: number) => tcgImage(id, '400w')
+const T = (id: GameId, name: string, tcg: number, color: string, art: number, shelf: GameMeta['shelf'], cm?: string, hint = 'Prix TCGplayer en dollars'): GameMeta =>
+  ({ id, name, hint, ready: true, currency: 'USD', color, art: tp(art), shelf, tcg, cm })
+
 export const GAMES: GameMeta[] = [
-  { id: 'pokemon', name: 'Pokémon', hint: 'En français, prix Cardmarket', ready: true, currency: 'EUR', color: '#FDE047',
+  { id: 'pokemon', name: 'Pokémon', hint: 'En français, prix Cardmarket', ready: true, currency: 'EUR', color: '#FDE047', shelf: 'big', tcg: 3, cm: 'Pokemon',
     art: 'https://assets.tcgdex.net/fr/sv/sv03.5/199/high.webp' },
-  { id: 'onepiece', name: 'One Piece', hint: 'Prix TCGplayer en dollars', ready: true, currency: 'USD', color: '#FB7185',
+  { id: 'onepiece', name: 'One Piece', hint: 'Prix TCGplayer en dollars', ready: true, currency: 'USD', color: '#FB7185', shelf: 'big', tcg: 68, cm: 'OnePiece',
     art: 'https://optcgapi.com/media/static/Card_Images/OP01-001.jpg', artPos: 'center 0%' },
-  { id: 'yugioh', name: 'Yu-Gi-Oh!', hint: 'En français, prix Cardmarket', ready: true, currency: 'EUR', color: '#60A5FA',
+  { id: 'yugioh', name: 'Yu-Gi-Oh!', hint: 'En français, prix Cardmarket', ready: true, currency: 'EUR', color: '#60A5FA', shelf: 'big', tcg: 2, cm: 'YuGiOh',
     art: 'https://images.ygoprodeck.com/images/cards_cropped/89631139.jpg' },
-  { id: 'magic', name: 'Magic', hint: 'Prix Cardmarket', ready: true, currency: 'EUR', color: '#F97316',
+  { id: 'magic', name: 'Magic', hint: 'Prix Cardmarket', ready: true, currency: 'EUR', color: '#F97316', shelf: 'big', tcg: 1, cm: 'Magic',
     art: 'https://cards.scryfall.io/art_crop/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg' },
-  { id: 'lorcana', name: 'Lorcana', hint: 'Prix TCGplayer en dollars', ready: true, currency: 'USD', color: '#A78BFA',
+  { id: 'lorcana', name: 'Lorcana', hint: 'Prix TCGplayer en dollars', ready: true, currency: 'USD', color: '#A78BFA', shelf: 'big', tcg: 71, cm: 'Lorcana',
     art: 'https://cards.lorcast.io/card/digital/large/crd_a6a007b0f7ae4fa19480721bacd2b0b6.avif?1747508548' },
-  { id: 'foot', name: 'Foot', hint: 'Panini, Topps', ready: false, color: '#4ADE80' },
-  { id: 'f1', name: 'Formule 1', hint: 'Topps F1', ready: false, color: '#F87171' },
+  T('riftbound', 'Riftbound (League of Legends)', 89, '#2DD4BF', 732652, 'big', 'Riftbound'),
+  T('pokemonjp', 'Pokémon japonais', 85, '#FACC15', 716977, 'big', 'Pokemon'),
+  T('dbfw', 'Dragon Ball Fusion World', 80, '#FB923C', 711459, 'big', 'DragonBallSuper'),
+  T('swu', 'Star Wars Unlimited', 79, '#38BDF8', 625157, 'big', 'StarWarsUnlimited'),
+  T('digimon', 'Digimon', 63, '#0EA5E9', 493718, 'big', 'Digimon'),
+  T('gundam', 'Gundam', 86, '#94A3B8', 727919, 'big', 'Gundam'),
+  T('fab', 'Flesh and Blood', 62, '#DC2626', 711020, 'big', 'FleshAndBlood'),
+  T('unionarena', 'Union Arena', 81, '#E879F9', 727790, 'big', 'UnionArena'),
+  { id: 'foot', name: 'Foot', hint: 'Albums Panini, cartes Topps', ready: true, color: '#4ADE80', shelf: 'sport' },
+  { id: 'f1', name: 'Formule 1', hint: 'Topps Chrome F1', ready: true, color: '#F87171', shelf: 'sport' },
+  T('weiss', 'Weiss Schwarz', 20, '#F472B6', 728353, 'more', 'WeissSchwarz'),
+  T('vanguard', 'Cardfight!! Vanguard', 16, '#34D399', 734428, 'more', 'CardfightVanguard'),
+  T('dbs', 'Dragon Ball Super Masters', 27, '#F59E0B', 157817, 'more', 'DragonBallSuper'),
+  T('fftcg', 'Final Fantasy', 24, '#818CF8', 233472, 'more', 'FinalFantasy'),
+  T('sorcery', 'Sorcery', 77, '#D6D3D1', 666958, 'more'),
+  T('grandarchive', 'Grand Archive', 74, '#A3E635', 713431, 'more'),
+  T('shadowverse', 'Shadowverse Evolve', 73, '#C084FC', 733977, 'more'),
+  T('hololive', 'hololive', 87, '#7DD3FC', 733046, 'more'),
+  T('godzilla', 'Godzilla', 88, '#4ADE80', 704161, 'more'),
+  T('palworld', 'Palworld', 91, '#5EEAD4', 725607, 'more'),
+  T('cyberpunk', 'Cyberpunk', 92, '#FDE047', 715195, 'more'),
+  T('cookierun', 'CookieRun Braverse', 90, '#FDBA74', 731185, 'more'),
+  T('battlespirits', 'Battle Spirits Saga', 72, '#F87171', 593192, 'more'),
+  T('wixoss', 'WIXOSS', 67, '#E2E8F0', 635663, 'more'),
+  T('forceofwill', 'Force of Will', 17, '#FCD34D', 717953, 'more'),
+  T('metazoo', 'MetaZoo', 66, '#86EFAC', 492065, 'more'),
+  T('elestrals', 'Elestrals', 83, '#67E8F9', 583838, 'more'),
 ]
 
+export const gameMeta = (g: GameId) => GAMES.find(x => x.id === g)
 export const gameName = (g: string) => GAMES.find(x => x.id === g)?.name ?? g
 export const gameColor = (g: string) => GAMES.find(x => x.id === g)?.color ?? '#C4B5FD'
 
@@ -70,22 +108,40 @@ const num = (v: unknown): number | null => {
 
 // ---------- Extensions ----------
 
+const isTcgOnly = (g: GameId) => !['pokemon', 'magic', 'yugioh', 'lorcana', 'onepiece'].includes(g) && !!gameMeta(g)?.tcg
+const yr = (d?: string) => (d ? d.slice(0, 4) : 'Autres')
+
+/** Séries Pokémon (Écarlate et Violet, Épée et Bouclier…) pour ranger les extensions. */
+async function pokemonSeries(): Promise<Map<string, string>> {
+  type L = { id: string; name: string }[]
+  const series = await cachedJson<L>(`${TCGDEX}/series`, 168)
+  const map = new Map<string, string>()
+  await pool(series.filter(x => x.id !== 'tcgp'), 6, async sr => {
+    const d = await cachedJson<{ name: string; sets: { id: string }[] }>(`${TCGDEX}/series/${sr.id}`, 168)
+    for (const st of d.sets) map.set(st.id, d.name)
+  })
+  return map
+}
+
 export async function listSets(game: GameId): Promise<SetInfo[]> {
+  if (SPORT_SETS[game]) return SPORT_SETS[game]
+  if (isTcgOnly(game)) return tcgSets(gameMeta(game)!.tcg!)
   if (game === 'pokemon') {
     type S = { id: string; name: string; logo?: string; cardCount: { total: number; official: number } }
-    const d = await cachedJson<S[]>(`${TCGDEX}/sets`, 72)
+    const [d, series] = await Promise.all([cachedJson<S[]>(`${TCGDEX}/sets`, 72), pokemonSeries().catch(() => new Map<string, string>())])
+    // Pokémon Pocket (jeu sur téléphone) n'a pas de vraies cartes : on l'enlève
     return d
-      .filter(s => s.cardCount?.official > 0)
-      .map(s => ({ id: s.id, name: s.name, total: s.cardCount.official, logo: s.logo ? s.logo + '.webp' : undefined }))
+      .filter(s => s.cardCount?.official > 0 && (series.size === 0 || series.has(s.id)))
+      .map(s => ({ id: s.id, name: s.name, total: s.cardCount.official, logo: s.logo ? s.logo + '.webp' : undefined, group: series.get(s.id) ?? 'Autres' }))
       .reverse()
   }
   if (game === 'magic') {
     type S = { code: string; name: string; card_count: number; icon_svg_uri: string; released_at: string; set_type: string; digital: boolean }
     const d = await cachedJson<{ data: S[] }>(`${SCRY}/sets`, 72)
-    const keep = new Set(['core', 'expansion', 'masters', 'draft_innovation', 'commander'])
+    const keep = new Set(['core', 'expansion', 'masters', 'draft_innovation', 'commander', 'funny', 'starter', 'box', 'from_the_vault', 'premium_deck', 'duel_deck', 'arsenal', 'spellbook', 'alchemy'])
     return d.data
       .filter(s => !s.digital && keep.has(s.set_type) && s.card_count > 0 && s.released_at <= new Date().toISOString().slice(0, 10))
-      .map(s => ({ id: s.code, name: s.name, total: s.card_count, logo: s.icon_svg_uri, date: s.released_at }))
+      .map(s => ({ id: s.code, name: s.name, total: s.card_count, logo: s.icon_svg_uri, date: s.released_at, group: yr(s.released_at) }))
   }
   if (game === 'yugioh') {
     type S = { set_name: string; set_code: string; num_of_cards: number; tcg_date?: string; set_image?: string }
@@ -93,28 +149,34 @@ export async function listSets(game: GameId): Promise<SetInfo[]> {
     const seen = new Set<string>()
     return d
       .filter(s => s.num_of_cards > 1 && s.tcg_date && s.tcg_date <= new Date().toISOString().slice(0, 10) && !seen.has(s.set_name) && seen.add(s.set_name))
-      .map(s => ({ id: s.set_name, name: s.set_name, total: s.num_of_cards, date: s.tcg_date, code: s.set_code }))
+      .map(s => ({ id: s.set_name, name: s.set_name, total: s.num_of_cards, date: s.tcg_date, code: s.set_code, group: yr(s.tcg_date) }))
       .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))
   }
   if (game === 'lorcana') {
     type S = { code: string; name: string; released_at: string }
     const d = await cachedJson<{ results: S[] }>(`${LOR}/sets`, 72)
-    return d.results.map(s => ({ id: s.code, name: s.name, total: 0, date: s.released_at })).reverse()
+    return d.results.map(s => ({ id: s.code, name: s.name, total: 0, date: s.released_at, group: yr(s.released_at) })).reverse()
   }
   type S = { set_id: string; set_name: string }
   const d = await cachedJson<S[]>(`${OP}/allSets/`, 72)
+  const kind = (id: string) => (/^OP/i.test(id) ? 'Boosters (OP)' : /^EB/i.test(id) ? 'Boosters extra (EB)' : /^PRB/i.test(id) ? 'Boosters premium (PRB)' : /^ST/i.test(id) ? 'Decks de démarrage (ST)' : 'Autres')
+  const order = ['Boosters (OP)', 'Boosters extra (EB)', 'Boosters premium (PRB)', 'Decks de démarrage (ST)', 'Autres']
   return d
-    .map(s => ({ id: s.set_id, name: s.set_name, total: 0 }))
-    .sort((a, b) => b.id.localeCompare(a.id, 'en', { numeric: true }))
+    .map(s => ({ id: s.set_id, name: s.set_name, total: 0, group: kind(s.set_id) }))
+    .sort((a, b) => order.indexOf(a.group) - order.indexOf(b.group) || b.id.localeCompare(a.id, 'en', { numeric: true }))
 }
 
 export interface SetData {
   set: SetInfo
   cards: Card[]
   prices: Record<string, Price> // clé = card.key ; vide pour Pokémon (chargé à part)
+  /** Produits scellés de l'extension (jeux TCGplayer), avec photo et prix */
+  sealed?: TcgSealed[]
 }
 
 export async function loadSet(game: GameId, setId: string): Promise<SetData> {
+  if (SPORT_SETS[game]) return { ...(await sportSet(game, setId)), prices: {} }
+  if (isTcgOnly(game)) return tcgSet(game, gameMeta(game)!.tcg!, setId)
   if (game === 'pokemon') {
     type C = { id: string; localId: string; name: string; image?: string }
     type S = { id: string; name: string; logo?: string; releaseDate?: string; cardCount: { official: number }; cards: C[] }
@@ -293,4 +355,7 @@ export async function loadCard(game: GameId, setId: string, id: string): Promise
   return { card, price: s.prices[card.key] ?? null }
 }
 
-export const imgLarge = (c: Card) => (c.game === 'pokemon' ? c.image.replace('/low.webp', '/high.webp') : c.image)
+export const imgLarge = (c: Card) => (c.game === 'pokemon' ? c.image.replace('/low.webp', '/high.webp') : c.image.replace('_400w.jpg', '_in_1000x1000.jpg'))
+
+/** Recherche possible directement par nom ? (sinon on passe par les extensions) */
+export const canSearch = (g: GameId) => ['pokemon', 'magic', 'yugioh', 'lorcana'].includes(g)

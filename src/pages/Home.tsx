@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
-import { fmt, ownedInSet, toEur, totals, useCollection } from '../lib/store'
+import { fmt, ownedInSet, totals, unitValue, useCollection } from '../lib/store'
+import { CardFace } from '../components/CardFace'
 import { SealedArt } from '../components/Sealed'
 import { GAMES, gameColor, gameName } from '../lib/games'
 import { Donut, HoloCard, Ring } from '../components/Visuals'
@@ -21,13 +22,13 @@ export default function Home() {
   if (owned.length === 0 && s.followed.length === 0) return <Welcome />
 
   const count = owned.reduce((n, o) => n + o.qty, 0)
-  const value = owned.reduce((n, o) => n + (toEur(o.price) ?? 0) * o.qty, 0)
+  const value = owned.reduce((n, o) => n + (unitValue(o) ?? 0) * o.qty, 0)
   const hasUsd = owned.some(o => o.price?.currency === 'USD')
-  const top = [...owned].filter(o => toEur(o.price) != null && o.card.image).sort((a, b) => (toEur(b.price) ?? 0) - (toEur(a.price) ?? 0)).slice(0, 10)
+  const top = [...owned].filter(o => unitValue(o) != null).sort((a, b) => (unitValue(b) ?? 0) - (unitValue(a) ?? 0)).slice(0, 10)
   const best = top[0]
   const byGame = GAMES.filter(g => g.ready).map(g => ({
     label: g.name, color: g.color,
-    value: owned.filter(o => o.card.game === g.id).reduce((n, o) => n + (toEur(o.price) ?? 0) * o.qty, 0),
+    value: owned.filter(o => o.card.game === g.id).reduce((n, o) => n + (unitValue(o) ?? 0) * o.qty, 0),
     n: owned.filter(o => o.card.game === g.id).reduce((n, o) => n + o.qty, 0),
   })).filter(p => p.n > 0).sort((a, b) => b.value - a.value)
 
@@ -43,13 +44,13 @@ export default function Home() {
           <div className="stats">
             <div className="stat"><b>{count}</b><span>carte{count > 1 ? 's' : ''}</span></div>
             <div className="stat"><b>{s.followed.length}</b><span>classeur{s.followed.length > 1 ? 's' : ''}</span></div>
-            <div className="stat"><b>{best ? fmt(toEur(best.price)) : '—'}</b><span>la plus chère</span></div>
+            <div className="stat"><b>{best ? fmt(unitValue(best)) : '—'}</b><span>la plus chère</span></div>
           </div>
         </div>
         {byGame.length <= 1 && top.length >= 3 && (
           <div className="desk-only" style={{ placeItems: 'center' }}>
             <div className="fan" style={{ height: 210 }}>
-              {[top[1], top[0], top[2]].map((o, i) => <HoloCard key={o.card.key} src={o.card.image} alt={o.card.name} rare={i === 1} />)}
+              {[top[1], top[0], top[2]].map((o, i) => <HoloCard key={o.card.key} src={o.card.image} alt={o.card.name} rare={i === 1} face={o.card.image ? undefined : <CardFace card={o.card} big />} />)}
             </div>
           </div>
         )}
@@ -78,7 +79,7 @@ export default function Home() {
           {s.followed.map(f => {
             const mine = ownedInSet(s, f.game, f.setId)
             const have = mine.length
-            const worth = mine.reduce((n, o) => n + (toEur(o.price) ?? 0) * o.qty, 0)
+            const worth = mine.reduce((n, o) => n + (unitValue(o) ?? 0) * o.qty, 0)
             const pct = f.total ? Math.min(100, (have / f.total) * 100) : 0
             return (
               <Link key={f.game + f.setId} to={`/jeux/${f.game}/${encodeURIComponent(f.setId)}`} className="set-card" style={{ '--gc': gameColor(f.game) } as CSSProperties}>
@@ -102,11 +103,12 @@ export default function Home() {
             {top.map((o, i) => (
               <Link key={o.card.key} to={cardUrl(o.card)} className="mini">
                 <div className="pic">
-                  {o.card.image && <img src={o.card.image} alt="" loading="lazy" />}
+                  <CardFace card={o.card} />
+                  {o.grade && <span className="grade-badge">{o.grade.by} {o.grade.g}</span>}
                   <span className={'rank' + (i === 0 ? ' r1' : '')}>{i + 1}</span>
                 </div>
                 <span className="nm ellipsis">{o.card.name}{o.qty > 1 ? ` ×${o.qty}` : ''}</span>
-                <span className={'price-pill' + (i < 3 ? ' hot' : '')}>{fmt(o.price?.value, o.price?.currency)}</span>
+                <span className={'price-pill' + (i < 3 ? ' hot' : '')}>{o.grade?.value != null ? fmt(o.grade.value) : fmt(o.price?.value, o.price?.currency)}</span>
               </Link>
             ))}
           </div>

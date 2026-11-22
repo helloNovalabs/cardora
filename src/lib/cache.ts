@@ -3,6 +3,11 @@ const PREFIX = 'cardora-cache:'
 
 /** Récupère du JSON avec un cache mémoire + appareil (durée en heures). */
 export async function cachedJson<T>(url: string, hours = 24): Promise<T> {
+  return cachedMap<T, T>(url, hours, d => d)
+}
+
+/** Pareil, mais on ne garde que ce qui sert (`map`) : utile pour les gros fichiers. */
+export async function cachedMap<R, T>(url: string, hours: number, map: (raw: R) => T): Promise<T> {
   if (mem.has(url)) return mem.get(url) as T
   try {
     const raw = localStorage.getItem(PREFIX + url)
@@ -16,7 +21,7 @@ export async function cachedJson<T>(url: string, hours = 24): Promise<T> {
   } catch { /* pas de stockage : on ignore */ }
   const res = await fetch(url)
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  const d = (await res.json()) as T
+  const d = map((await res.json()) as R)
   mem.set(url, d)
   try {
     localStorage.setItem(PREFIX + url, JSON.stringify({ t: Date.now(), d }))
