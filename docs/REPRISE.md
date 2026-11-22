@@ -89,3 +89,9 @@ Honnêteté : prix en euros avec la source, jamais de prix inventé.
 - Scanner : page Ajouter, « Prendre une photo » → `src/lib/scan.ts` (Tesseract.js chargé à la demande, lit sur l'appareil ; l'outil et les langues sont téléchargés depuis jsdelivr). Cherche les noms lus un par un, met en premier la carte au bon numéro. Jeux : Pokémon, Yu-Gi-Oh!, Lorcana, Magic.
 - Boutique : `/boutique` (`src/pages/Shop.tsx`), 5e onglet. 6 dernières extensions par ordre d'ajout TCGplayer (pas par date : de vieilles extensions ont des dates changées), produits scellés avec photo, prix TCGplayer en €, liens Cardmarket + TCGplayer, « Je l'ai » → scellé. Cardora ne vend rien.
 - Reste possible : scanner en direct (vidéo), affiliation Cardmarket/TCGplayer si l'utilisateur le veut, test réel sur téléphone.
+
+## 23/11 : style « Holo noir »
+L'utilisateur trouvait l'ancien look (violet, dégradés) « enfantin » et « comme tous les SaaS ». 3 styles montrés (La Dalle, Holo noir, Rouge enchères) ; pas de préférence, Holo noir choisi.
+- `src/theme.css` chargé en dernier : noir #000, blanc, gris #8C8C92 ; couleur seulement dans le reflet holo `--holo` (#FF3D6E, #FFD23D, #3DFF9C, #3DC8FF, #A23DFF).
+- Titres et chiffres : Anton en capitales ; texte : Hanken Grotesk. Boutons pilules ; principal blanc avec anneau holo animé (bordure `padding-box`/`border-box`, pas de pseudo-élément : il passait devant).
+- Demande en attente : « les différentes langues, un truc stylé » (à préciser : langue de l'appli ou langue des cartes FR/EN/JP).
