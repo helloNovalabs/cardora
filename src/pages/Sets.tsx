@@ -6,6 +6,7 @@ import type { GameId, SetInfo } from '../lib/types'
 import { IBack, ISearch } from '../components/Icons'
 import { SealedArt } from '../components/Sealed'
 import { isSport } from '../lib/sport'
+import { SetCover } from '../components/SetCover'
 
 type Sort = 'serie' | 'name' | 'mine'
 const SORTS: { id: Sort; label: string }[] = [
@@ -63,7 +64,7 @@ export default function Sets() {
       <Link key={s.id} to={`/jeux/${game}/${encodeURIComponent(s.id)}`} className={'ext' + (isSport(game) && s.logo ? ' cover' : '') + (followed ? ' followed' : '') + (s.soon ? ' soon' : '')} style={gc}>
         {s.soon && <span className="soon-tag">À venir</span>}
         <div className="lg">
-          <ExtLogo src={s.logo} code={(s.code || s.id).toUpperCase().slice(0, 8)} invert={game === 'magic'} color={gameColor(game)} />
+          <ExtLogo game={game} set={s} invert={game === 'magic'} color={gameColor(game)} />
         </div>
         <h3>{s.name}</h3>
         {followed ? (
@@ -121,9 +122,12 @@ function fmtDate(d?: string) {
   return m ? `${MOIS[m - 1]} ${d.slice(0, 4)}` : d.slice(0, 4)
 }
 
-function ExtLogo({ src, code, invert, color }: { src?: string; code: string; invert: boolean; color: string }) {
+function ExtLogo({ game, set, invert, color }: { game: GameId; set: SetInfo; invert: boolean; color: string }) {
   const [bad, setBad] = useState(false)
-  // Pas de logo : on dessine un booster de l'extension avec son code
-  if (!src || bad) return <span className="ext-ph"><SealedArt kind="booster" color={color} label="" size={42} /><span className="code">{code}</span></span>
+  const src = set.logo
+  const code = (set.code || set.id).toUpperCase().slice(0, 8)
+  // Pas de logo : le booster de l'extension (TCGplayer), et en attendant un booster dessiné avec son code
+  const drawn = <span className="ext-ph"><SealedArt kind="booster" color={color} label="" size={42} /><span className="code">{code}</span></span>
+  if (!src || bad) return isSport(game) ? drawn : <SetCover game={game} set={set} fallback={drawn} />
   return <img src={src} alt="" loading="lazy" referrerPolicy="no-referrer" style={invert ? { filter: 'invert(1)', maxHeight: 34 } : undefined} onError={() => setBad(true)} />
 }

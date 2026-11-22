@@ -108,7 +108,7 @@ const num = (v: unknown): number | null => {
 
 // ---------- Extensions ----------
 
-const isTcgOnly = (g: GameId) => !['pokemon', 'magic', 'yugioh', 'lorcana', 'onepiece'].includes(g) && !!gameMeta(g)?.tcg
+export const isTcgOnly = (g: GameId) => !['pokemon', 'magic', 'yugioh', 'lorcana', 'onepiece'].includes(g) && !!gameMeta(g)?.tcg
 const yr = (d?: string) => (d ? d.slice(0, 4) : 'Autres')
 
 /** Séries Pokémon (Écarlate et Violet, Épée et Bouclier…) pour ranger les extensions. */
@@ -149,7 +149,7 @@ export async function listSets(game: GameId): Promise<SetInfo[]> {
     const seen = new Set<string>()
     return d
       .filter(s => s.num_of_cards > 1 && s.tcg_date && s.tcg_date <= new Date().toISOString().slice(0, 10) && !seen.has(s.set_name) && seen.add(s.set_name))
-      .map(s => ({ id: s.set_name, name: s.set_name, total: s.num_of_cards, date: s.tcg_date, code: s.set_code, group: yr(s.tcg_date) }))
+      .map(s => ({ id: s.set_name, name: s.set_name, total: s.num_of_cards, date: s.tcg_date, code: s.set_code, group: yr(s.tcg_date), logo: s.set_image }))
       .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))
   }
   if (game === 'lorcana') {

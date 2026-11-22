@@ -120,3 +120,9 @@ img.sc-photo { display: block; width: 100%; height: 100%; aspect-ratio: 63 / 88;
 .ext.cover .lg { height: 132px; padding: 0; overflow: hidden; background: #120e22; }
 .ext.cover .lg img { width: 100%; height: 100%; max-height: none; object-fit: cover; object-position: 50% 25%; filter: none; transition: transform .5s var(--ease); }
 .ext.cover:hover .lg img { transform: scale(1.05); }
+.set-cover { display: flex; align-items: center; justify-content: center; height: 100%; width: 100%; }
+.ext .lg .set-cover img { max-height: 58px; max-width: 100%; object-fit: contain; border-radius: 4px; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .55)); animation: fade-in .4s both; }
+.ext .lg { height: 92px; }
+.ext .lg img { max-height: 60px; }
+.ext .lg .set-cover img { max-height: 84px; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }

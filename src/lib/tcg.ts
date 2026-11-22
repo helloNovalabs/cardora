@@ -85,3 +85,38 @@ export async function tcgSealedPrice(src: string): Promise<Price | null> {
   const pr = await tcgPrices(Number(cat), group)
   return priceOf(pr[Number(id)])
 }
+
+/** L'image d'une extension (son booster, sinon sa boîte, sinon sa plus belle carte), gardée sur l'appareil. */
+const COVERS_KEY = 'cardora-covers'
+let covers: Record<string, string> | null = null
+const coverWait = new Map<string, Promise<string>>()
+let running = 0
+const queue: (() => void)[] = []
+const slot = () => new Promise<void>(r => { if (running < 3) { running++; r() } else queue.push(() => { running++; r() }) })
+const free = () => { running--; queue.shift()?.() }
+export function tcgCoverCached(cat: number, group: string): string | undefined {
+  if (!covers) try { covers = JSON.parse(localStorage.getItem(COVERS_KEY) ?? '{}') } catch { covers = {} }
+  return covers![`${cat}/${group}`]
+}
+export function tcgCover(cat: number, group: string): Promise<string> {
+  const k = `${cat}/${group}`
+  const known = tcgCoverCached(cat, group)
+  if (known !== undefined) return Promise.resolve(known)
+  if (!coverWait.has(k)) coverWait.set(k, (async () => {
+    await slot()
+    try {
+      const res = await fetch(`${BASE}/${k}/products`)
+      if (!res.ok) throw new Error('HTTP ' + res.status)
+      const list = ((await res.json()) as { results: P[] }).results.filter(p => p.imageCount > 0)
+      const sealedOnly = list.filter(p => !p.extendedData.some(e => e.name === 'Number' || e.name === 'Rarity'))
+      const pick = [/booster pack/i, /\bpack\b/i, /booster (box|display)/i, /./]
+        .map(re => sealedOnly.find(p => re.test(p.name) && !/case|bundle of|lot/i.test(p.name))).find(Boolean)
+        ?? list.find(p => /secret|special|alternate|manga|enchanted|legendary|ultra/i.test(p.extendedData.find(e => e.name === 'Rarity')?.value ?? '')) ?? list[0]
+      const url = pick ? tcgImage(pick.productId, '200w') : ''
+      covers![k] = url
+      try { localStorage.setItem(COVERS_KEY, JSON.stringify(covers)) } catch { /* plein */ }
+      return url
+    } catch { return '' } finally { free() }
+  })())
+  return coverWait.get(k)!
+}
