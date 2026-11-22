@@ -72,3 +72,12 @@ Honnêteté : prix en euros avec la source, jamais de prix inventé.
 6. Stocker nous-mêmes les images Yu-Gi-Oh! (YGOPRODeck interdit de les charger directement chez eux) et trouver des images One Piece sans « SAMPLE ».
 7. Cartes de foot et de F1.
 8. Plus tard : prix automatiques du scellé (source payante, ex. PriceCharting ou Cardmarket API pro).
+
+
+## 22/11 : 32 jeux, foot, F1, gradation (commit fe6422a)
+- Jeux en plus via TCGCSV (données TCGplayer, mises à jour chaque jour) : src/lib/tcg.ts. Le site passe par /tcg/… (vercel.json et vite.config.ts renvoient vers tcgcsv.com). Liste des jeux et numéros de catégorie : src/lib/games.ts.
+- Foot (Panini Coupe du monde 2026 + mise à jour) et F1 (Topps Chrome 2025) : listes dans src/data, cartes dessinées (src/components/CardFace.tsx). Pas de prix automatique : la personne note le prix, avec des liens eBay.
+- Classeurs : toutes les extensions, rangées par série ou année, « À venir » signalé, tri.
+- Extension : tri, filtre rareté, produits scellés avec photo et prix (bouton Ajouter → Investissement, prix mis à jour tout seul une fois par jour).
+- Carte : gradation (société + note + valeur), affichée dans un boîtier ; la valeur gradée remplace le prix brut dans les totaux.
+- À faire : ajouter d'autres albums de foot (Ligue 1, Champions League) et d'autres séries F1 quand les listes officielles sont trouvées.
