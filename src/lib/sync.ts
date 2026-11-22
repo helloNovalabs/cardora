@@ -63,6 +63,14 @@ export async function verifyCode(email: string, token: string) {
   const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' })
   return error ? frError(error.message) : null
 }
+/** Supprime le compte et sa collection en ligne (fonction SQL 002). Renvoie un message d'erreur ou null. */
+export async function deleteAccount() {
+  window.clearTimeout(timer)
+  const { error } = await supabase.rpc('delete_my_account')
+  if (error) return 'La suppression n’a pas marché. Vérifie ta connexion internet et réessaie.'
+  await supabase.auth.signOut({ scope: 'local' })
+  return null
+}
 export async function signOut() {
   window.clearTimeout(timer)
   await supabase.auth.signOut()

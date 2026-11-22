@@ -417,3 +417,10 @@ p { margin: 0; line-height: 1.45; }
 @media (min-width: 900px) { .desk-only { display: grid; } .mob-only { display: none; } }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* Suppression de compte */
+.btn.danger-link { background: transparent; border-color: transparent; color: #FB7185; justify-self: start; padding-inline: 0; }
+.btn.danger-link:hover { text-decoration: underline; }
+.danger-box { border-color: rgba(251, 113, 133, .45); }
+.btn.danger { background: #E11D48; border-color: #E11D48; color: #fff; }
+.btn.danger:hover:not(:disabled) { background: #BE123C; }

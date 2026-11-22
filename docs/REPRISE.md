@@ -59,11 +59,13 @@ Honnêteté : prix en euros avec la source, jamais de prix inventé.
 - Table `collections` (une ligne JSON par personne, RLS) : `supabase/001_collections.sql` (déjà exécuté).
 - Site URL + redirection `https://cardora-ecru.vercel.app/**` réglés.
 - Sans SMTP perso, Supabase envoie un **lien** (pas de code) et seulement ~2 e-mails/heure. La page « Mon compte » gère lien et code.
+- **22/11 : code à 6 chiffres + suppression de compte codés.** Page « Mon compte » : « Recevoir mon code », puis on tape le code (le lien marche encore en secours). Bouton « Supprimer mon compte » (2 étapes, option pour effacer aussi l'appareil) qui appelle la fonction SQL `delete_my_account` : **`supabase/002_supprimer_compte.sql` à exécuter** dans Supabase.
+- Réglages Supabase pour le code (à faire) : SMTP Brevo (hôte smtp-relay.brevo.com, port 587, identifiant SMTP Brevo xxx@smtp-brevo.com, mot de passe = clé SMTP collée par l'utilisateur lui-même), expéditeur vérifié dans Brevo, nom « Cardora » ; modèles « Confirm signup » et « Magic link » = contenu de `docs/a-coller/email-code.html` (contient `{{ .Token }}`) ; puis monter la limite d'e-mails par heure (Authentication > Rate Limits).
 - Fusion à la connexion : `src/lib/merge.ts` (test : `node --experimental-strip-types scripts/merge.test.ts`). Synchro : `src/lib/sync.ts`.
 
 ## À faire ensuite
 1. ~~Publication durable~~ : fait (cardora-ecru.vercel.app).
-2. ~~Comptes~~ : faits le 21/11 (voir « Comptes » plus haut). Reste : brancher Brevo (SMTP) pour envoyer un vrai code à 6 chiffres et dépasser 2 e-mails/heure ; suppression de compte avant ouverture au public.
+2. ~~Comptes~~ : faits le 21/11 (voir « Comptes » plus haut). Code et suppression codés le 22/11 ; reste les réglages Supabase (SQL 002, SMTP Brevo, modèles d'e-mail) puis un vrai test.
 3. Scanner par la caméra (IA : coût par scan à prévoir).
 4. Vrais prix gradés (source payante, par ex. PriceCharting).
 5. Échanges entre potes (« Lucas a 3 cartes qu'il te manque »).
