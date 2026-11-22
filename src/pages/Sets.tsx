@@ -5,6 +5,7 @@ import { ownedInSet, useCollection } from '../lib/store'
 import type { GameId, SetInfo } from '../lib/types'
 import { IBack, ISearch } from '../components/Icons'
 import { SealedArt } from '../components/Sealed'
+import { isSport } from '../lib/sport'
 
 type Sort = 'serie' | 'name' | 'mine'
 const SORTS: { id: Sort; label: string }[] = [
@@ -59,7 +60,7 @@ export default function Sets() {
     const have = followed ? ownedInSet(col, game, s.id).length : 0
     const pct = followed && s.total ? Math.min(100, (have / s.total) * 100) : 0
     return (
-      <Link key={s.id} to={`/jeux/${game}/${encodeURIComponent(s.id)}`} className={'ext' + (followed ? ' followed' : '') + (s.soon ? ' soon' : '')} style={gc}>
+      <Link key={s.id} to={`/jeux/${game}/${encodeURIComponent(s.id)}`} className={'ext' + (isSport(game) && s.logo ? ' cover' : '') + (followed ? ' followed' : '') + (s.soon ? ' soon' : '')} style={gc}>
         {s.soon && <span className="soon-tag">À venir</span>}
         <div className="lg">
           <ExtLogo src={s.logo} code={(s.code || s.id).toUpperCase().slice(0, 8)} invert={game === 'magic'} color={gameColor(game)} />
@@ -124,5 +125,5 @@ function ExtLogo({ src, code, invert, color }: { src?: string; code: string; inv
   const [bad, setBad] = useState(false)
   // Pas de logo : on dessine un booster de l'extension avec son code
   if (!src || bad) return <span className="ext-ph"><SealedArt kind="booster" color={color} label="" size={42} /><span className="code">{code}</span></span>
-  return <img src={src} alt="" loading="lazy" style={invert ? { filter: 'invert(1)', maxHeight: 34 } : undefined} onError={() => setBad(true)} />
+  return <img src={src} alt="" loading="lazy" referrerPolicy="no-referrer" style={invert ? { filter: 'invert(1)', maxHeight: 34 } : undefined} onError={() => setBad(true)} />
 }

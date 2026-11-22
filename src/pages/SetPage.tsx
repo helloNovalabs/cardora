@@ -177,6 +177,7 @@ export default function SetPage() {
             <a className="btn sm" href={`https://www.ebay.fr/sch/i.html?_nkw=${encodeURIComponent(data.set.name)}&LH_Sold=1&LH_Complete=1`} target="_blank" rel="noreferrer">Ventes eBay de cette collection</a>
             {game === 'f1' && <a className="btn sm" href={`https://www.sportscardspro.com/search-products?q=${encodeURIComponent(data.set.name)}&type=prices`} target="_blank" rel="noreferrer">Prix sur SportsCardsPro</a>}
           </div>
+          <p className="credit" style={{ marginTop: 10 }}>Photos des vignettes : <a href="https://www.laststicker.com/" target="_blank" rel="noreferrer">laststicker.com</a>. Quand une photo manque, la vignette est dessinée.</p>
         </section>
       ) : (
       <section className="panel finish">

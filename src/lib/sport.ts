@@ -28,6 +28,25 @@ export const SPORT_SETS: Record<string, SetInfo[]> = {
     { id: 'chrome-2025', name: 'Topps Chrome F1 2025', total: 200, date: '2025-11-07', group: 'Topps Chrome', code: 'CHR25' },
   ],
 }
+/** Numéro de l'album sur laststicker.com : photos des vignettes et couverture de l'album. */
+const LS: Record<string, number> = {
+  'l1-2526': 11771, 'axl-l1-2627': 12475, 'axl-l1-2526': 11414, 'l2-2526': 11772, wc2026: 12176, 'axl-wc26': 12029,
+  'ucl-2526': 11732, 'ma-ucl-2526': 11483, 'f365-2026': 11592, 'axl-f365-2526': 11415, 'pl-2526': 11908, 'liga-2526': 11361,
+  'calcio-2526': 11718, 'bl-2526': 11697, 'ta-2026': 12348, 'chrome-2025': 11964,
+}
+const LS_IMG = 'https://www.laststicker.com/i/'
+for (const list of Object.values(SPORT_SETS)) for (const s of list) {
+  const id = LS[s.id === 'wc2026-maj' ? 'wc2026' : s.id]
+  if (id) s.logo = `${LS_IMG}album/${id}.jpg`
+}
+/** La photo d'une vignette (pas toutes sont photographiées : sinon on garde le dessin). */
+export function sportPhoto(c: Card): string {
+  const id = LS[c.setId]
+  if (!id) return ''
+  const n = c.setId === 'wc2026' ? c.number.toLowerCase().replace(/\s+/g, '') : c.number
+  return `${LS_IMG}cards/${id}/${encodeURIComponent(n)}.jpg`
+}
+export const PHOTO_CREDIT = 'Photos des vignettes : laststicker.com'
 const ALBUMS = import.meta.glob<{ default: [string, string, string, string][] }>('../data/albums/*.json')
 
 /** Petit code d'équipe (3 lettres) pour dessiner l'écusson. */

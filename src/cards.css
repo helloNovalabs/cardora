@@ -111,3 +111,12 @@
 .sealed-mini .price-pill { align-self: flex-start; }
 .chip-select { height: 38px; width: auto; padding: 0 12px; border-radius: 12px; font-weight: 700; font-size: 14px; }
 .sealed-photo { width: 100%; height: 100%; max-height: 130px; object-fit: contain; border-radius: 10px; background: #F8FAFC; padding: 6px; }
+
+/* Vraies photos des vignettes foot / F1 */
+img.sc-photo { display: block; width: 100%; height: 100%; aspect-ratio: 63 / 88; object-fit: cover; background: #1a1530; }
+.slot.miss img.sc-photo { filter: grayscale(.85) brightness(.6); opacity: .9; }
+.credit { font-size: 11px; color: var(--muted, #9a93b8); }
+.credit a { color: inherit; text-decoration: underline; }
+.ext.cover .lg { height: 132px; padding: 0; overflow: hidden; background: #120e22; }
+.ext.cover .lg img { width: 100%; height: 100%; max-height: none; object-fit: cover; object-position: 50% 25%; filter: none; transition: transform .5s var(--ease); }
+.ext.cover:hover .lg img { transform: scale(1.05); }

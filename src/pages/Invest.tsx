@@ -8,6 +8,7 @@ import { CountUp } from '../components/Brand'
 import { Seg, ValueChart } from '../components/Visuals'
 import { KINDS, SealedArt, kindLabel } from '../components/Sealed'
 import { IPlus } from '../components/Icons'
+import { CardFace } from '../components/CardFace'
 
 const cardUrl = (c: { game: string; setId: string; id: string }) => `/carte/${c.game}/${encodeURIComponent(c.setId)}/${encodeURIComponent(c.id)}`
 const signed = (n: number) => (n >= 0 ? '+' : '−') + fmt(Math.abs(n))
@@ -166,7 +167,7 @@ export default function Invest() {
           <div className="rail">
             {deals.map(({ o, g }) => (
               <Link key={o.card.key} to={cardUrl(o.card)} className="mini">
-                <div className="pic">{o.card.image && <img src={o.card.image} alt="" loading="lazy" />}</div>
+                <div className="pic"><CardFace card={o.card} /></div>
                 <span className="nm ellipsis">{o.card.name}</span>
                 <span className={'delta ' + (g >= 0 ? 'up' : 'down')}>{signed(g)}</span>
               </Link>

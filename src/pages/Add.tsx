@@ -1,3 +1,4 @@
+import { CardFace } from '../components/CardFace'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { canSearch, priceFor, searchCards } from '../lib/games'
@@ -82,7 +83,7 @@ export default function Add() {
             const qn = col.owned[c.key]?.qty ?? 0
             return (
               <button key={c.key} className={'slot' + (qn ? ' have' : '')} onClick={() => add(c)} aria-label={`Ajouter ${c.name}`}>
-                {c.image ? <img src={c.image} alt="" loading="lazy" /> : <div className="noimg">{c.name}</div>}
+                <CardFace card={c} />
                 {qn > 0 ? <span className="qty">×{qn}</span> : <span className="add"><IPlus /></span>}
                 <span className="tag">{c.game === 'yugioh' ? c.number : `${c.setId.toUpperCase()} · ${c.number}`}</span>
               </button>

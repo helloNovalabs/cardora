@@ -1,12 +1,21 @@
-import type { CSSProperties } from 'react'
+import { useState, type CSSProperties } from 'react'
 import type { Card } from '../lib/types'
-import { sportColors } from '../lib/sport'
+import { sportColors, sportPhoto } from '../lib/sport'
 
 /** L'image d'une carte, ou son dessin quand il n'y a pas de photo (foot, F1). */
 export function CardFace({ card, big = false }: { card: Card; big?: boolean }) {
   if (card.image) return <img src={card.image} alt="" loading="lazy" draggable={false} />
-  if (card.game === 'foot' || card.game === 'f1') return <SportCard card={card} big={big} />
+  if (card.game === 'foot' || card.game === 'f1') return <SportFace card={card} big={big} />
   return <div className="noimg">{card.name}<br />n° {card.number}</div>
+}
+
+const broken = new Set<string>()
+/** La vraie photo de la vignette ; si elle n'existe pas, le dessin aux couleurs de l'équipe. */
+function SportFace({ card, big }: { card: Card; big: boolean }) {
+  const src = sportPhoto(card)
+  const [bad, setBad] = useState(() => !src || broken.has(src))
+  if (bad) return <SportCard card={card} big={big} />
+  return <img className="sc-photo" src={src} alt="" loading="lazy" draggable={false} referrerPolicy="no-referrer" onError={() => { broken.add(src); setBad(true) }} />
 }
 
 const initials = (n: string) => n.split(/[\s-]+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase()
