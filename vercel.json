@@ -5,7 +5,7 @@
       "destination": "https://tcgcsv.com/tcgplayer/:path*"
     },
     {
-      "source": "/((?!assets/|tcg/|.*\\..*).*)",
+      "source": "/((?!assets/|tcg/|.*\\.(?:js|css|map|png|jpe?g|webp|avif|gif|svg|ico|json|webmanifest|txt|xml|woff2?|mp4)$).*)",
       "destination": "/index.html"
     }
   ],
