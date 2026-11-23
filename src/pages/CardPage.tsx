@@ -1,8 +1,8 @@
 import { WishBox } from '../components/InvestTools'
 import { t as tr } from '../lib/i18n'
 import { useEffect, useState, type CSSProperties } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { gameColor, gameName, imgLarge, loadCard } from '../lib/games'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { gameColor, imgLarge, loadCard } from '../lib/games'
 import { addCard, defaultLang, fmt, removeCard, setBuy, setCardLang, setGrade, toEur, useCollection, type Grade } from '../lib/store'
 import { LangPicker, buyLinks, langOf } from '../components/Lang'
 import { CardFace } from '../components/CardFace'
@@ -17,6 +17,8 @@ const GRADERS = [
   { id: 'psa', name: 'PSA', cost: 45, note: 'Américain, souvent via un intermédiaire' },
 ]
 
+type Tab = 'price' | 'buy' | 'mine' | 'grade'
+
 export default function CardPage() {
   const { game, setId = '', id = '' } = useParams() as { game: GameId; setId: string; id: string }
   const nav = useNavigate()
@@ -24,17 +26,17 @@ export default function CardPage() {
   const [card, setCard] = useState<Card | null>(null)
   const [price, setPrice] = useState<Price | null>(null)
   const [err, setErr] = useState(false)
-  const [tip, setTip] = useState(false)
+  const [tab, setTab] = useState<Tab>('price')
   const [bump, setBump] = useState(0)
 
   useEffect(() => {
-    setCard(null); setErr(false)
+    setCard(null); setErr(false); setTab('price')
     loadCard(game, setId, id).then(r => { setCard(r.card); setPrice(r.price) }).catch(() => setErr(true))
   }, [game, setId, id])
 
   if (err) return <div className="stack"><button className="back" onClick={() => nav(-1)}><IBack />{tr('Retour')}</button><p className="down">{tr("Carte introuvable pour l'instant.")}</p></div>
   if (!card) return (
-    <div className="card-hero"><div className="skel" style={{ aspectRatio: '63/88', maxWidth: 260, width: '100%', margin: '0 auto' }} /><div className="stack"><div className="skel" style={{ height: 60 }} /><div className="skel" style={{ height: 200 }} /></div></div>
+    <div className="cp"><div className="cp-grid"><div className="cp-stage"><div className="skel card-big" style={{ aspectRatio: '63/88' }} /></div><div className="cp-info"><div className="skel" style={{ height: 70 }} /><div className="skel" style={{ height: 110 }} /><div className="skel" style={{ height: 56 }} /></div></div></div>
   )
 
   const q = col.owned[card.key]?.qty ?? 0
@@ -42,82 +44,87 @@ export default function CardPage() {
   const trend = price?.value != null && price.avg30 ? Math.round(((price.value - price.avg30) / price.avg30) * 100) : null
   const add = () => { addCard(card, price); setBump(b => b + 1); if (navigator.vibrate) navigator.vibrate(12) }
 
+  const face = <HoloCard src={card.image ? imgLarge(card) : ''} face={card.image ? undefined : <CardFace card={card} big />} alt={card.name} rare={!/^(common|commune|c)$/i.test(card.rarity ?? '')} className={grade ? undefined : 'card-big'} />
+  const pane = tab === 'mine' && q === 0 ? 'price' : tab
+  const tabs: [Tab, string][] = [['price', tr('Prix')], ['buy', tr('Acheter')], ...(q > 0 ? [['mine', tr('Ma carte')] as [Tab, string]] : []), ['grade', tr('Grader')]]
+  const figures: [string, number | null | undefined][] = price ? [[tr('La moins chère'), price.low], [tr('Moyenne 7 jours'), price.avg7], [tr('Moyenne 30 jours'), price.avg30]] : []
+
   return (
-    <div className="stack fade-in" style={{ gap: 18, '--gc': gameColor(game) } as CSSProperties}>
+    <div className="cp fade-in" style={{ '--gc': gameColor(game) } as CSSProperties}>
+      {card.image && <div className="cp-glow" aria-hidden><img src={card.image} alt="" referrerPolicy="no-referrer" /></div>}
       <button className="back" onClick={() => nav(-1)}><IBack />{tr('Retour')}</button>
-      <div className="card-hero">
-        <div className="card-stage">
+      <div className="cp-grid">
+        <div className="cp-stage">
           {grade ? (
             <div className="slab card-big">
               <div className={'slab-label ' + grade.by.toLowerCase() + (grade.by === 'BGS' && grade.g === '10' ? ' b10' : '')}>
-                <div style={{ minWidth: 0 }}><div className="co">{grade.by}</div><div className="nm">{card.name} · n° {card.number}</div></div>
+                <div style={{ minWidth: 0 }}><div className="co">{grade.by}</div><div className="nm">{card.name}, n° {card.number}</div></div>
                 <div className="g">{grade.g}<small>{GRADE_WORD[grade.g] ?? ''}</small></div>
               </div>
-              <HoloCard src={card.image ? imgLarge(card) : ''} face={card.image ? undefined : <CardFace card={card} big />} alt={card.name} rare={!/^(common|commune|c)$/i.test(card.rarity ?? '')} />
+              {face}
             </div>
-          ) : (
-            <HoloCard src={card.image ? imgLarge(card) : ''} face={card.image ? undefined : <CardFace card={card} big />} alt={card.name} rare={!/^(common|commune|c)$/i.test(card.rarity ?? '')} className="card-big" />
-          )}
-          <p className="holo-hint">{tr('Bouge ton doigt sur la carte pour la faire briller')}</p>
+          ) : face}
         </div>
 
-        <div className="stack" style={{ gap: 16 }}>
-          <div>
-            <h1 style={{ fontSize: 'clamp(28px, 7vw, 40px)' }}>{card.name}</h1>
-            <div className="tags">
-              <span className="tag-s"><span className="gdot-s" style={{ background: gameColor(game) }} />{gameName(game)}</span>
-              <span className="tag-s">{card.setName ?? card.setId}</span>
-              <span className="tag-s">n° {card.number}</span>
-              {card.rarity && <span className="tag-s">{card.rarity}</span>}
+        <div className="cp-info">
+          <h1>{card.name}</h1>
+          <p className="cp-meta">
+            <span className="gdot-s" style={{ background: gameColor(game) }} />
+            <Link to={`/jeux/${game}/${encodeURIComponent(card.setId)}`}>{card.setName ?? card.setId}</Link>
+            <span>n° {card.number}</span>
+            {card.rarity && <span>{card.rarity}</span>}
+          </p>
+
+          {price?.value != null ? (
+            <div className="cp-price">
+              <strong>{fmt(price.value, price.currency)}</strong>
+              {trend != null && trend !== 0 && <em className={trend > 0 ? 'up' : 'down'}>{tr('{s}{n} % en 30 jours', { s: trend > 0 ? '+' : '−', n: Math.abs(trend) })}</em>}
             </div>
+          ) : (
+            <p className="cp-noprice">{tr('Pas de prix fiable pour cette carte. On préfère ne rien inventer.')}</p>
+          )}
+
+          <div className="cp-act">
+            {q > 0 ? (
+              <div className="qty-ctl">
+                <button className="btn" onClick={() => removeCard(card.key)} aria-label={tr('En retirer une')}>−</button>
+                <div className="q"><b key={bump} className="fade-in" style={{ display: 'block' }}>{q}</b>{tr('dans ta collection')}</div>
+                <button className="btn primary" onClick={add} aria-label={tr('En ajouter une')}><IPlus /></button>
+              </div>
+            ) : (
+              <button className="btn primary" style={{ height: 56, fontSize: 16 }} onClick={add}><IPlus />{tr('Ajouter à ma collection')}</button>
+            )}
             <WishBox card={card} price={price} />
           </div>
 
-          <section className="panel" style={{ padding: 20 }}>
-            <span className="kicker">{tr('Prix brut, non gradée')}<button className="help" onClick={() => setTip(t => !t)} aria-label={tr("C'est quoi ?")}>?</button></span>
-            {tip && (
-              <p className="tip" style={{ marginTop: 8 }}>
-                « Brut » = la carte telle quelle, sans boîtier de gradation. Le prix affiché est la tendance du marché :
-                ce que les gens paient en ce moment pour cette carte en bon état, sur {price?.source?.split(' ')[0] ?? 'le marché'}.
-              </p>
-            )}
-            <div className="price-row">
-              <span className="num foil-text">{fmt(price?.value, price?.currency)}</span>
-              {trend != null && trend !== 0 && <span className={'trend ' + (trend > 0 ? 'up' : 'down')}>{trend > 0 ? '▲' : '▼'} {Math.abs(trend)} % en 30 jours</span>}
-            </div>
-            {price?.value == null ? (
-              <p className="muted small" style={{ marginTop: 6 }}>{tr('Pas de prix fiable pour cette carte. On préfère ne rien inventer.')}</p>
+          <div className="cp-tabs" role="tablist" aria-label={tr('Détails de la carte')}>
+            {tabs.map(([k, label]) => <button key={k} role="tab" aria-selected={pane === k} onClick={() => setTab(k)}>{label}</button>)}
+          </div>
+
+          <div className="cp-pane" role="tabpanel" key={pane}>
+            {pane === 'price' && (price?.value == null ? (
+              <p className="muted small">{tr('Tu peux quand même regarder les offres dans l’onglet Acheter.')}</p>
             ) : (
               <>
-                {(price.avg30 || price.avg7) && (
-                  <div style={{ marginTop: 18 }}>
-                    <PriceChart currency={price.currency} points={[
-                      { label: tr('Moy. 30 j'), v: price.avg30 }, { label: tr('Moy. 7 j'), v: price.avg7 },
-                      { label: tr('Hier'), v: price.avg1 }, { label: tr("Aujourd'hui"), v: price.value },
-                    ]} />
-                  </div>
-                )}
-                <p className="muted tiny" style={{ marginTop: 10 }}>
-                  Source : {price.source}{price.low ? `. La moins chère en vente : ${fmt(price.low, price.currency)}` : ''}
-                </p>
+                {(price.avg30 || price.avg7) && <PriceChart currency={price.currency} points={[
+                  { label: tr('Moy. 30 j'), v: price.avg30 }, { label: tr('Moy. 7 j'), v: price.avg7 },
+                  { label: tr('Hier'), v: price.avg1 }, { label: tr("Aujourd'hui"), v: price.value },
+                ]} />}
+                <dl className="cp-figs">
+                  {figures.filter(([, v]) => v != null && v > 0).map(([l, v]) => <div key={l}><dt>{l}</dt><dd>{fmt(v, price.currency)}</dd></div>)}
+                </dl>
+                <p className="muted tiny">{tr('Prix de la carte sans boîtier de gradation, en bon état. Source : {s}.', { s: price.source ?? '' })}</p>
+              </>
+            ))}
+            {pane === 'buy' && <LangBox card={card} owned={q > 0} lang={col.owned[card.key]?.lang} />}
+            {pane === 'mine' && (
+              <>
+                <BuyPrice cardKey={card.key} qty={q} buy={col.owned[card.key]?.buy ?? null} now={toEur(price)} />
+                <GradePicker card={card} grade={grade} />
               </>
             )}
-          </section>
-
-          {q > 0 ? (
-            <div className="qty-ctl">
-              <button className="btn" onClick={() => removeCard(card.key)} aria-label={tr('En retirer une')}>−</button>
-              <div className="q"><b key={bump} className="fade-in" style={{ display: 'block' }}>{q}</b>{tr('dans ta collection')}</div>
-              <button className="btn primary" onClick={add} aria-label={tr('En ajouter une')}><IPlus /></button>
-            </div>
-          ) : (
-            <button className="btn primary" style={{ height: 54, fontSize: 15.5 }} onClick={add}><IPlus />{tr('Ajouter à ma collection')}</button>
-          )}
-          <LangBox card={card} owned={q > 0} lang={col.owned[card.key]?.lang} />
-          {q > 0 && <GradePicker card={card} grade={grade} />}
-          {q > 0 && <BuyPrice cardKey={card.key} qty={q} buy={col.owned[card.key]?.buy ?? null} now={toEur(price)} />}
-
-          <GradeCalc card={card} price={price} />
+            {pane === 'grade' && <GradeCalc card={card} price={price} />}
+          </div>
         </div>
       </div>
     </div>
@@ -175,11 +182,11 @@ function GradePicker({ card, grade }: { card: Card; grade: Grade | null }) {
             <button className="chip-btn" aria-pressed={grade.g === '5'} onClick={() => pick(grade.by, '5')}>{tr('5 ou moins')}</button>
           </div>
           <label className="stack" style={{ gap: 6 }}>
-            <span className="kicker">Ce qu'elle vaut en {grade.by} {grade.g}, en euros</span>
+            <span className="kicker">{tr("Ce qu'elle vaut en {g}, en euros", { g: `${grade.by} ${grade.g}` })}</span>
             <input className="field" inputMode="decimal" placeholder={tr('Regarde les ventes eBay, puis note le prix')} value={v} onChange={e => setV(e.target.value)}
               onBlur={commit} onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }} />
           </label>
-          <a className="btn sm" target="_blank" rel="noreferrer" href={`https://www.ebay.fr/sch/i.html?_nkw=${search}&LH_Sold=1&LH_Complete=1`}>Voir les ventes en {grade.by} {grade.g} sur eBay ↗</a>
+          <a className="btn sm" target="_blank" rel="noreferrer" href={`https://www.ebay.fr/sch/i.html?_nkw=${search}&LH_Sold=1&LH_Complete=1`}>{tr('Voir les ventes en {g} sur eBay ↗', { g: `${grade.by} ${grade.g}` })}</a>
           <p className="muted tiny">{grade.value != null ? tr('Cardora compte ce prix dans ta collection et ton investissement, à la place du prix brut.') : tr('Tant que tu ne notes pas de prix, Cardora compte le prix brut.')}</p>
         </>
       )}
@@ -207,7 +214,7 @@ function BuyPrice({ cardKey, qty, buy, now }: { cardKey: string; qty: number; bu
       {gain != null ? (
         <div className={'verdict ' + (gain >= 0 ? 'up' : 'down')}>
           <b className={gain >= 0 ? 'up' : 'down'}>{gain >= 0 ? '+' : '−'}{fmt(Math.abs(gain))}{p != null ? ` (${p >= 0 ? '+' : ''}${p} %)` : ''}</b>
-          {gain >= 0 ? `Tu gagnes ça sur ${qty > 1 ? `tes ${qty} cartes` : 'cette carte'}, au prix d’aujourd’hui.` : `Elle vaut moins que ce que tu l’as payée.`}
+          {gain >= 0 ? (qty > 1 ? tr('Tu gagnes ça sur tes {n} cartes, au prix d’aujourd’hui.', { n: qty }) : tr('Tu gagnes ça sur cette carte, au prix d’aujourd’hui.')) : tr('Elle vaut moins que ce que tu l’as payée.')}
         </div>
       ) : (
         <p className="muted tiny">{tr('Note ton prix d’achat : Cardora calcule ta plus-value ici et dans Investissement.')}</p>

@@ -392,6 +392,22 @@ const d: Record<string, string> = {
  "Quelle est ta première carte ?": "What's your first card?",
  "Dracaufeu, Pikachu, Luffy…": "Charizard, Pikachu, Luffy…",
  "Chercher": "Search",
- "Ou ouvre un classeur": "Or open a binder"
+ "Ou ouvre un classeur": "Or open a binder",
+ "Prix": "Price",
+ "Acheter": "Buy",
+ "Ma carte": "My card",
+ "Grader": "Grade",
+ "La moins chère": "Lowest",
+ "Moyenne 7 jours": "7-day average",
+ "Moyenne 30 jours": "30-day average",
+ "{s}{n} % en 30 jours": "{s}{n}% in 30 days",
+ "Détails de la carte": "Card details",
+ "Tu peux quand même regarder les offres dans l’onglet Acheter.": "You can still check offers in the Buy tab.",
+ "Prix de la carte sans boîtier de gradation, en bon état. Source : {s}.": "Price of the ungraded card in good condition. Source: {s}.",
+ "Ce qu'elle vaut en {g}, en euros": "What it's worth in {g}, in euros",
+ "Voir les ventes en {g} sur eBay ↗": "See {g} sales on eBay ↗",
+ "Tu gagnes ça sur tes {n} cartes, au prix d’aujourd’hui.": "Your gain on your {n} cards, at today's price.",
+ "Tu gagnes ça sur cette carte, au prix d’aujourd’hui.": "Your gain on this card, at today's price.",
+ "Elle vaut moins que ce que tu l’as payée.": "It's worth less than you paid."
 }
 export default d

@@ -115,4 +115,4 @@ L'utilisateur trouvait l'ancien look (violet, dégradés) « enfantin » et « c
 ## 23/11 : accueil et présentation redessinés
 - `/decouvrir` : mur de vraies cartes (`CardWall`), bandeau des prix, classeur d'essai avec vrais prix Cardmarket, classement de ce qui monte, outils, jeux.
 - Accueil : grande valeur + 3 plus belles cartes en éventail, classeurs avec leurs cartes. Accueil vide : recherche directe (`/ajouter?q=`).
-- Reste : la fiche d'une carte garde l'ancien dessin.
+- Fiche d'une carte redessinée : grande carte, nom et prix géants, onglets Prix / Acheter / Ma carte / Grader.

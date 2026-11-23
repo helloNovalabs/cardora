@@ -392,6 +392,22 @@ const d: Record<string, string> = {
  "Quelle est ta première carte ?": "¿Cuál es tu primera carta?",
  "Dracaufeu, Pikachu, Luffy…": "Charizard, Pikachu, Luffy…",
  "Chercher": "Buscar",
- "Ou ouvre un classeur": "O abre una carpeta"
+ "Ou ouvre un classeur": "O abre una carpeta",
+ "Prix": "Precio",
+ "Acheter": "Comprar",
+ "Ma carte": "Mi carta",
+ "Grader": "Gradear",
+ "La moins chère": "La más barata",
+ "Moyenne 7 jours": "Media 7 días",
+ "Moyenne 30 jours": "Media 30 días",
+ "{s}{n} % en 30 jours": "{s}{n} % en 30 días",
+ "Détails de la carte": "Detalles de la carta",
+ "Tu peux quand même regarder les offres dans l’onglet Acheter.": "Aun así puedes ver las ofertas en la pestaña Comprar.",
+ "Prix de la carte sans boîtier de gradation, en bon état. Source : {s}.": "Precio de la carta sin gradear, en buen estado. Fuente: {s}.",
+ "Ce qu'elle vaut en {g}, en euros": "Lo que vale en {g}, en euros",
+ "Voir les ventes en {g} sur eBay ↗": "Ver ventas en {g} en eBay ↗",
+ "Tu gagnes ça sur tes {n} cartes, au prix d’aujourd’hui.": "Lo que ganas con tus {n} cartas, al precio de hoy.",
+ "Tu gagnes ça sur cette carte, au prix d’aujourd’hui.": "Lo que ganas con esta carta, al precio de hoy.",
+ "Elle vaut moins que ce que tu l’as payée.": "Vale menos de lo que pagaste."
 }
 export default d

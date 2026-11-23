@@ -309,3 +309,43 @@ select.field { border-radius: 12px; }
 .wall-col img { display: block; width: 100%; aspect-ratio: 63 / 88; object-fit: cover; border-radius: 6px; background: #111; }
 @keyframes wall-up { to { transform: translateY(calc(-50% - 6px)); } }
 @media (prefers-reduced-motion: reduce) { .wall-col { animation: none; } }
+
+/* ===== Fiche d'une carte ===== */
+.cp { position: relative; isolation: isolate; display: grid; gap: 14px; }
+.cp-glow { position: absolute; z-index: -1; inset: -16px -16px auto; height: 640px; overflow: hidden; pointer-events: none; -webkit-mask-image: linear-gradient(#000 35%, transparent); mask-image: linear-gradient(#000 35%, transparent); }
+.cp-glow img { position: absolute; left: 50%; top: -18%; width: 130%; height: 130%; translate: -50% 0; object-fit: cover; filter: blur(70px) saturate(1.5); opacity: .42; }
+.cp-grid { display: grid; gap: 24px; min-width: 0; }
+.cp-stage { display: flex; justify-content: center; min-width: 0; }
+.cp .cp-stage .card-big { width: min(70vw, 330px); max-width: 100%; margin: 0; }
+.cp-info { display: grid; gap: 18px; min-width: 0; align-content: start; }
+.cp-info h1 { margin: 0; font-size: clamp(46px, 8vw, 88px); line-height: .96; overflow-wrap: anywhere; }
+.cp-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: -6px 0 0; color: #C8C8CD; font-size: 15px; }
+.cp-meta a { color: #fff; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(255, 255, 255, .4); }
+.cp-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 16px; }
+.cp-price strong { font-family: var(--display); font-weight: 400; font-size: clamp(62px, 13vw, 118px); line-height: 1; white-space: nowrap; }
+.cp-price em { font-style: normal; font-weight: 800; font-size: 16px; }
+.cp-noprice { margin: 0; color: #C8C8CD; font-size: 16px; line-height: 1.45; max-width: 30em; }
+.cp-act { display: grid; gap: 10px; }
+.cp-tabs { display: flex; gap: clamp(16px, 3vw, 28px); margin-top: 8px; border-bottom: 1px solid var(--line-2); overflow-x: auto; scrollbar-width: none; }
+.cp-tabs::-webkit-scrollbar { display: none; }
+.cp-tabs button { flex: none; padding: 8px 0 9px; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; background: none; color: var(--muted); cursor: pointer; font-family: var(--display); font-size: clamp(21px, 2.4vw, 27px); text-transform: uppercase; transition: color .15s; }
+.cp-tabs button:hover { color: #fff; }
+.cp-tabs button[aria-selected='true'] { color: #fff; border-bottom-color: #fff; }
+.cp-tabs button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.cp-pane { display: grid; gap: 16px; min-width: 0; min-height: 200px; }
+.cp-pane .box { padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
+.cp-pane .box + .box { padding-top: 20px; border-top: 1px solid var(--line-2); }
+.cp-figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 12px; margin: 0; }
+.cp-figs dt { color: var(--muted); font-size: 13px; }
+.cp-figs dd { margin: 2px 0 0; font-family: var(--display); font-size: clamp(24px, 3vw, 32px); }
+@media (min-width: 900px) { .cp-glow { inset: -36px -44px auto; } }
+@media (min-width: 960px) {
+  .cp-info h1 { font-size: clamp(40px, 5.4vw, 78px); }
+  .cp-price strong { font-size: clamp(56px, 6.6vw, 104px); }
+  .cp-grid { grid-template-columns: minmax(240px, 400px) minmax(0, 1fr); gap: clamp(28px, 4vw, 52px); align-items: start; }
+  .cp-stage { position: sticky; top: 28px; }
+  .cp .cp-stage .card-big { width: 100%; }
+  .cp-act { grid-template-columns: minmax(0, 1fr); max-width: 460px; }
+}
+.cp-pane .lav { display: none; }
+.cp-pane h2 { font-size: clamp(25px, 3vw, 34px); }
