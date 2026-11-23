@@ -2,7 +2,7 @@ import { t as tr } from '../lib/i18n'
 import { CardFace } from '../components/CardFace'
 import { readCard } from '../lib/scan'
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { canSearch, priceFor, searchCards } from '../lib/games'
 import { addCard, useCollection } from '../lib/store'
 import type { Card, GameId } from '../lib/types'
@@ -22,7 +22,8 @@ const OPTIONS: { id: GameId; name: string }[] = [
 export default function Add() {
   const col = useCollection()
   const [game, setGame] = useState<GameId>('pokemon')
-  const [q, setQ] = useState('')
+  const [params] = useSearchParams()
+  const [q, setQ] = useState(() => params.get('q') ?? '')
   const [res, setRes] = useState<Card[] | null>(null)
   const [busy, setBusy] = useState(false)
   const [toast, setToast] = useState<{ text: string; img: string } | null>(null)

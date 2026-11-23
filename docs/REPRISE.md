@@ -110,3 +110,9 @@ L'utilisateur trouvait l'ancien look (violet, dégradés) « enfantin » et « c
 - Investir : envies + prix cible, « Cet échange est juste ? », répartition, export Excel (`src/components/InvestTools.tsx`).
 - Éventails d'extensions : adresses d'images déduites, sans appel API (trop d'appels = blocage TCGdex).
 - Idées suivantes : outil de centrage, historique long des prix (il faudrait enregistrer les prix chaque jour côté serveur).
+
+
+## 23/11 : accueil et présentation redessinés
+- `/decouvrir` : mur de vraies cartes (`CardWall`), bandeau des prix, classeur d'essai avec vrais prix Cardmarket, classement de ce qui monte, outils, jeux.
+- Accueil : grande valeur + 3 plus belles cartes en éventail, classeurs avec leurs cartes. Accueil vide : recherche directe (`/ajouter?q=`).
+- Reste : la fiche d'une carte garde l'ancien dessin.

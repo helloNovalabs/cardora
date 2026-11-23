@@ -1,149 +1,140 @@
 import { t } from '../lib/i18n'
-import { useEffect, type CSSProperties } from 'react'
+import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Brand } from '../components/Brand'
+import { Brand, CountUp } from '../components/Brand'
 import { AppLangPicker } from '../components/AppLang'
-import { HoloCard } from '../components/Visuals'
+import { CardFace } from '../components/CardFace'
+import { CardWall } from '../components/CardWall'
 import { SealedArt } from '../components/Sealed'
 import { PICK_GAMES as GAMES } from '../lib/games'
+import { marketCards, type MarketCard } from '../lib/market'
+import { fmt } from '../lib/store'
 import { markSeen } from '../lib/seen'
 import '../landing.css'
 
+const pct = (n: number) => `${n >= 0 ? '+' : '−'}${Math.abs(n).toFixed(Math.abs(n) < 10 ? 1 : 0)} %`
+const IMG = (p: string) => `https://assets.tcgdex.net/fr/${p}/low.webp`
 
-const LS = 'https://www.laststicker.com/i/cards/'
-/** La page du classeur de l'accueil : de vraies cartes de jeux différents, et des cases vides. */
-const POCKETS: ({ src: string; alt: string; holo?: boolean } | null)[] = [
-  { src: 'https://assets.tcgdex.net/fr/sv/sv03.5/199/high.webp', alt: 'Dracaufeu-ex, Pokémon' },
-  { src: LS + '11771/247.jpg', alt: 'Aubameyang, Panini Foot Ligue 1' },
-  null,
-  { src: LS + '11964/1.jpg', alt: 'Max Verstappen, Topps Chrome F1' },
-  { src: 'https://cards.lorcast.io/card/digital/large/crd_a6a007b0f7ae4fa19480721bacd2b0b6.avif?1747508548', alt: 'Elsa, Lorcana', holo: true },
-  { src: 'https://images.ygoprodeck.com/images/cards/89631139.jpg', alt: 'Dragon Blanc aux Yeux Bleus, Yu-Gi-Oh!' },
-  null,
-  { src: LS + '12176/fra5.jpg', alt: 'France, Panini Coupe du monde 2026' },
-  null,
-]
-const ROW = ['250', '251', '252', '253', '254', '255', '256', '257'].map((n, i) => ({ src: `${LS}11771/${n}.jpg`, have: [0, 1, 3, 4, 6].includes(i) }))
+/** Le classeur d'essai : de vraies cartes, leur vrai prix du jour. */
+function TryBinder({ list }: { list: MarketCard[] }) {
+  const [on, setOn] = useState<Record<string, boolean>>({})
+  const cards = useMemo(() => [...list].filter(m => m.price.value! <= 400).sort((a, b) => b.price.value! - a.price.value!).slice(0, 9), [list])
+  const total = cards.reduce((n, m) => n + (on[m.card.key] ? m.price.value! : 0), 0)
+  const count = cards.filter(m => on[m.card.key]).length
+  return (
+    <section className="ld-try">
+      <div className="ld-try-copy">
+        <h2>{t('Essaie. Touche les cartes que tu as.')}</h2>
+        <div className="ld-total">
+          <CountUp value={total} className="ld-total-v" />
+          <span>{count === 0 ? t('Ta collection, pour l’instant') : t(count > 1 ? '{n} cartes, au prix Cardmarket du jour' : '{n} carte, au prix Cardmarket du jour', { n: count })}</span>
+        </div>
+      </div>
+      <div className="ld-page">
+        {cards.length === 0 ? Array.from({ length: 9 }, (_, i) => <div key={i} className="ld-pocket skel" />) : cards.map(m => (
+          <button key={m.card.key} className={'ld-pocket' + (on[m.card.key] ? ' on' : '')} aria-pressed={!!on[m.card.key]} aria-label={`${m.card.name}, ${fmt(m.price.value)}`}
+            onClick={() => setOn(x => ({ ...x, [m.card.key]: !x[m.card.key] }))}>
+            <CardFace card={m.card} />
+            <b>{fmt(m.price.value)}</b>
+          </button>
+        ))}
+      </div>
+    </section>
+  )
+}
 
 export default function Landing() {
   const nav = useNavigate()
+  const [market, setMarket] = useState<MarketCard[]>([])
   useEffect(() => { document.title = t('Cardora : toutes tes cartes, un seul classeur'); return () => { document.title = 'Cardora' } }, [])
+  useEffect(() => { let live = true; marketCards().then(l => { if (live) setMarket(l) }).catch(() => {}); return () => { live = false } }, [])
   const open = () => { markSeen(); nav('/') }
-  const have = POCKETS.filter(Boolean).length
+  const moving = useMemo(() => market.filter(m => m.trend != null).sort((a, b) => Math.abs(b.trend!) - Math.abs(a.trend!)).slice(0, 14), [market])
+  const rising = useMemo(() => market.filter(m => (m.trend ?? 0) > 0).sort((a, b) => b.trend! - a.trend!).slice(0, 5), [market])
+  const tick = (m: MarketCard) => <span key={m.card.key}><b>{m.card.name}</b> {fmt(m.price.value)} <em className={m.trend! >= 0 ? 'up' : 'down'}>{pct(m.trend!)}</em></span>
 
   return (
     <div className="ld">
       <header className="ld-top">
         <Brand />
-        <span className="row" style={{ gap: 10 }}><AppLangPicker compact /><button className="btn ghost sm" onClick={open}>{t("Ouvrir l'appli")}</button></span>
+        <span className="ld-top-r"><AppLangPicker compact /><button className="btn sm" onClick={open}>{t("Ouvrir l'appli")}</button></span>
       </header>
 
       <section className="ld-hero">
-        <div className="ld-foil" aria-hidden><i /></div>
+        <CardWall />
         <div className="ld-copy">
-          <h1>{t('Toutes')}<br /><span>{t('tes cartes.')}</span><br />{t('Une cote.')}</h1>
-          <p className="ld-lead">{t("Pokémon, One Piece, Lorcana, Magic, les vignettes Panini ou les cartes de F1 : tu coches ce que tu as, Cardora te montre ce qu'il te manque et ce que vaut ta collection, en euros.")}</p>
+          <h1>{t('Tes cartes valent combien ?')}</h1>
+          <p>{t('Coche ce que tu as. Cardora te donne sa valeur en euros, au prix du marché, jour après jour.')}</p>
           <div className="ld-cta">
             <button className="btn primary lg" onClick={open}>{t('Ouvrir mon classeur')}</button>
-            <span className="muted small">{t('Gratuit, sans compte pour commencer.')}</span>
+            <span>{t('Gratuit, sans compte pour commencer.')}</span>
           </div>
         </div>
-        <div className="ld-hero-card"><HoloCard src={POCKETS[0]!.src} alt={POCKETS[0]!.alt} /></div>
       </section>
 
-      <section className="ld-feat">
-        <div className="ld-text">
-          <h2>{t('Un classeur pour tous tes jeux')}</h2>
-          <p>{t('Tes cartes Pokémon à côté de tes vignettes de Ligue 1 et de tes cartes de F1. Les cases vides, ce sont celles qui te manquent.')}</p>
+      {moving.length > 0 && (
+        <div className="ld-ticker" aria-label={t('Les prix qui bougent')}>
+          <div style={{ '--t': `${moving.length * 5}s` } as CSSProperties}>
+            <div>{moving.map(tick)}</div>
+            <div aria-hidden>{moving.map(tick)}</div>
+          </div>
         </div>
-        <div className="ld-binder" aria-label={t('Exemple de page de classeur')}>
-          <div className="ld-page">
-            {POCKETS.map((p, i) => (
-              <div key={i} className={'ld-pocket' + (p ? '' : ' empty')} style={{ '--i': i } as CSSProperties}>
-                {p ? (p.holo ? <HoloCard src={p.src} alt={p.alt} /> : <img src={p.src} alt={p.alt} loading="lazy" referrerPolicy="no-referrer" />) : <span>?</span>}
-              </div>
+      )}
+
+      <TryBinder list={market} />
+
+      {rising.length > 0 && (
+        <section className="ld-rise">
+          <h2>{t('Vois ce qui monte avant tout le monde.')}</h2>
+          <ol>
+            {rising.map(m => (
+              <li key={m.card.key}>
+                <Link to={`/carte/pokemon/${encodeURIComponent(m.card.setId)}/${encodeURIComponent(m.card.id)}`} onClick={markSeen}>
+                  <span className="pic"><CardFace card={m.card} /></span>
+                  <span className="nm"><b>{m.card.name}</b><small>{m.card.setName}</small></span>
+                  <span className="pr">{fmt(m.price.value)}</span>
+                  <em className="up">{pct(m.trend!)}</em>
+                </Link>
+              </li>
             ))}
-          </div>
-          <div className="ld-binder-foot">
-            <span><b>{have}</b> / {t('{n} cartes', { n: POCKETS.length })}</span>
-            <span className="ld-bar"><i style={{ width: `${(have / POCKETS.length) * 100}%` }} /></span>
-          </div>
-        </div>
+          </ol>
+          <p>{t('Moyenne sur 7 jours comparée à celle sur 30 jours, sur Cardmarket. Ce n’est pas un conseil d’achat.')}</p>
+        </section>
+      )}
+
+      <section className="ld-tools">
+        <article>
+          <h2>{t('Scanne')}</h2>
+          <p>{t('Prends ta carte en photo. Cardora lit son nom et son numéro.')}</p>
+          <div className="v scan"><img src={IMG('sv/sv08.5/156')} alt="" loading="lazy" /><i /></div>
+        </article>
+        <article>
+          <h2>{t('Grade')}</h2>
+          <p>{t('Sache si une carte vaut le coup d’être envoyée chez PSA, CGC ou PCA.')}</p>
+          <div className="v"><div className="slab ld-slab"><div className="slab-label psa"><div style={{ minWidth: 0 }}><div className="co">PSA</div></div><div className="g">10</div></div><img src={IMG('sv/sv03.5/199')} alt="" loading="lazy" /></div></div>
+        </article>
+        <article>
+          <h2>{t('Échange')}</h2>
+          <p>{t('Compare les deux côtés avant de dire oui.')}</p>
+          <div className="v swap"><img src={IMG('me/me01/161')} alt="" loading="lazy" /><b>⇄</b><img src={IMG('sv/sv10/214')} alt="" loading="lazy" /></div>
+        </article>
+        <article>
+          <h2>{t('Garde scellé')}</h2>
+          <p>{t('Suis tes boosters, displays et coffrets à côté de tes cartes.')}</p>
+          <div className="v sealed"><SealedArt kind="display" color="#3DC8FF" label="" size={108} /><SealedArt kind="booster" color="#FF3D6E" label="" size={70} /></div>
+        </article>
       </section>
 
       <section className="ld-games" aria-label={t('Les jeux')}>
-        <p><b>{t('{n} jeux', { n: GAMES.length })}</b> {t('et leurs extensions, rangées par série.')}</p>
-        <ul>{GAMES.map(g => <li key={g.id} style={{ '--gc': g.color } as CSSProperties}>{g.name}</li>)}</ul>
-      </section>
-
-      <section className="ld-feat">
-        <div className="ld-text">
-          <h2>{t('Un toucher, la carte est cochée')}</h2>
-          <p>{t("Chaque extension a sa page, carte par carte. Celles que tu as sont en couleur, celles qui te manquent restent en gris. Pour le foot et la F1, ce sont les vraies vignettes de l'album.")}</p>
-        </div>
-        <div className="ld-row" aria-hidden>
-          {ROW.map(c => <span key={c.src} className={c.have ? 'have' : ''}><img src={c.src} alt="" loading="lazy" referrerPolicy="no-referrer" /></span>)}
-        </div>
-      </section>
-
-      <section className="ld-feat flip">
-        <div className="ld-text">
-          <h2>{t('Combien pour finir ?')}</h2>
-          <p>{t('Cardora additionne le prix des cartes qui te manquent, avec les prix du marché (Cardmarket, TCGplayer), et te dit par où commencer.')}</p>
-        </div>
-        <div className="ld-finish">
-          <span className="ld-ex">{t('Exemple')}</span>
-          <span className="ld-big">{t('23 cartes')}</span>
-          <span className="muted">{t('te manquent dans cette extension')}</span>
-          <span className="ld-sum">{t('environ')} <b className="foil-text">41,80 €</b></span>
-        </div>
-      </section>
-
-      <section className="ld-duo">
-        <div>
-          <h2>{t('Scanne ta carte')}</h2>
-          <p>{t('Prends-la en photo : Cardora lit son nom et son numéro, et te la montre. Un toucher et elle est dans ton classeur.')}</p>
-        </div>
-        <div>
-          <h2>{t('La boutique des sorties')}</h2>
-          <p>{t("Les nouveaux boosters, displays et coffrets de chaque jeu, avec le prix du marché et un lien pour l'acheter où tu veux.")}</p>
-        </div>
-      </section>
-
-      <section className="ld-feat">
-        <div className="ld-text">
-          <h2>{t('La gradation, et le scellé aussi')}</h2>
-          <p>{t('Note la note de ta carte gradée (PSA, CGC, BGS…) et range tes boosters, displays et coffrets à côté de tes cartes. La valeur de tout est suivie jour après jour.')}</p>
-        </div>
-        <div className="ld-grade">
-          <div className="slab">
-            <div className="slab-label psa">
-              <div style={{ minWidth: 0 }}><div className="co">PSA</div><div className="nm">Dracaufeu-ex · n° 199</div></div>
-              <div className="g">10</div>
-            </div>
-            <img src={POCKETS[0]!.src} alt="" loading="lazy" />
-          </div>
-          <div className="ld-sealed">
-            <SealedArt kind="booster" color="#FF3D6E" label="Booster" size={70} />
-            <SealedArt kind="etb" color="#3DC8FF" label={t('Coffret')} size={86} />
-          </div>
-        </div>
-      </section>
-
-      <section className="ld-honest">
-        <h2>{t("Ce qu'on te promet, et ce qu'on ne fait pas")}</h2>
-        <ul>
-          <li><b>{t('Pas de faux prix.')}</b> {t("Quand on n'a pas de prix fiable (le foot, la F1), on te le dit, et c'est toi qui notes.")}</li>
-          <li><b>{t('Ta collection reste à toi.')}</b> {t('Elle est gardée sur ton appareil. Avec un compte, tu la retrouves sur ton téléphone et ton ordinateur.')}</li>
-          <li><b>{t('Gratuit pour commencer.')}</b> {t('Pas de pub, et pas besoin de carte bancaire.')}</li>
-        </ul>
+        <ul>{GAMES.map(g => <li key={g.id}>{g.name}</li>)}</ul>
       </section>
 
       <section className="ld-end">
         <h2>{t("Ta première page de classeur t'attend.")}</h2>
         <button className="btn primary lg" onClick={open}>{t('Ouvrir mon classeur')}</button>
-        <p className="muted tiny">{t("Images des cartes : leurs éditeurs (The Pokémon Company, Disney, Konami, Panini, Topps…). Photos des vignettes : laststicker.com. Cardora n'est lié à aucun d'eux.")}</p>
-        <Link to="/compte" className="small" onClick={markSeen}>{t("J'ai déjà un compte")}</Link>
+        <Link to="/compte" onClick={markSeen}>{t("J'ai déjà un compte")}</Link>
+        <p>{t('Pas de faux prix : quand on n’en a pas de fiable, on te le dit.')}</p>
+        <p className="fine">{t("Images des cartes : leurs éditeurs (The Pokémon Company, Disney, Konami, Panini, Topps…). Photos des vignettes : laststicker.com. Cardora n'est lié à aucun d'eux.")}</p>
       </section>
     </div>
   )
