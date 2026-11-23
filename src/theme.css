@@ -340,9 +340,9 @@ select.field { border-radius: 12px; }
 .cp-figs dd { margin: 2px 0 0; font-family: var(--display); font-size: clamp(24px, 3vw, 32px); }
 @media (min-width: 900px) { .cp-glow { inset: -36px -44px auto; } }
 @media (min-width: 960px) {
-  .cp-info h1 { font-size: clamp(40px, 5.4vw, 78px); }
+  .cp-info h1 { font-size: clamp(38px, 4.8vw, 78px); overflow-wrap: break-word; }
   .cp-price strong { font-size: clamp(56px, 6.6vw, 104px); }
-  .cp-grid { grid-template-columns: minmax(240px, 400px) minmax(0, 1fr); gap: clamp(28px, 4vw, 52px); align-items: start; }
+  .cp-grid { grid-template-columns: minmax(220px, min(38%, 400px)) minmax(0, 1fr); gap: clamp(28px, 4vw, 52px); align-items: start; }
   .cp-stage { position: sticky; top: 28px; }
   .cp .cp-stage .card-big { width: 100%; }
   .cp-act { grid-template-columns: minmax(0, 1fr); max-width: 460px; }
