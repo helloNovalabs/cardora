@@ -15,7 +15,8 @@ self.addEventListener('fetch', e => {
     return
   }
   if (url.pathname.startsWith('/assets/')) {
-    e.respondWith(caches.match(r).then(hit => hit || fetch(r).then(res => {
+    // Une erreur gardée par le navigateur (publication en cours) ne doit jamais bloquer l'appli : on redemande au serveur
+    e.respondWith(caches.match(r).then(hit => hit || fetch(r).then(res => res.ok ? res : fetch(url.href, { cache: 'reload' })).then(res => {
       if (res.ok) { const copy = res.clone(); caches.open(C).then(c => c.put(r, copy)) }
       return res
     })))

@@ -116,3 +116,4 @@ L'utilisateur trouvait l'ancien look (violet, dégradés) « enfantin » et « c
 - `/decouvrir` : mur de vraies cartes (`CardWall`), bandeau des prix, classeur d'essai avec vrais prix Cardmarket, classement de ce qui monte, outils, jeux.
 - Accueil : grande valeur + 3 plus belles cartes en éventail, classeurs avec leurs cartes. Accueil vide : recherche directe (`/ajouter?q=`).
 - Fiche d'une carte redessinée : grande carte, nom et prix géants, onglets Prix / Acheter / Ma carte / Grader.
+- Page noire évitée : une erreur 404 reçue pendant une publication restait gardée un an par le navigateur. `index.html` et `public/sw.js` redemandent maintenant le fichier au serveur. Les adresses avec un point (`sv03.5`) marchent en lien direct.
