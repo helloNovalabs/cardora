@@ -135,10 +135,10 @@ export default function Landing() {
         <Link to="/compte" onClick={markSeen}>{t("J'ai déjà un compte")}</Link>
         <p>{t('Pas de faux prix : quand on n’en a pas de fiable, on te le dit.')}</p>
         <p className="fine">{t("Images des cartes : leurs éditeurs (The Pokémon Company, Disney, Konami, Panini, Topps…). Photos des vignettes : laststicker.com. Cardora n'est lié à aucun d'eux.")}</p>
-        <Link to="/mentions-legales" className="ld-maker" aria-label={t('Un projet BRILVA Labs : voir les mentions légales')}>
+        <div className="ld-maker">
           <span>{t('Un projet de')}</span>
           <img src="/brand/brilva-labs-blanc.png" alt="BRILVA Labs" width={132} height={79} loading="lazy" />
-        </Link>
+        </div>
       </section>
     </div>
   )

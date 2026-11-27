@@ -409,7 +409,6 @@ const d: Record<string, string> = {
  "Tu gagnes ça sur tes {n} cartes, au prix d’aujourd’hui.": "Lo que ganas con tus {n} cartas, al precio de hoy.",
  "Tu gagnes ça sur cette carte, au prix d’aujourd’hui.": "Lo que ganas con esta carta, al precio de hoy.",
  "Elle vaut moins que ce que tu l’as payée.": "Vale menos de lo que pagaste.",
- "Un projet BRILVA Labs : voir les mentions légales": "Un proyecto de BRILVA Labs: ver el aviso legal",
  "Un projet de": "Un proyecto de"
 }
 export default d

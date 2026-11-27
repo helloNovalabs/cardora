@@ -77,16 +77,9 @@
 .ld-end a { text-decoration: underline; text-underline-offset: 4px; font-size: 15px; }
 .ld-end p { margin: 8px 0 0; color: #C8C8CD; max-width: 46em; font-size: 15px; }
 .ld-end .fine { color: var(--muted); font-size: 12px; line-height: 1.5; }
-.ld-end .ld-maker { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 26px; color: var(--muted); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; text-decoration: none; opacity: .85; transition: opacity .2s; }
-.ld-end .ld-maker:hover { opacity: 1; }
+.ld-end .ld-maker { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 26px; color: var(--muted); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
 .ld-end .ld-maker img { display: block; width: 132px; height: auto; }
 
-.ld-legal { min-height: 100svh; }
-.ld-legal-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 16px clamp(16px, 4vw, 48px); }
-.ld-legal main { max-width: 760px; margin: 0 auto; padding: 30px 20px 80px; }
-.ld-legal h1 { font-size: clamp(44px, 8vw, 96px); line-height: .96; margin: 0 0 24px; }
-.ld-legal h2 { font-size: clamp(22px, 3vw, 30px); margin: 34px 0 10px; }
-.ld-legal p { color: #C8C8CD; font-size: 15px; line-height: 1.6; margin: 0 0 10px; }
 
 @media (max-width: 899px) { .ld-tools .sealed > :nth-child(2) { display: none; } }
 @media (min-width: 900px) {
