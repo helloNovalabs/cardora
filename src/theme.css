@@ -349,3 +349,7 @@ select.field { border-radius: 12px; }
 }
 .cp-pane .lav { display: none; }
 .cp-pane h2 { font-size: clamp(25px, 3vw, 34px); }
+
+/* Logo BRILVA Labs tout en bas de l'accueil */
+.maker { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 30px auto 10px; color: var(--muted, #8C8C92); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
+.maker img { display: block; width: 132px; height: auto; }

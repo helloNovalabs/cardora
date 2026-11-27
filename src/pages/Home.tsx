@@ -110,6 +110,7 @@ export default function Home() {
       )}
 
       <MarketRail />
+      <Maker />
     </div>
   )
 }
@@ -136,6 +137,17 @@ function Welcome() {
         <GameTiles />
       </section>
       <MarketRail />
+      <Maker />
+    </div>
+  )
+}
+
+/** Tout en bas : « Un projet de » + logo BRILVA Labs. */
+function Maker() {
+  return (
+    <div className="maker">
+      <span>{tr('Un projet de')}</span>
+      <img src="/brand/brilva-labs-blanc.png" alt="BRILVA Labs" width={132} height={79} loading="lazy" />
     </div>
   )
 }
