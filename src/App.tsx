@@ -15,6 +15,7 @@ const Account = lazy(() => import('./pages/Account'))
 const Invest = lazy(() => import('./pages/Invest'))
 const Landing = lazy(() => import('./pages/Landing'))
 const Shop = lazy(() => import('./pages/Shop'))
+const Legal = lazy(() => import('./pages/Legal'))
 
 const cls = ({ isActive }: { isActive: boolean }) => (isActive ? 'on' : '')
 const TABS = [
@@ -44,6 +45,7 @@ export default function App() {
   const appLang = useAppLang()
 
   if (pathname === '/decouvrir') return <Suspense fallback={null}><Landing key={appLang} /></Suspense>
+  if (pathname === '/mentions-legales') return <Suspense fallback={null}><Legal key={appLang} /></Suspense>
 
   return (
     <div className="shell">

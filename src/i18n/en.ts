@@ -408,6 +408,8 @@ const d: Record<string, string> = {
  "Voir les ventes en {g} sur eBay ↗": "See {g} sales on eBay ↗",
  "Tu gagnes ça sur tes {n} cartes, au prix d’aujourd’hui.": "Your gain on your {n} cards, at today's price.",
  "Tu gagnes ça sur cette carte, au prix d’aujourd’hui.": "Your gain on this card, at today's price.",
- "Elle vaut moins que ce que tu l’as payée.": "It's worth less than you paid."
+ "Elle vaut moins que ce que tu l’as payée.": "It's worth less than you paid.",
+ "Un projet BRILVA Labs : voir les mentions légales": "A BRILVA Labs project: see the legal notice",
+ "Un projet de": "A project by"
 }
 export default d
