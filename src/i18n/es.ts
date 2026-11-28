@@ -409,6 +409,19 @@ const d: Record<string, string> = {
  "Tu gagnes ça sur tes {n} cartes, au prix d’aujourd’hui.": "Lo que ganas con tus {n} cartas, al precio de hoy.",
  "Tu gagnes ça sur cette carte, au prix d’aujourd’hui.": "Lo que ganas con esta carta, al precio de hoy.",
  "Elle vaut moins que ce que tu l’as payée.": "Vale menos de lo que pagaste.",
- "Un projet de": "Un proyecto de"
+ "Un projet de": "Un proyecto de",
+ "Tu viens d'une autre appli ?": "¿Vienes de otra app?",
+ "Exporte ta collection en fichier CSV depuis Collectr, Dex, Dragon Shield, TCGplayer ou un tableur, puis choisis-le ici. Cardora retrouve chaque carte par son nom et son numéro.": "Exporta tu colección en un archivo CSV desde Collectr, Dex, Dragon Shield, TCGplayer o una hoja de cálculo y elígelo aquí. Cardora encuentra cada carta por su nombre y número.",
+ "Je ne trouve pas de colonne avec le nom des cartes. Choisis un fichier CSV exporté par ton appli.": "No encuentro una columna con el nombre de las cartas. Elige un archivo CSV exportado por tu app.",
+ "Je retrouve tes cartes… {d} sur {n}": "Buscando tus cartas… {d} de {n}",
+ "{n} cartes ajoutées": "{n} cartas añadidas",
+ "{n} lignes non trouvées": "{n} líneas no encontradas",
+ "Les prix payés et les notes de gradation sont repris tels quels. Vérifie-les sur la fiche de chaque carte.": "Los precios pagados y las notas de gradación se copian tal cual. Revísalos en la ficha de cada carta.",
+ "Voir les cartes à ajouter à la main": "Ver las cartas que hay que añadir a mano",
+ "Voir ma collection": "Ver mi colección",
+ "Importer un autre fichier": "Importar otro archivo",
+ "Choisir mon fichier CSV": "Elegir mi archivo CSV",
+ "{n} carte ajoutée": "{n} carta añadida",
+ "{n} ligne non trouvée": "{n} línea no encontrada"
 }
 export default d

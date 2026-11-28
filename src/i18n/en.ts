@@ -409,6 +409,19 @@ const d: Record<string, string> = {
  "Tu gagnes ça sur tes {n} cartes, au prix d’aujourd’hui.": "Your gain on your {n} cards, at today's price.",
  "Tu gagnes ça sur cette carte, au prix d’aujourd’hui.": "Your gain on this card, at today's price.",
  "Elle vaut moins que ce que tu l’as payée.": "It's worth less than you paid.",
- "Un projet de": "A project by"
+ "Un projet de": "A project by",
+ "Tu viens d'une autre appli ?": "Coming from another app?",
+ "Exporte ta collection en fichier CSV depuis Collectr, Dex, Dragon Shield, TCGplayer ou un tableur, puis choisis-le ici. Cardora retrouve chaque carte par son nom et son numéro.": "Export your collection as a CSV file from Collectr, Dex, Dragon Shield, TCGplayer or a spreadsheet, then pick it here. Cardora finds each card by its name and number.",
+ "Je ne trouve pas de colonne avec le nom des cartes. Choisis un fichier CSV exporté par ton appli.": "I can't find a column with the card names. Pick a CSV file exported by your app.",
+ "Je retrouve tes cartes… {d} sur {n}": "Finding your cards… {d} of {n}",
+ "{n} cartes ajoutées": "{n} cards added",
+ "{n} lignes non trouvées": "{n} lines not found",
+ "Les prix payés et les notes de gradation sont repris tels quels. Vérifie-les sur la fiche de chaque carte.": "Prices paid and grades are copied as they are. Check them on each card's page.",
+ "Voir les cartes à ajouter à la main": "See the cards to add by hand",
+ "Voir ma collection": "See my collection",
+ "Importer un autre fichier": "Import another file",
+ "Choisir mon fichier CSV": "Choose my CSV file",
+ "{n} carte ajoutée": "{n} card added",
+ "{n} ligne non trouvée": "{n} line not found"
 }
 export default d

@@ -72,7 +72,7 @@ export const gameMeta = (g: GameId) => GAMES.find(x => x.id === g)
 export const gameName = (g: string) => GAMES.find(x => x.id === g)?.name ?? g
 export const gameColor = (g: string) => GAMES.find(x => x.id === g)?.color ?? '#FFFFFF'
 
-const tcgdexAt = (l: string) => `https://api.tcgdex.net/v2/${l}`
+export const tcgdexAt = (l: string) => `https://api.tcgdex.net/v2/${l}`
 const tcgdex = () => tcgdexAt(getPokeLang() === 'ja' ? 'fr' : getPokeLang())
 /** Une fiche Pokémon dans la langue choisie ; si elle n'existe pas dans cette langue, en français puis en anglais. */
 export async function pokeJson<T>(path: string, hours: number): Promise<T> {

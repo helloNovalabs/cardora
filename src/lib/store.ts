@@ -200,3 +200,18 @@ export function guessKind(n: string): SealedKind {
   if (/pack|booster/.test(t)) return 'booster'
   return 'coffret'
 }
+
+/** Une carte reprise d'une autre appli (import d'un fichier). */
+export interface Imported { card: Card; price: Price | null; qty: number; buy: number | null; grade: Grade | null; lang?: string }
+/** Ajoute d'un coup les cartes importées (les quantités s'ajoutent à celles déjà là). */
+export function importCards(list: Imported[]) {
+  const owned = { ...state.owned }
+  for (const x of list) {
+    const cur = owned[x.card.key]
+    owned[x.card.key] = {
+      card: x.card, price: x.price ?? cur?.price ?? null, qty: (cur?.qty ?? 0) + x.qty, addedAt: cur?.addedAt ?? Date.now(),
+      buy: cur?.buy ?? x.buy, grade: cur?.grade ?? x.grade, lang: cur?.lang ?? x.lang ?? defaultLang(x.card.game),
+    }
+  }
+  save({ ...state, owned })
+}

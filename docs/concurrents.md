@@ -19,6 +19,19 @@ Attention : ces comparatifs sont écrits par des concurrents, chacun se met prem
 | **PokeVest** | Uniquement l'investissement, cartes brutes et gradées, EN + JP | ? | Prix US |
 | **CardTrezor** | Portefeuille aux prix Cardmarket, gradation | Gratuit | Peu connu |
 | **Pokefolio** | Scanner 7 langues, prix Cardmarket + eBay, courbes PSA, alertes | Gratuit (scans limités) | iPhone seulement |
+| **PokéItem** 🇫🇷 | Très complet : prix Cardmarket + eBay + TCGplayer **par état et par langue**, gradées PSA/PCA/BGS/CCC par langue de vente, **population PSA**, pré-gradation, **alertes eBay** | Gratuit + options | Peu connu |
+| **Cardixo** 🇫🇷 | Stock, achats **et ventes**, bénéfice réel, cartes + scellé | ? | Peu d'infos |
+| **CardDex** | Portefeuille, **indices du marché**, tendances, transactions | Gratuit + options | Android |
+| **TCG Crew** 🇫🇷 | Cote en € de chaque produit scellé | ? | Surtout le scellé |
+| **BoostaCote** 🇫🇷 | Scellé uniquement : cote auto, gradées par société et note | ? | Pas de cartes seules |
+| **SealedTCG** | Scellé : combien investi, valeur dans le temps, quoi vendre | ? | Scellé seulement |
+| **Pokémon Price Tracker** | **Rentabilité d'un display (EV)**, calcul gradation PSA, historique des ETB et displays, API | Gratuit + payant | Prix US |
+| **DoubleHolo** | Calcul de gradation, alertes, EV d'un booster, **choix de l'IA**, sentiment, vérif numéro PSA | Gratuit + payant | Prix US |
+| **Pokémon Wizard** | Prix mis à jour chaque heure, tendances, scellé | Gratuit | Prix US |
+| **TCGrader** | Gradation par IA sur photo, alertes, coffre-fort des boîtiers, « vaut le coup de grader » | Dès 9,99 £/mois | Payant |
+| **Market Movers** | Alertes de prix (au-dessus / en dessous), cartes de sport et TCG | Payant | Surtout le sport |
+| **TCGSniper** | Uniquement des alertes de prix (e-mail, SMS, Discord) | Gratuit, 15 alertes | Pas de collection |
+| **PokéWallet**, **BankTCG**, **Shiny**, **Guardian TCG** | Portefeuille, alertes, centrage (Shiny, BankTCG), rapport du marché (Guardian) | Gratuit + payant | US |
 
 ## 2. Pour enregistrer ses cartes (collection, classeurs)
 
@@ -44,7 +57,7 @@ Attention : ces comparatifs sont écrits par des concurrents, chacun se met prem
 - Site sur téléphone ET ordinateur, en FR/EN/ES, sans abonnement.
 
 ## 4. Ce qui manque à Cardora (idées, par ordre d'intérêt)
-1. **Importer une collection** depuis Collectr, Dex ou Dragon Shield (fichier CSV) : on vole les déçus en 1 minute.
+1. ~~**Importer une collection** depuis Collectr, Dex ou Dragon Shield (fichier CSV)~~ : fait le 28/11 (page Ajouter).
 2. **Alerte par e-mail** quand une carte des envies atteint le prix cible (Brevo est déjà en place).
 3. **Historique long des prix** enregistré chaque jour côté serveur (déjà prévu).
 4. **Outil de centrage** (ZebraDex l'a ; utile avant de grader).
@@ -53,3 +66,5 @@ Attention : ces comparatifs sont écrits par des concurrents, chacun se met prem
 7. **Scan en rafale** (Ripdex) pour ajouter une pile de cartes vite.
 
 Repères de prix : les abonnements vont de 3,99 $ (Dex) à 7,99 $ (Collectr, PokeData) par mois ; 9,99 € pour TCGinvest.
+
+Idées vues chez les outils d'investissement : rentabilité d'un display (EV), population PSA, alertes de prix, indices du marché, suivi des ventes (bénéfice réel).

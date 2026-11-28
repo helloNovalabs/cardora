@@ -117,3 +117,9 @@ L'utilisateur trouvait l'ancien look (violet, dégradés) « enfantin » et « c
 - Accueil : grande valeur + 3 plus belles cartes en éventail, classeurs avec leurs cartes. Accueil vide : recherche directe (`/ajouter?q=`).
 - Fiche d'une carte redessinée : grande carte, nom et prix géants, onglets Prix / Acheter / Ma carte / Grader.
 - Page noire évitée : une erreur 404 reçue pendant une publication restait gardée un an par le navigateur. `index.html` et `public/sw.js` redemandent maintenant le fichier au serveur. Les adresses avec un point (`sv03.5`) marchent en lien direct.
+
+## 28/11 : logo BRILVA Labs + concurrents + import
+- Logo BRILVA Labs « Un projet de » tout en bas de la présentation et de l'accueil (sans lien : l'utilisateur ne veut pas de page Mentions légales).
+- `docs/concurrents.md` : ~45 applis et sites (investir + enregistrer ses cartes) et les idées qui manquent.
+- Import d'une collection (page Ajouter, `src/lib/importCsv.ts`, `src/components/ImportBox.tsx`) : CSV de Collectr, Dex, Dragon Shield, TCGplayer ou tableur ; colonnes reconnues par leur nom ; Pokémon cherché par nom + numéro (TCGdex en/fr, `name=eq:` puis contient), Magic/Yu-Gi-Oh!/Lorcana par la recherche + numéro ; une carte n'est ajoutée que si le numéro correspond ; les lignes non trouvées sont listées. Prix payé et gradation repris tels quels.
+- Suite proposée : alertes e-mail au prix cible, historique long des prix côté serveur, outil de centrage.

@@ -353,3 +353,7 @@ select.field { border-radius: 12px; }
 /* Logo BRILVA Labs tout en bas de l'accueil */
 .maker { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 30px auto 10px; color: var(--muted, #8C8C92); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
 .maker img { display: block; width: 132px; height: auto; }
+
+/* Import d'une collection (page Ajouter) */
+.import-miss { margin: 8px 0 0; padding-left: 18px; max-height: 220px; overflow: auto; color: var(--muted, #8C8C92); line-height: 1.6; }
+.import-box details summary { cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }

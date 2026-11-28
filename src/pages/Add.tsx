@@ -8,6 +8,7 @@ import { addCard, useCollection } from '../lib/store'
 import type { Card, GameId } from '../lib/types'
 import { gameColor } from '../lib/games'
 import { IPlus, ISearch } from '../components/Icons'
+import { ImportBox } from '../components/ImportBox'
 import type { CSSProperties } from 'react'
 
 const OPTIONS: { id: GameId; name: string }[] = [
@@ -115,6 +116,8 @@ export default function Add() {
           <input ref={fileRef} type="file" accept="image/*" capture="environment" hidden onChange={e => { const f = e.target.files?.[0]; e.target.value = ''; if (f) void onScan(f) }} />
         </div>
       )}
+
+      {!q.trim() && <ImportBox />}
 
       {busy && <div className="cards-grid">{Array.from({ length: 6 }, (_, i) => <div key={i} className="skel" style={{ aspectRatio: '63/88' }} />)}</div>}
       {res && !busy && res.length === 0 && <p className="muted small">{tr('Aucune carte trouvée. Essaie un autre nom.')}</p>}
