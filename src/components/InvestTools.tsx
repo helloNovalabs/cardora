@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { t as tr } from '../lib/i18n'
 import { priceFor, searchCards } from '../lib/games'
-import { fmt, getState, setWishPrice, setWishTarget, toEur, toggleWish, unitValue, useCollection, type State } from '../lib/store'
+import { fmt, getState, setEmailAlerts, setWishPrice, setWishTarget, toEur, toggleWish, unitValue, useCollection, wishHits, type State } from '../lib/store'
+import { useAccount } from '../lib/sync'
 import type { Card, Price } from '../lib/types'
 import { CardFace } from './CardFace'
 
@@ -35,6 +36,7 @@ export function WishList() {
   return (
     <section className="stack">
       <div className="sec-h"><h2>{tr('Mes envies')}</h2>{list.length > 0 && <span className="muted small">{list.length}</span>}</div>
+      {list.length > 0 && <EmailAlerts />}
       {list.length === 0 ? <p className="muted small box">{tr('Touche « Je la veux » sur une carte et fixe ton prix cible : Cardora te montre ici quand elle passe en dessous.')}</p> : (
         <div className="rail">
           {list.map(w => {
@@ -135,4 +137,42 @@ export function useRepartition(s: State) {
     const total = all.reduce((n, [, v]) => n + v, 0)
     return all.slice(0, 5).map(([name, v]) => ({ name, v, pct: total ? (v / total) * 100 : 0 }))
   }, [s.owned])
+}
+
+/** « Me prévenir par e-mail » : il faut un compte (pour avoir l'adresse). Coupé tant que la personne ne l'a pas activé. */
+export function EmailAlerts() {
+  const col = useCollection()
+  const acc = useAccount()
+  const on = !!col.alerts?.email
+  if (!acc.email) return <p className="tiny muted">{tr('Pour recevoir un e-mail quand une carte atteint ton prix cible,')} <Link to="/compte" className="link">{tr('connecte-toi')}</Link>.</p>
+  return (
+    <label className="alert-toggle">
+      <input type="checkbox" checked={on} onChange={e => setEmailAlerts(e.target.checked)} />
+      <span>
+        <b className="small">{tr('Me prévenir par e-mail')}</b>
+        <span className="tiny muted">{on ? tr('Un e-mail à {e} quand une carte passe sous ton prix cible (vérifié chaque matin).', { e: acc.email }) : tr('Un e-mail quand une carte passe sous ton prix cible. Tu peux couper quand tu veux.')}</span>
+      </span>
+    </label>
+  )
+}
+
+/** Bandeau de l'accueil : les envies qui ont atteint leur prix cible (prix revérifiés une fois par visite). */
+export function WishAlert() {
+  const col = useCollection()
+  useEffect(() => {
+    if (sessionStorage.getItem('cardora-wish-check')) return
+    sessionStorage.setItem('cardora-wish-check', '1')
+    for (const w of Object.values(getState().wish ?? {})) if (w.target != null) priceFor(w.card).then(p => { if (p) setWishPrice(w.card.key, p) }).catch(() => {})
+  }, [])
+  const hits = wishHits(col)
+  if (!hits.length) return null
+  return (
+    <Link to="/investir" className="wish-alert">
+      <span className="wa-pics">{hits.slice(0, 3).map(w => <span key={w.card.key}><CardFace card={w.card} /></span>)}</span>
+      <span className="wa-txt">
+        <b>{hits.length === 1 ? tr('{c} est à ton prix', { c: hits[0].card.name }) : tr('{n} cartes de tes envies sont à ton prix', { n: hits.length })}</b>
+        <span className="tiny muted">{hits.length === 1 ? tr('{p} aujourd’hui, ta cible : {t}', { p: fmt(toEur(hits[0].price)), t: fmt(hits[0].target) }) : tr('Va voir tes envies dans Investir.')}</span>
+      </span>
+    </Link>
+  )
 }

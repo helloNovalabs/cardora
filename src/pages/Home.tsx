@@ -10,6 +10,7 @@ import { CardWall } from '../components/CardWall'
 import { ISearch } from '../components/Icons'
 import { CountUp } from '../components/Brand'
 import GameTiles from '../components/GameTiles'
+import { WishAlert } from '../components/InvestTools'
 
 const cardUrl = (c: { game: string; setId: string; id: string }) => `/carte/${c.game}/${encodeURIComponent(c.setId)}/${encodeURIComponent(c.id)}`
 
@@ -35,6 +36,7 @@ export default function Home() {
 
   return (
     <div className="stack fade-in hm" style={{ gap: 34 }}>
+      <WishAlert />
       <section className={'hm-hero' + (show.length ? '' : ' solo')}>
         <div className="hm-val">
           <span>{s.sealed?.length ? tr('Tes cartes valent') : tr('Ta collection vaut')}</span>

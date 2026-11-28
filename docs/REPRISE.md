@@ -123,3 +123,9 @@ L'utilisateur trouvait l'ancien look (violet, dégradés) « enfantin » et « c
 - `docs/concurrents.md` : ~45 applis et sites (investir + enregistrer ses cartes) et les idées qui manquent.
 - Import d'une collection (page Ajouter, `src/lib/importCsv.ts`, `src/components/ImportBox.tsx`) : CSV de Collectr, Dex, Dragon Shield, TCGplayer ou tableur ; colonnes reconnues par leur nom ; Pokémon cherché par nom + numéro (TCGdex en/fr, `name=eq:` puis contient), Magic/Yu-Gi-Oh!/Lorcana par la recherche + numéro ; une carte n'est ajoutée que si le numéro correspond ; les lignes non trouvées sont listées. Prix payé et gradation repris tels quels.
 - Suite proposée : alertes e-mail au prix cible, historique long des prix côté serveur, outil de centrage.
+
+## 28/11 : alertes prix cible
+- Accueil : bandeau holo « X est à ton prix » quand une envie passe sous son prix cible (prix revérifiés une fois par visite, `WishAlert` dans `InvestTools.tsx`).
+- Investir > Mes envies : case « Me prévenir par e-mail » (il faut un compte ; réglage `alerts.email` dans la collection, gardé par `merge.ts`).
+- Serveur `api/alerts.ts` (fonction Vercel), lancé chaque matin à 7 h UTC (`crons` dans vercel.json ; `api/` exclu de la redirection vers index.html). Prix : Pokémon TCGdex, Magic Scryfall, Yu-Gi-Oh! YGOPRODeck, Lorcana Lorcast. Un seul e-mail par personne, via l'API Brevo. Table `alert_sent` (`supabase/003_alertes.sql`) : pas deux fois la même alerte ; si le prix remonte, la ligne est effacée.
+- Réglages à faire par l'utilisateur (sinon le serveur répond « Réglages manquants », rien n'est envoyé) : lancer 003_alertes.sql ; dans Vercel : SUPABASE_SECRET_KEY, BREVO_API_KEY, ALERT_FROM (expéditeur vérifié Brevo), CRON_SECRET ; puis redéployer. Test : Vercel > Settings > Cron Jobs > Run.

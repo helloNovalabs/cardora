@@ -422,6 +422,15 @@ const d: Record<string, string> = {
  "Importer un autre fichier": "Importar otro archivo",
  "Choisir mon fichier CSV": "Elegir mi archivo CSV",
  "{n} carte ajoutée": "{n} carta añadida",
- "{n} ligne non trouvée": "{n} línea no encontrada"
+ "{n} ligne non trouvée": "{n} línea no encontrada",
+ "Pour recevoir un e-mail quand une carte atteint ton prix cible,": "Para recibir un e-mail cuando una carta llegue a tu precio objetivo,",
+ "connecte-toi": "inicia sesión",
+ "Me prévenir par e-mail": "Avisarme por e-mail",
+ "Un e-mail à {e} quand une carte passe sous ton prix cible (vérifié chaque matin).": "Un e-mail a {e} cuando una carta baje de tu precio objetivo (se revisa cada mañana).",
+ "Un e-mail quand une carte passe sous ton prix cible. Tu peux couper quand tu veux.": "Un e-mail cuando una carta baje de tu precio objetivo. Puedes desactivarlo cuando quieras.",
+ "{c} est à ton prix": "{c} está a tu precio",
+ "{n} cartes de tes envies sont à ton prix": "{n} cartas de tu lista están a tu precio",
+ "{p} aujourd’hui, ta cible : {t}": "{p} hoy, tu objetivo: {t}",
+ "Va voir tes envies dans Investir.": "Mira tu lista en Invertir."
 }
 export default d

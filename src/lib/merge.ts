@@ -22,5 +22,6 @@ export function mergeStates(a: State, b: State): State {
   const history = [...days.values()].sort((x, y) => x.d.localeCompare(y.d))
 
   const wish = { ...b.wish, ...a.wish }
-  return { owned, followed, sealed, history, ...(Object.keys(wish).length ? { wish } : {}) }
+  const alerts = a.alerts ?? b.alerts
+  return { owned, followed, sealed, history, ...(Object.keys(wish).length ? { wish } : {}), ...(alerts ? { alerts } : {}) }
 }

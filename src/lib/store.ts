@@ -23,7 +23,9 @@ export interface Sealed {
 }
 /** Une photo par jour de ce que vaut tout (cartes + scellé), et de ce qui a été payé. */
 export interface Snap { d: string; v: number; cards: number; sealed: number }
-export interface State { owned: Record<string, Owned>; followed: Followed[]; sealed?: Sealed[]; history?: Snap[]; wish?: Record<string, Wish> }
+export interface State { owned: Record<string, Owned>; followed: Followed[]; sealed?: Sealed[]; history?: Snap[]; wish?: Record<string, Wish>; alerts?: Alerts }
+/** Alertes : `email` = la personne veut un e-mail quand une envie atteint son prix cible (accord donné dans l'appli). */
+export interface Alerts { email?: boolean }
 /** Une carte voulue, et le prix auquel on veut l'acheter. */
 export interface Wish { card: Card; price: Price | null; target: number | null; addedAt: number }
 
@@ -215,3 +217,10 @@ export function importCards(list: Imported[]) {
   }
   save({ ...state, owned })
 }
+
+/** Active ou coupe l'e-mail quand une carte voulue atteint le prix cible. */
+export function setEmailAlerts(on: boolean) {
+  save({ ...state, alerts: { ...state.alerts, email: on } })
+}
+/** Les envies dont le prix du jour est au prix cible ou en dessous. */
+export const wishHits = (s: State) => Object.values(s.wish ?? {}).filter(w => { const p = toEur(w.price); return w.target != null && p != null && p <= w.target })
